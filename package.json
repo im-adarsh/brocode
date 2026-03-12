@@ -30,7 +30,7 @@
     "type": "git",
     "url": "https://github.com/your-username/brocode.git"
   },
-  "homepage": "https://github.com/your-username/brocode#readme",
+  "homepage": "https://your-username.github.io/brocode",
   "bugs": {
     "url": "https://github.com/your-username/brocode/issues"
   }
