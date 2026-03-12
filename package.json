@@ -1,10 +1,11 @@
 {
   "name": "brocode",
   "version": "1.0.0",
-  "description": "Extends Claude Code with a git branch indicator, real-time model display, context progress bar, and usage metrics",
+  "description": "Extends Claude Code with a live status bar, interactive git status viewer, and usage metrics",
   "bin": {
     "brocode": "./bin/brocode.js",
-    "brocode-status": "./bin/brocode-status.js"
+    "brocode-status": "./bin/brocode-status.js",
+    "brocode-git": "./bin/brocode-git.js"
   },
   "files": [
     "bin",

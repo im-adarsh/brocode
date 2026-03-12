@@ -4,8 +4,7 @@
 /**
  * brocode — the main entry point.
  *
- * Displays a welcome box with branch, model, and today's usage, then
- * configures Claude Code's status bar and launches `claude`, forwarding
+ * Configures Claude Code's status bar and launches `claude`, forwarding
  * every argument unchanged.
  */
 
@@ -13,9 +12,6 @@ const { spawn } = require('child_process');
 const fs   = require('fs');
 const path = require('path');
 const os   = require('os');
-
-const { getGitBranch, getTodayCost, getLastUsedModel } = require('../src/metrics');
-const { renderWelcomeBox }                             = require('../src/render');
 
 const CLAUDE_SETTINGS = path.join(os.homedir(), '.claude', 'settings.json');
 
@@ -37,14 +33,6 @@ function ensureStatusLine() {
 }
 
 function main() {
-  const branch    = getGitBranch();
-  const model     = getLastUsedModel();
-  const todayCost = getTodayCost();
-
-  process.stdout.write('\n');
-  process.stdout.write(renderWelcomeBox({ branch, model, todayCost }));
-  process.stdout.write('\n\n');
-
   try { ensureStatusLine(); } catch { /* non-fatal — status bar stays unconfigured */ }
 
   // Hand off to claude, forwarding all arguments as-is

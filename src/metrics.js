@@ -1,161 +1,237 @@
 'use strict';
 
 const { spawnSync } = require('child_process');
-const fs   = require('fs');
-const path = require('path');
-const os   = require('os');
+const https = require('https');
+const fs    = require('fs');
+const path  = require('path');
+const os    = require('os');
 
-/**
- * Claude pricing per token (Sonnet 4.6).
- * Update these if Anthropic changes rates.
- * @see https://www.anthropic.com/pricing
- */
-const PRICE = {
-  input:        3.00 / 1_000_000,
-  output:      15.00 / 1_000_000,
-  cacheCreate:  3.75 / 1_000_000,
-  cacheRead:    0.30 / 1_000_000,
-};
+const COST_CACHE      = path.join(os.tmpdir(), 'brocode-monthly-cost.json');
+const COST_CACHE_TTL  = 5 * 60 * 1000; // 5 minutes
+
+const GIT_EXPANDED_FILE = path.join(os.tmpdir(), 'brocode-git-expanded');
+const GIT_TOGGLE_CMD    = path.join(os.tmpdir(), 'brocode-git-toggle.command');
+
+// ─── Git ──────────────────────────────────────────────────────────────────────
 
 /**
  * Returns the current git branch name, or null if not in a repo.
- * @param {string} cwd - Directory to check (defaults to process.cwd())
+ * @param {string} cwd
  * @returns {string | null}
  */
 function getGitBranch(cwd = process.cwd()) {
   const result = spawnSync('git', ['branch', '--show-current'], {
-    cwd,
-    encoding: 'utf8',
-    timeout:  2000,
+    cwd, encoding: 'utf8', timeout: 2000,
   });
   if (result.status === 0) return result.stdout.trim() || null;
   return null;
 }
 
 /**
- * Converts a filesystem path to the key Claude Code uses for its project dir.
- * Claude Code replaces every "/" with "-" and keeps the leading "-".
- * e.g. /Users/foo/bar  →  -Users-foo-bar
+ * Returns counts of uncommitted file changes using `git status --porcelain`.
+ * Returns null when the tree is clean or not a git repo.
+ *
  * @param {string} cwd
- * @returns {string}
+ * @returns {{ added: number, modified: number, deleted: number } | null}
  */
-function toProjectKey(cwd) {
-  return cwd.replace(/\//g, '-');
+function getGitChanges(cwd = process.cwd()) {
+  const result = spawnSync('git', ['status', '--porcelain'], {
+    cwd, encoding: 'utf8', timeout: 2000,
+  });
+  if (result.status !== 0 || !result.stdout.trim()) return null;
+
+  let added = 0, modified = 0, deleted = 0;
+  for (const line of result.stdout.split('\n').filter(Boolean)) {
+    const x = line[0];
+    const y = line[1];
+    if (x === '?' || x === 'A')                              { added++;    continue; }
+    if (x === 'D' || y === 'D')                              { deleted++;  continue; }
+    if (x === 'M' || y === 'M' || x === 'R' || x === 'C')   { modified++; continue; }
+  }
+
+  if (added + modified + deleted === 0) return null;
+  return { added, modified, deleted };
 }
 
 /**
- * Returns the path to Claude Code's session directory for the given cwd.
+ * Returns the full file list from `git status --porcelain`, grouped and
+ * annotated with display symbols. Used when the status bar is expanded.
+ *
  * @param {string} cwd
- * @returns {string}
+ * @returns {Array<{ symbol: string, file: string }> | null}
  */
-function getClaudeProjectDir(cwd = process.cwd()) {
-  return path.join(os.homedir(), '.claude', 'projects', toProjectKey(cwd));
+function getGitFiles(cwd = process.cwd()) {
+  const result = spawnSync('git', ['status', '--porcelain'], {
+    cwd, encoding: 'utf8', timeout: 2000,
+  });
+  if (result.status !== 0 || !result.stdout.trim()) return null;
+
+  // Collect in display order: modified, added/staged, deleted, untracked
+  const modified = [], added = [], deleted = [], untracked = [];
+
+  for (const line of result.stdout.split('\n').filter(Boolean)) {
+    const x    = line[0];
+    const y    = line[1];
+    const file = line.slice(3);
+    if (x === '?')                                           { untracked.push(file); continue; }
+    if (x === 'A')                                           { added.push(file);     continue; }
+    if (x === 'D' || y === 'D')                              { deleted.push(file);   continue; }
+    if (x === 'M' || y === 'M' || x === 'R' || x === 'C')   { modified.push(file);  continue; }
+  }
+
+  return [
+    ...modified.map(f  => ({ symbol: 'M', file: f })),
+    ...added.map(f     => ({ symbol: 'A', file: f })),
+    ...deleted.map(f   => ({ symbol: 'D', file: f })),
+    ...untracked.map(f => ({ symbol: '?', file: f })),
+  ];
+}
+
+// ─── Git expansion toggle ─────────────────────────────────────────────────────
+
+/**
+ * Returns true if the user has toggled the git file list open.
+ * @returns {boolean}
+ */
+function isGitExpanded() {
+  return fs.existsSync(GIT_EXPANDED_FILE);
 }
 
 /**
- * Reads a session JSONL file and sums the total cost across all messages.
- * @param {string} sessionFile - Absolute path to a .jsonl session file
- * @returns {number} Total estimated cost in USD
+ * Writes (or refreshes) the toggle .command script to /tmp.
+ * On macOS, clicking an OSC 8 `file://` link to a .command file opens it in
+ * Terminal.app. The script flips the expansion state file and closes itself
+ * silently via osascript so the window disappears in under a second.
+ *
+ * @returns {string}  Absolute path to the .command file
  */
-function parseSessionCost(sessionFile) {
+function ensureGitToggleCommand() {
+  const script = [
+    '#!/bin/bash',
+    `TOGGLE="${GIT_EXPANDED_FILE}"`,
+    '[ -f "$TOGGLE" ] && rm -f "$TOGGLE" || touch "$TOGGLE"',
+    '# Close this window silently',
+    'osascript -e \'tell application "Terminal" to close front window\' 2>/dev/null || true',
+    'osascript -e \'tell application "iTerm2" to close current session\' 2>/dev/null || true',
+    'exit 0',
+  ].join('\n') + '\n';
+
+  fs.writeFileSync(GIT_TOGGLE_CMD, script, { mode: 0o755 });
+  return GIT_TOGGLE_CMD;
+}
+
+// ─── Session JSONL ────────────────────────────────────────────────────────────
+
+/**
+ * Returns a short display name for a Claude Code tool.
+ *   "Bash"                      → "Bash"
+ *   "mcp__ide__getDiagnostics"  → "MCP:ide"
+ *
+ * @param {string} name
+ * @returns {string}
+ */
+function formatToolName(name) {
+  const mcp = name.match(/^mcp__(\w+)__/);
+  if (mcp) return `MCP:${mcp[1]}`;
+  return name;
+}
+
+/**
+ * Scans the session JSONL from the end and returns the most recently called
+ * tool name, or null if none found.
+ *
+ * @param {string | null} transcriptPath
+ * @returns {string | null}
+ */
+function getActiveTool(transcriptPath) {
+  if (!transcriptPath) return null;
   try {
-    const lines = fs.readFileSync(sessionFile, 'utf8').split('\n').filter(Boolean);
-    let input = 0, output = 0, cacheCreate = 0, cacheRead = 0;
-
-    for (const line of lines) {
+    const lines = fs.readFileSync(transcriptPath, 'utf8').split('\n').filter(Boolean);
+    for (let i = lines.length - 1; i >= 0; i--) {
       try {
-        const u = JSON.parse(line)?.message?.usage;
-        if (!u) continue;
-        input       += u.input_tokens                || 0;
-        output      += u.output_tokens               || 0;
-        cacheCreate += u.cache_creation_input_tokens || 0;
-        cacheRead   += u.cache_read_input_tokens     || 0;
+        const obj = JSON.parse(lines[i]);
+        if (obj?.type !== 'assistant') continue;
+        const content = obj?.message?.content;
+        if (!Array.isArray(content)) continue;
+        for (const block of content) {
+          if (block.type === 'tool_use' && block.name) return formatToolName(block.name);
+        }
       } catch { /* skip malformed lines */ }
     }
-
-    return calcCost({ input, output, cacheCreate, cacheRead });
-  } catch {
-    return 0;
-  }
-}
-
-/**
- * Sums the cost of all sessions for the current project today.
- * @param {string} cwd
- * @returns {number | null} Total cost in USD, or null if no sessions exist today
- */
-function getTodayCost(cwd = process.cwd()) {
-  const projectDir = getClaudeProjectDir(cwd);
-  if (!fs.existsSync(projectDir)) return null;
-
-  const todayStr = new Date().toDateString();
-  let total = 0;
-  let found = false;
-
-  try {
-    for (const file of fs.readdirSync(projectDir)) {
-      if (!file.endsWith('.jsonl')) continue;
-      const filePath = path.join(projectDir, file);
-      if (new Date(fs.statSync(filePath).mtimeMs).toDateString() !== todayStr) continue;
-      total += parseSessionCost(filePath);
-      found = true;
-    }
-  } catch { /* directory read error — treat as no data */ }
-
-  return found ? total : null;
-}
-
-/**
- * Reads the model ID from the most recent session in the current project.
- * Falls back to the ANTHROPIC_MODEL env var, then null.
- * @param {string} cwd
- * @returns {string | null} e.g. "claude-sonnet-4-6"
- */
-function getLastUsedModel(cwd = process.cwd()) {
-  // Env var takes precedence (user has explicitly set it)
-  if (process.env.ANTHROPIC_MODEL) return process.env.ANTHROPIC_MODEL;
-
-  const projectDir = getClaudeProjectDir(cwd);
-  if (!fs.existsSync(projectDir)) return null;
-
-  try {
-    // Sort by modification time, newest first
-    const files = fs.readdirSync(projectDir)
-      .filter(f => f.endsWith('.jsonl'))
-      .map(f => {
-        const p = path.join(projectDir, f);
-        return { path: p, mtime: fs.statSync(p).mtimeMs };
-      })
-      .sort((a, b) => b.mtime - a.mtime);
-
-    for (const { path: filePath } of files) {
-      const lines = fs.readFileSync(filePath, 'utf8').split('\n').filter(Boolean);
-      // Scan from the end — the last assistant message has the model id
-      for (let i = lines.length - 1; i >= 0; i--) {
-        try {
-          const model = JSON.parse(lines[i])?.message?.model;
-          // Ignore synthetic/tool-use model values — only real Claude model IDs
-          if (model && model.startsWith('claude-')) return model;
-        } catch { /* skip */ }
-      }
-    }
-  } catch { /* unreadable — treat as unknown */ }
-
+  } catch { /* file unreadable */ }
   return null;
 }
 
+// ─── Anthropic Cost Report API ────────────────────────────────────────────────
+
 /**
- * Calculates estimated USD cost from raw token counts.
- * @param {{ input?: number, output?: number, cacheCreate?: number, cacheRead?: number }} tokens
- * @returns {number}
+ * Minimal HTTPS GET — returns parsed JSON or rejects.
+ * @param {string} url
+ * @param {object} headers
+ * @returns {Promise<object>}
  */
-function calcCost({ input = 0, output = 0, cacheCreate = 0, cacheRead = 0 }) {
-  return (
-    input       * PRICE.input +
-    output      * PRICE.output +
-    cacheCreate * PRICE.cacheCreate +
-    cacheRead   * PRICE.cacheRead
-  );
+function httpsGet(url, headers) {
+  return new Promise((resolve, reject) => {
+    const { hostname, pathname, search } = new URL(url);
+    https.get({ hostname, path: pathname + search, headers }, res => {
+      let raw = '';
+      res.on('data', chunk => { raw += chunk; });
+      res.on('end', () => {
+        try { resolve(JSON.parse(raw)); }
+        catch { reject(new Error('Invalid JSON from cost API')); }
+      });
+    }).on('error', reject);
+  });
 }
 
-module.exports = { getGitBranch, getTodayCost, getLastUsedModel, calcCost };
+/**
+ * Fetches the month-to-date cost from Anthropic's Cost Report API.
+ * Requires ANTHROPIC_ADMIN_API_KEY (Admin key, not a regular API key).
+ * Results are cached in /tmp for COST_CACHE_TTL ms to limit API calls.
+ *
+ * @returns {Promise<number | null>} Total USD cost this month, or null on failure
+ */
+async function fetchMonthlyCost() {
+  try {
+    const cache = JSON.parse(fs.readFileSync(COST_CACHE, 'utf8'));
+    if (Date.now() - cache.fetchedAt < COST_CACHE_TTL) return cache.cost;
+  } catch { /* cache miss */ }
+
+  const adminKey = process.env.ANTHROPIC_ADMIN_API_KEY;
+  if (!adminKey) return null;
+
+  const now        = new Date();
+  const startingAt = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const endingAt   = now.toISOString();
+  const url        = 'https://api.anthropic.com/v1/organizations/cost_report' +
+                     `?starting_at=${startingAt}&ending_at=${endingAt}&bucket_width=1d`;
+
+  try {
+    const body = await httpsGet(url, {
+      'x-api-key':         adminKey,
+      'anthropic-version': '2023-06-01',
+    });
+
+    let total = 0;
+    for (const bucket of body.data ?? []) {
+      for (const row of bucket.results ?? []) {
+        total += parseFloat(row.amount) || 0;
+      }
+    }
+
+    fs.writeFileSync(COST_CACHE, JSON.stringify({ cost: total, fetchedAt: Date.now() }));
+    return total;
+  } catch {
+    return null;
+  }
+}
+
+module.exports = {
+  getGitBranch,
+  getGitChanges,
+  getGitFiles,
+  isGitExpanded,
+  ensureGitToggleCommand,
+  getActiveTool,
+  fetchMonthlyCost,
+};

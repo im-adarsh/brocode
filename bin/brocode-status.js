@@ -4,54 +4,70 @@
 /**
  * brocode-status — the Claude Code status line provider.
  *
- * Claude Code calls this script on every status refresh cycle, piping a JSON
- * context blob to stdin.  We read it, extract the model/context/branch info,
- * and print a single formatted line to stdout.
+ * Claude Code calls this script on every refresh, piping a JSON blob to stdin.
+ *
+ * Collapsed (default):  prints one line — git changes are an OSC 8 link to
+ *   the toggle .command script.  Clicking expands the file list.
+ *
+ * Expanded:  prints multiple lines — status bar + divider + file list.
+ *   The ▲ in the status bar collapses it again.
+ *
+ * The expansion state lives in /tmp/brocode-git-expanded (presence = expanded).
+ * The toggle is driven by /tmp/brocode-git-toggle.command (a macOS shell
+ * script that flips the state file and closes its Terminal.app window).
  *
  * stdin schema (supplied by Claude Code):
  * {
- *   cwd: string,
- *   model: { id: string, display_name: string },
- *   context_window: {
- *     total_input_tokens:  number,
- *     total_output_tokens: number,
- *     used_percentage:     number | null,
- *   },
- *   ...
+ *   cwd:             string,
+ *   transcript_path: string,
+ *   model:           { id: string, display_name: string },
+ *   cost:            { total_cost_usd: number },
+ *   context_window:  { used_percentage: number }
  * }
  */
 
-const { getGitBranch, calcCost } = require('../src/metrics');
-const { renderStatusLine }       = require('../src/render');
+const {
+  getGitBranch,
+  getGitChanges,
+  getGitFiles,
+  isGitExpanded,
+  ensureGitToggleCommand,
+  getActiveTool,
+  fetchMonthlyCost,
+} = require('../src/metrics');
+
+const { renderStatusLine, renderGitExpanded } = require('../src/render');
 
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', chunk => { raw += chunk; });
-process.stdin.on('end', () => {
+process.stdin.on('end', async () => {
   let data;
   try {
     data = JSON.parse(raw);
   } catch {
-    // Malformed input — output nothing so the status bar stays blank
     process.exit(0);
   }
 
-  const cwd = data.cwd || process.cwd();
-  const ctx = data.context_window || {};
+  const cwd            = data.cwd || process.cwd();
+  const transcriptPath = data.transcript_path ?? null;
+  const ctx            = data.context_window || {};
 
-  const branch    = getGitBranch(cwd);
-  const model     = data.model?.id ?? null;
-  const usedPct   = ctx.used_percentage ?? null;
+  const monthlyCost = await fetchMonthlyCost();
 
-  // Estimate session cost from the cumulative token counters Claude Code provides.
-  // Cache token breakdown isn't available in the context_window summary, so we
-  // use input/output pricing only — a conservative lower bound.
-  const sessionCost = (ctx.total_input_tokens != null)
-    ? calcCost({
-        input:  ctx.total_input_tokens  || 0,
-        output: ctx.total_output_tokens || 0,
-      })
-    : null;
+  const branch     = getGitBranch(cwd);
+  const model      = data.model?.id ?? null;
+  const activeTool = getActiveTool(transcriptPath);
+  const usedPct    = ctx.used_percentage ?? null;
+  const toggleCmd  = ensureGitToggleCommand();
 
-  process.stdout.write(renderStatusLine({ branch, model, usedPct, sessionCost }) + '\n');
+  const shared = { branch, model, activeTool, usedPct, monthlyCost, toggleCmd };
+
+  if (isGitExpanded()) {
+    const gitFiles = getGitFiles(cwd);
+    process.stdout.write(renderGitExpanded({ ...shared, gitFiles }) + '\n');
+  } else {
+    const gitChanges = getGitChanges(cwd);
+    process.stdout.write(renderStatusLine({ ...shared, gitChanges }) + '\n');
+  }
 });

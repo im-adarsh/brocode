@@ -3,53 +3,31 @@
 // ─── ANSI helpers ────────────────────────────────────────────────────────────
 
 const C = {
-  reset:        '\x1b[0m',
-  bold:         '\x1b[1m',
-  dim:          '\x1b[2m',
-  // foregrounds
-  red:          '\x1b[31m',
-  green:        '\x1b[32m',
-  yellow:       '\x1b[33m',
-  blue:         '\x1b[34m',
-  magenta:      '\x1b[35m',
-  cyan:         '\x1b[36m',
-  white:        '\x1b[37m',
-  brightWhite:  '\x1b[97m',
+  reset:      '\x1b[0m',
+  dim:        '\x1b[2m',
+  red:        '\x1b[31m',
+  green:      '\x1b[32m',
+  yellow:     '\x1b[33m',
+  cyan:       '\x1b[36m',
+  magenta:    '\x1b[35m',
+  white:      '\x1b[37m',
+  brightWhite:'\x1b[97m',
 };
 
-/** Strips all ANSI escape sequences from a string. */
-function stripAnsi(str) {
-  return str.replace(/\x1b\[[0-9;]*m/g, '');
-}
-
 /**
- * Pads a string (which may contain ANSI codes) to the given *visible* width.
- * @param {string} str
- * @param {number} width  Desired visible character width
+ * Wraps text in an OSC 8 terminal hyperlink.
+ * Clicking opens the URL in a supporting terminal (iTerm2, Warp, Kitty, etc.).
+ * Falls back to plain text in terminals that don't support OSC 8.
+ *
+ * @param {string} url
+ * @param {string} text  May contain ANSI codes
  * @returns {string}
  */
-function pad(str, width) {
-  const visible = stripAnsi(str).length;
-  return str + ' '.repeat(Math.max(0, width - visible));
+function osc8(url, text) {
+  return `\x1b]8;;${url}\x1b\\${text}\x1b]8;;\x1b\\`;
 }
 
 // ─── Shared utilities ─────────────────────────────────────────────────────────
-
-/**
- * Renders a Unicode block progress bar with color-coded fill.
- *   0–59 % → green   60–79 % → yellow   80–100 % → red
- *
- * @param {number} pct    Percentage 0–100
- * @param {number} width  Character width of the bar
- * @returns {string}      ANSI-colored bar string
- */
-function progressBar(pct, width = 18) {
-  const clamped = Math.max(0, Math.min(100, pct));
-  const filled  = Math.round((clamped / 100) * width);
-  const empty   = width - filled;
-  const color   = clamped >= 80 ? C.red : clamped >= 60 ? C.yellow : C.green;
-  return `${color}${'█'.repeat(filled)}${C.dim}${'░'.repeat(empty)}${C.reset}`;
-}
 
 /**
  * Formats a USD cost value for display.
@@ -65,8 +43,6 @@ function formatCost(cost) {
 /**
  * Shortens a full model ID to a human-readable display name.
  * "claude-sonnet-4-6"  →  "Sonnet 4.6"
- * "claude-opus-4-6"    →  "Opus 4.6"
- * "claude-haiku-4-5"   →  "Haiku 4.5"
  * Falls back to the raw ID if the pattern is unrecognised.
  * @param {string} modelId
  * @returns {string}
@@ -78,118 +54,123 @@ function shortModelName(modelId) {
   return `${tier.charAt(0).toUpperCase() + tier.slice(1)} ${major}.${minor}`;
 }
 
-// ─── Welcome box ─────────────────────────────────────────────────────────────
-
-/**
- * Renders the startup welcome box printed when `brocode` is invoked.
- * Mirrors the visual style of Claude Code's own startup box.
- *
- * @param {object}        opts
- * @param {string|null}   opts.branch      Git branch name, or null
- * @param {string|null}   opts.model       Last-used model ID, or null
- * @param {number|null}   opts.todayCost   USD spent today in this project, or null
- * @returns {string}  Multi-line ANSI string ready for process.stdout.write
- */
-function renderWelcomeBox({ branch, model, todayCost }) {
-  const INNER = 52; // visible characters between the border │ chars
-
-  /** Wraps content in a bordered row, right-padding to INNER width. */
-  const row = (content = '') =>
-    `${C.brightWhite}│${C.reset} ${pad(content, INNER)} ${C.brightWhite}│${C.reset}`;
-
-  const divider = `${C.brightWhite}├${'─'.repeat(INNER + 2)}┤${C.reset}`;
-  const top     = `${C.brightWhite}╭${'─'.repeat(INNER + 2)}╮${C.reset}`;
-  const bottom  = `${C.brightWhite}╰${'─'.repeat(INNER + 2)}╯${C.reset}`;
-
-  // ── Title ──────────────────────────────────────────────────────────────────
-  const titleRow = row(
-    `${C.bold}${C.cyan}✦  brocode${C.reset}` +
-    `  ${C.dim}· claude code, extended${C.reset}`
-  );
-
-  // ── Branch ─────────────────────────────────────────────────────────────────
-  const branchVal = branch
-    ? `${C.green}${branch}${C.reset}`
-    : `${C.dim}not a git repo${C.reset}`;
-  const branchRow = row(
-    `  ${C.dim}⎇${C.reset}  ${pad(`${C.brightWhite}Branch${C.reset}`, 16 + 10)}${branchVal}`
-  );
-
-  // ── Model ──────────────────────────────────────────────────────────────────
-  const modelVal = model
-    ? `${C.magenta}${shortModelName(model)}${C.reset}`
-    : `${C.dim}—${C.reset}`;
-  const modelRow = row(
-    `  ${C.dim}◆${C.reset}  ${pad(`${C.brightWhite}Model${C.reset}`, 16 + 10)}${modelVal}`
-  );
-
-  // ── Today's cost ───────────────────────────────────────────────────────────
-  const costVal = todayCost != null
-    ? `${C.yellow}${formatCost(todayCost)}${C.reset}${C.dim} today${C.reset}`
-    : `${C.dim}no sessions yet today${C.reset}`;
-  const costRow = row(
-    `  ${C.dim}◈${C.reset}  ${pad(`${C.brightWhite}Usage${C.reset}`, 16 + 10)}${costVal}`
-  );
-
-  // ── Context hint ───────────────────────────────────────────────────────────
-  const ctxRow = row(
-    `  ${C.dim}⊞${C.reset}  ${pad(`${C.brightWhite}Context${C.reset}`, 16 + 10)}` +
-    `${C.dim}live in status bar ↓${C.reset}`
-  );
-
-  return [
-    top,
-    row(),
-    titleRow,
-    row(),
-    divider,
-    row(),
-    branchRow,
-    modelRow,
-    costRow,
-    ctxRow,
-    row(),
-    bottom,
-  ].join('\n');
-}
-
 // ─── Status line ──────────────────────────────────────────────────────────────
 
 /**
- * Renders the single-line status bar shown at the bottom of Claude Code.
- * Called by `brocode-status` on every Claude Code refresh cycle.
+ * Renders the collapsed single-line status bar.
+ * The git changes segment (+A ~M -D) is an OSC 8 link to the toggle command —
+ * clicking expands the file list inline below the status bar.
+ *
+ * Layout: ⎇ branch [+A ~M -D]  ·  ◆ Model  ·  ⚡ Tool  ·  18% ctx  ·  $month
  *
  * @param {object}        opts
- * @param {string|null}   opts.branch       Git branch name
- * @param {string|null}   opts.model        Active model ID (from Claude Code stdin)
- * @param {number|null}   opts.usedPct      Context window usage 0–100
- * @param {number|null}   opts.sessionCost  Estimated session cost in USD
+ * @param {string|null}   opts.branch         Git branch name
+ * @param {object|null}   opts.gitChanges      { added, modified, deleted } counts
+ * @param {string|null}   opts.toggleCmd       Path to .command toggle script
+ * @param {string|null}   opts.model           Active model ID
+ * @param {string|null}   opts.activeTool      Most recently called tool name
+ * @param {number|null}   opts.usedPct         Context window usage 0–100
+ * @param {number|null}   opts.monthlyCost     Month-to-date cost in USD
  * @returns {string}
  */
-function renderStatusLine({ branch, model, usedPct, sessionCost }) {
-  const SEP = `  ${C.dim}·${C.reset}  `;
+function renderStatusLine({ branch, gitChanges, toggleCmd, model, activeTool, usedPct, monthlyCost }) {
+  const SEP   = `  ${C.dim}·${C.reset}  `;
   const parts = [];
 
+  // ── Branch + expand link ──────────────────────────────────────────────────
   if (branch) {
-    parts.push(`${C.green}⎇ ${branch}${C.reset}`);
+    let seg = `${C.green}⎇ ${branch}${C.reset}`;
+
+    if (gitChanges) {
+      const { added, modified, deleted } = gitChanges;
+      const bits = [];
+      if (added)    bits.push(`${C.green}+${added}${C.reset}`);
+      if (modified) bits.push(`${C.yellow}~${modified}${C.reset}`);
+      if (deleted)  bits.push(`${C.red}-${deleted}${C.reset}`);
+
+      if (bits.length) {
+        const label = bits.join('  ');
+        seg += `  ${toggleCmd ? osc8(`file://${toggleCmd}`, label) : label}`;
+      }
+    }
+
+    parts.push(seg);
   }
 
+  // ── Model ─────────────────────────────────────────────────────────────────
   if (model) {
     parts.push(`${C.magenta}◆ ${shortModelName(model)}${C.reset}`);
   }
 
-  if (usedPct != null) {
-    const bar = progressBar(usedPct, 12);
-    parts.push(`${bar} ${C.yellow}${Math.round(usedPct)}%${C.reset}`);
+  // ── Active tool ───────────────────────────────────────────────────────────
+  if (activeTool) {
+    parts.push(`${C.cyan}⚡ ${activeTool}${C.reset}`);
   }
 
-  if (sessionCost != null) {
-    parts.push(
-      `${C.yellow}${formatCost(sessionCost)}${C.reset} ${C.dim}session${C.reset}`
-    );
+  // ── Context % ─────────────────────────────────────────────────────────────
+  if (usedPct != null) {
+    const color = usedPct >= 80 ? C.red : usedPct >= 60 ? C.yellow : C.green;
+    parts.push(`${color}${Math.round(usedPct)}%${C.reset} ${C.dim}ctx${C.reset}`);
+  }
+
+  // ── Monthly cost ──────────────────────────────────────────────────────────
+  if (monthlyCost != null) {
+    parts.push(`${C.yellow}${formatCost(monthlyCost)}${C.reset} ${C.dim}month${C.reset}`);
   }
 
   return parts.join(SEP);
 }
 
-module.exports = { renderWelcomeBox, renderStatusLine, progressBar, formatCost, shortModelName };
+/**
+ * Renders the expanded multi-line git file list shown below the status bar.
+ * Line 0: the normal status bar with a ▲ collapse link instead of +A ~M -D.
+ * Lines 1+: one line per changed file, grouped modified → added → deleted → untracked.
+ *
+ * @param {object}                          opts
+ * @param {string|null}                     opts.branch
+ * @param {Array<{symbol,file}>|null}       opts.gitFiles    From getGitFiles()
+ * @param {string|null}                     opts.toggleCmd   Path to .command toggle script
+ * @param {string|null}                     opts.model
+ * @param {string|null}                     opts.activeTool
+ * @param {number|null}                     opts.usedPct
+ * @param {number|null}                     opts.monthlyCost
+ * @returns {string}  Multi-line ANSI string (lines joined with \n)
+ */
+function renderGitExpanded({ branch, gitFiles, toggleCmd, model, activeTool, usedPct, monthlyCost }) {
+  const SEP     = `  ${C.dim}·${C.reset}  `;
+  const W       = process.stdout.columns || 80;
+  const divider = `${C.dim}${'─'.repeat(W)}${C.reset}`;
+
+  // ── Status line with collapse link ────────────────────────────────────────
+  const parts = [];
+
+  if (branch) {
+    const collapseLabel = `${C.yellow}▲${C.reset}`;
+    const collapseLink  = toggleCmd ? osc8(`file://${toggleCmd}`, collapseLabel) : collapseLabel;
+    parts.push(`${C.green}⎇ ${branch}${C.reset}  ${collapseLink}`);
+  }
+  if (model)       parts.push(`${C.magenta}◆ ${shortModelName(model)}${C.reset}`);
+  if (activeTool)  parts.push(`${C.cyan}⚡ ${activeTool}${C.reset}`);
+  if (usedPct != null) {
+    const color = usedPct >= 80 ? C.red : usedPct >= 60 ? C.yellow : C.green;
+    parts.push(`${color}${Math.round(usedPct)}%${C.reset} ${C.dim}ctx${C.reset}`);
+  }
+  if (monthlyCost != null) {
+    parts.push(`${C.yellow}${formatCost(monthlyCost)}${C.reset} ${C.dim}month${C.reset}`);
+  }
+
+  const lines = [ parts.join(SEP), divider ];
+
+  // ── File list ─────────────────────────────────────────────────────────────
+  const symbolColor = { M: C.yellow, A: C.green, D: C.red, '?': C.cyan };
+
+  for (const { symbol, file } of gitFiles ?? []) {
+    const col = symbolColor[symbol] ?? C.white;
+    lines.push(`  ${col}${symbol}${C.reset}  ${C.white}${file}${C.reset}`);
+  }
+
+  lines.push(divider);
+  return lines.join('\n');
+}
+
+module.exports = { renderStatusLine, renderGitExpanded, formatCost, shortModelName };
