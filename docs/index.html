@@ -679,7 +679,7 @@
     <h1>Claude Code,<br /><em>Extended.</em></h1>
 
     <p class="hero-sub">
-      brocode wraps <code style="font-family:var(--mono);font-size:.9em;color:var(--text)">claude</code> with a live status bar showing your git branch, active model, context window usage, and session cost. All in one command.
+      brocode wraps <code style="font-family:var(--mono);font-size:.9em;color:var(--text)">claude</code> with a live status bar showing your git branch, active model, context window usage, and monthly cost. All in one command.
     </p>
 
     <div class="install-wrap">
@@ -723,31 +723,31 @@
           <span class="t-cmd"> brocode</span>
         </div>
 
-        <div class="box" aria-label="brocode welcome box"><span class="b-border">╭──────────────────────────────────────────────────────╮</span>
-<span class="b-border">│</span>                                                      <span class="b-border">│</span>
-<span class="b-border">│</span>  <span class="b-logo">✦  brocode</span>  <span class="b-tagline">· claude code, extended</span>                 <span class="b-border">│</span>
-<span class="b-border">│</span>                                                      <span class="b-border">│</span>
-<span class="b-div">├──────────────────────────────────────────────────────┤</span>
-<span class="b-border">│</span>                                                      <span class="b-border">│</span>
-<span class="b-border">│</span>  <span class="b-icon"> ⎇</span>  <span class="b-label">Branch </span>                   <span class="b-branch">main</span>                  <span class="b-border">│</span>
-<span class="b-border">│</span>  <span class="b-icon"> ◆</span>  <span class="b-label">Model  </span>                   <span class="b-model">Sonnet 4.6</span>            <span class="b-border">│</span>
-<span class="b-border">│</span>  <span class="b-icon"> ◈</span>  <span class="b-label">Usage  </span>                   <span class="b-cost">$0.83</span><span class="b-dim"> today</span>          <span class="b-border">│</span>
-<span class="b-border">│</span>  <span class="b-icon"> ⊞</span>  <span class="b-label">Context</span>                   <span class="b-dim">live in status bar ↓</span>  <span class="b-border">│</span>
-<span class="b-border">│</span>                                                      <span class="b-border">│</span>
-<span class="b-border">╰──────────────────────────────────────────────────────╯</span></div>
+        <div style="color:rgba(255,255,255,0.18);font-size:0.75rem;margin-bottom:0.5rem;font-style:italic;">— claude starts, your session continues —</div>
 
-        <div style="height:0.5rem"></div>
+        <div style="margin-bottom:0.3rem;color:rgba(200,211,232,0.7);font-size:0.78rem;">
+          <span style="color:var(--text-dim)">You: </span>fix the auth bug in api/login.ts
+        </div>
+        <div style="color:rgba(200,211,232,0.55);font-size:0.78rem;line-height:1.6;margin-bottom:0.4rem;">
+          <span style="color:var(--text-dim)">Claude: </span>I'll look at the login handler…<span class="t-cursor"></span>
+        </div>
+
+        <div style="height:0.4rem"></div>
       </div>
 
       <!-- Status bar -->
       <div class="term-statusbar">
         <span class="sb-branch">⎇ main</span>
+        <span style="color:var(--green);margin-left:0.5rem">+2</span>
+        <span style="color:var(--amber);margin-left:0.4rem">~3</span>
         <span class="sb-sep">·</span>
         <span class="sb-model">◆ Sonnet 4.6</span>
         <span class="sb-sep">·</span>
-        <span class="sb-bar">████████</span><span class="sb-bar-empty">░░░░░░</span><span class="sb-pct">52%</span>
+        <span style="color:var(--cyan)">⚡ Bash</span>
         <span class="sb-sep">·</span>
-        <span class="sb-cost">$0.34</span><span class="sb-dim"> session</span>
+        <span class="sb-pct">18%</span><span class="sb-dim"> ctx</span>
+        <span class="sb-sep">·</span>
+        <span class="sb-cost">$3.42</span><span class="sb-dim"> month</span>
       </div>
     </div>
   </div>
@@ -811,7 +811,7 @@
         <div class="step-num">3</div>
         <div>
           <div class="step-title">See your metrics</div>
-          <p class="step-desc">The welcome box appears on launch. The status bar at the bottom of Claude Code updates live throughout your session.</p>
+          <p class="step-desc">The status bar at the bottom of Claude Code updates live — branch, model, active tool, context %, and monthly cost. Click the git changes to expand a file list inline.</p>
         </div>
       </div>
     </div>
@@ -831,7 +831,7 @@
         <div class="stat-label">dependencies</div>
       </div>
       <div class="stat-item">
-        <div class="stat-val">2</div>
+        <div class="stat-val">3</div>
         <div class="stat-label">commands added</div>
       </div>
       <div class="stat-item">
