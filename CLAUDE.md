@@ -11,14 +11,15 @@
 
 | Segment | Source | Notes |
 |---|---|---|
-| `⎇ branch +A ~M -D` | `git branch`, `git status --porcelain` | Changes are a clickable OSC 8 link |
+| `⎇ branch +A ~M -D` | `git branch`, `git status --porcelain` | Changes are a clickable OSC 8 toggle link |
 | `◆ Model` | Claude Code stdin `model.id` | |
 | `⚡ Tool` | Last `tool_use` in session JSONL | MCP tools shown as `MCP:server` |
 | `18% ctx` | Claude Code stdin `context_window.used_percentage` | Color: green/yellow/red |
 | `$N.NN month` | Anthropic Cost Report API | Cached 5 min, needs Admin API key |
 
-Clicking `+A ~M -D` opens `/tmp/brocode-git-status.txt` — a full file list (like
-`git status`) that also includes the session cost for this session.
+Clicking `+A ~M -D` toggles an inline file list directly in the status bar area —
+the bar expands to show all changed files grouped by status, and clicking `▲`
+collapses it again.
 
 No runtime npm dependencies — only the Node.js standard library.
 
@@ -28,7 +29,7 @@ No runtime npm dependencies — only the Node.js standard library.
 brocode/
 ├── bin/
 │   ├── brocode.js          Entry point: configures status bar → launches claude
-│   ├── brocode-status.js   Status line provider: reads stdin JSON → outputs one line
+│   ├── brocode-status.js   Status line provider: reads stdin JSON → outputs one or more lines
 │   └── brocode-git.js      Interactive collapsible git status TUI
 ├── src/
 │   ├── metrics.js          Data layer: git, session JSONL, monthly cost API
@@ -46,14 +47,19 @@ brocode.js
 **Data flow — status bar (live, on every Claude Code refresh)**
 ```
 Claude Code → brocode-status stdin (JSON)
-  → getGitBranch(cwd)                  git branch --show-current
-  → getGitChanges(cwd)                 git status --porcelain → +A ~M -D counts
-  → writeGitStatusFile(cwd, cost)      writes /tmp/brocode-git-status.txt (on demand)
-  → data.model.id                      model name from stdin
-  → getActiveTool(transcript_path)     tail session JSONL → last tool_use name
-  → ctx.used_percentage                context % from stdin
-  → fetchMonthlyCost()                 GET /v1/organizations/cost_report (cached 5 min)
-  → renderStatusLine()                 one ANSI line → stdout → Claude Code status bar
+  → getGitBranch(cwd)               git branch --show-current
+  → data.model.id                   model name from stdin
+  → getActiveTool(transcript_path)  tail session JSONL → last tool_use name
+  → ctx.used_percentage             context % from stdin
+  → fetchMonthlyCost()              GET /v1/organizations/cost_report (cached 5 min)
+  → ensureGitToggleCommand()        writes /tmp/brocode-git-toggle.command if absent
+  → isGitExpanded()                 checks /tmp/brocode-git-expanded state file
+  if expanded:
+    → getGitFiles(cwd)              git status --porcelain → full file list
+    → renderGitExpanded()           multi-line ANSI output → stdout
+  else:
+    → getGitChanges(cwd)            git status --porcelain → +A ~M -D counts
+    → renderStatusLine()            one ANSI line → stdout → Claude Code status bar
 ```
 
 ## Key conventions
@@ -67,15 +73,19 @@ All rendering uses raw ANSI escape codes. All I/O uses `child_process.spawnSync`
 interpolated into a shell string — which prevents command injection.
 
 ### ANSI color constants live in `src/render.js`
-The `C` object holds all ANSI codes. Do not inline escape literals elsewhere.
+The `C` object holds all ANSI codes including `C.clearEol` (`\x1b[0K`). Do not
+inline escape literals elsewhere. `clearEol` is appended to every output line so
+that shorter refreshes don't leave stale characters from a previous longer line.
 
 ### Git changes are clickable via OSC 8
-`writeGitStatusFile(cwd, sessionCost)` writes a plain-text summary to
-`/tmp/brocode-git-status.txt` on every refresh (only when there are changes).
-`renderStatusLine` wraps the `+A ~M -D` text in an OSC 8 hyperlink pointing to
-that file. Clicking opens it in the default text viewer (iTerm2, Warp, etc.).
-The file also includes the session cost so it's accessible on demand without
-appearing in the status bar permanently.
+`ensureGitToggleCommand()` writes a bash script to `/tmp/brocode-git-toggle.command`
+that flips the state file `/tmp/brocode-git-expanded` and silently closes its own
+Terminal.app/iTerm2 window via `osascript`. `renderStatusLine` wraps the `+A ~M -D`
+text in an OSC 8 hyperlink pointing to that `.command` file. On macOS, clicking a
+`file://` OSC 8 link to a `.command` file runs it in a new shell window, which
+closes itself immediately — effectively a click-to-toggle. When expanded,
+`renderGitExpanded` renders the full file list inline below the status bar, and
+wraps `▲` in an OSC 8 link to the same toggle script so clicking it collapses again.
 
 ### Active tool is read from the session JSONL
 `getActiveTool(transcriptPath)` scans from the end of the JSONL for the most
@@ -87,10 +97,9 @@ in the Claude Code stdin JSON. MCP tools (`mcp__server__tool`) are shortened to
 The context usage is displayed as a plain colored percentage (`18% ctx`) — no
 progress bar. Color thresholds: green < 60%, yellow 60–80%, red ≥ 80%.
 
-### Session cost is not in the status bar
-Session cost (`data.cost.total_cost_usd`) is embedded in the on-demand git status
-file but not shown permanently in the status bar. Only the monthly cost (from
-Anthropic's API) is shown.
+### Session cost is not shown
+Session cost (`data.cost.total_cost_usd`) from Claude Code stdin is not displayed
+anywhere in the status bar. Only the monthly cost (from Anthropic's API) is shown.
 
 ### Monthly cost requires an Admin API key
 `fetchMonthlyCost()` calls `GET /v1/organizations/cost_report` which requires an
@@ -115,7 +124,8 @@ TTL. The cache stores `{ cost: number, fetchedAt: number }`.
 ### Status line contract
 `brocode-status` must:
 1. Read all of stdin before parsing (never parse partial JSON)
-2. Print exactly one line to stdout
+2. Print one line (collapsed) or multiple lines (expanded) to stdout — each line
+   ends with `C.clearEol` so stale characters from a shorter previous render are erased
 3. Exit 0 — any non-zero exit causes Claude Code to blank the status bar
 
 ## brocode-git TUI
@@ -150,9 +160,6 @@ Running `brocode-git` opens a full-screen interactive viewer:
 2. Call it in `bin/brocode-status.js` and pass the result to `renderStatusLine`
 3. Add a new `parts.push(...)` block in `renderStatusLine` in `src/render.js`
 
-**Add info to the on-demand git status file**
-Edit `writeGitStatusFile()` in `src/metrics.js`.
-
 **Change the monthly cost cache TTL**
 Edit `COST_CACHE_TTL` at the top of `src/metrics.js`.
 
@@ -160,3 +167,8 @@ Edit `COST_CACHE_TTL` at the top of `src/metrics.js`.
 Edit `settings.statusLine.command` in `ensureStatusLine()` inside `bin/brocode.js`.
 `ensureStatusLine` only writes the setting when absent — delete the `statusLine` key
 from `~/.claude/settings.json` to force an update.
+
+**Change git expansion toggle behavior**
+Edit `ensureGitToggleCommand()` in `src/metrics.js` — the script written to
+`/tmp/brocode-git-toggle.command` controls what happens when the user clicks the
+git changes in the status bar.

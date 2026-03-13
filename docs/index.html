@@ -762,7 +762,7 @@
     <div class="feat-card fade-in">
       <span class="feat-icon">⎇</span>
       <div class="feat-title">Branch Awareness</div>
-      <p class="feat-desc">Always know which branch you're on. brocode reads from git before launching so the right context is visible from the first keystroke.</p>
+      <p class="feat-desc">Always know which branch you're on. The status bar reads git on every refresh — branch name and a clickable <code style="font-family:var(--mono);font-size:.85em">+A ~M -D</code> count that expands to a full file list inline.</p>
     </div>
     <div class="feat-card fade-in">
       <span class="feat-icon">◆</span>
@@ -771,13 +771,13 @@
     </div>
     <div class="feat-card fade-in">
       <span class="feat-icon">⊞</span>
-      <div class="feat-title">Context Progress Bar</div>
-      <p class="feat-desc">A live progress bar tracks your context window usage. Know when you're approaching limits before Claude Code silently truncates your history.</p>
+      <div class="feat-title">Context Usage</div>
+      <p class="feat-desc">A live color-coded percentage shows how full your context window is — green, yellow, or red. Know when you're approaching limits before Claude Code truncates your history.</p>
     </div>
     <div class="feat-card fade-in">
       <span class="feat-icon">◈</span>
-      <div class="feat-title">Cost Tracking</div>
-      <p class="feat-desc">Session and daily cost estimates calculated from Claude's token pricing, displayed live. Understand your spend without leaving the terminal.</p>
+      <div class="feat-title">Monthly Cost</div>
+      <p class="feat-desc">Month-to-date spend pulled from the Anthropic Cost Report API, cached and displayed live. Understand your spend without leaving the terminal.</p>
     </div>
   </div>
 </section>
@@ -793,7 +793,7 @@
         <div class="step-num">1</div>
         <div>
           <div class="step-title">Install globally</div>
-          <p class="step-desc">One command. brocode and brocode-status are both added to your PATH.</p>
+          <p class="step-desc">One command. <code style="font-family:var(--mono);font-size:.875em">brocode</code>, <code style="font-family:var(--mono);font-size:.875em">brocode-status</code>, and <code style="font-family:var(--mono);font-size:.875em">brocode-git</code> are all added to your PATH.</p>
           <br/>
           <span class="step-code">npm install -g brocode</span>
         </div>

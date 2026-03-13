@@ -12,6 +12,7 @@ const C = {
   magenta:    '\x1b[35m',
   white:      '\x1b[37m',
   brightWhite:'\x1b[97m',
+  clearEol:   '\x1b[0K',
 };
 
 /**
@@ -118,7 +119,7 @@ function renderStatusLine({ branch, gitChanges, toggleCmd, model, activeTool, us
     parts.push(`${C.yellow}${formatCost(monthlyCost)}${C.reset} ${C.dim}month${C.reset}`);
   }
 
-  return parts.join(SEP);
+  return parts.join(SEP) + C.clearEol;
 }
 
 /**
@@ -170,7 +171,7 @@ function renderGitExpanded({ branch, gitFiles, toggleCmd, model, activeTool, use
   }
 
   lines.push(divider);
-  return lines.join('\n');
+  return lines.map(l => l + C.clearEol).join('\n');
 }
 
 module.exports = { renderStatusLine, renderGitExpanded, formatCost, shortModelName };
