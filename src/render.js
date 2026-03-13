@@ -16,6 +16,25 @@ const C = {
 };
 
 /**
+ * Strips ANSI SGR codes and OSC 8 hyperlink sequences so we can measure
+ * the visible (printed) width of a string.
+ * @param {string} s
+ * @returns {string}
+ */
+function stripAnsi(s) {
+  return s
+    .replace(/\x1b\[[0-9;]*m/g, '')           // CSI SGR colours / attributes
+    .replace(/\x1b\[[0-9;]*[GKJHFnsu]/g, '')  // CSI cursor / erase
+    .replace(/\x1b\]8;;[^\x1b]*\x1b\\/g, '')  // OSC 8 link open
+    .replace(/\x1b\]8;;\x1b\\/g, '');          // OSC 8 link close
+}
+
+/** Visible character count of a string that may contain ANSI codes. */
+function visLen(s) {
+  return [...stripAnsi(s)].length;
+}
+
+/**
  * Wraps text in an OSC 8 terminal hyperlink.
  * Clicking opens the URL in a supporting terminal (iTerm2, Warp, Kitty, etc.).
  * Falls back to plain text in terminals that don't support OSC 8.
@@ -58,11 +77,13 @@ function shortModelName(modelId) {
 // ─── Status line ──────────────────────────────────────────────────────────────
 
 /**
- * Renders the collapsed single-line status bar.
- * The git changes segment (+A ~M -D) is an OSC 8 link to the toggle command —
- * clicking expands the file list inline below the status bar.
- *
- * Layout: ⎇ branch [+A ~M -D]  ·  ◆ Model  ·  ⚡ Tool  ·  18% ctx  ·  $month
+ * Renders the collapsed status bar inside a single-row Unicode box.
+ * Outputs 4 lines:
+ *   line 0 — blank  (creates a gap so Claude Code's nudge text lands here,
+ *             above the box, without overlapping the border)
+ *   line 1 — ┌─────────────────────────────────────────────────────┐
+ *   line 2 — │ ⎇ branch  ·  ◆ Model  ·  ⚡ Tool  ·  18% ctx  ·  $ │
+ *   line 3 — └─────────────────────────────────────────────────────┘
  *
  * @param {object}        opts
  * @param {string|null}   opts.branch         Git branch name
@@ -119,7 +140,19 @@ function renderStatusLine({ branch, gitChanges, toggleCmd, model, activeTool, us
     parts.push(`${C.yellow}${formatCost(monthlyCost)}${C.reset} ${C.dim}month${C.reset}`);
   }
 
-  return parts.join(SEP) + C.clearEol;
+  // ── Box ───────────────────────────────────────────────────────────────────
+  const W       = process.stdout.columns || 80;
+  const inner   = W - 2;                   // width between the │ borders
+  const content = parts.join(SEP);
+  const pad     = Math.max(0, inner - visLen(content));
+
+  const top = `${C.dim}┌${'─'.repeat(inner)}┐${C.reset}`;
+  const mid = `${C.dim}│${C.reset}${content}${' '.repeat(pad)}${C.dim}│${C.reset}`;
+  const bot = `${C.dim}└${'─'.repeat(inner)}┘${C.reset}`;
+
+  // The leading blank line reserves a row for Claude Code's own nudge text
+  // ("⏵⏵ accept edits on …") so it appears above the box, not on top of it.
+  return `${C.clearEol}\n${top}${C.clearEol}\n${mid}${C.clearEol}\n${bot}${C.clearEol}`;
 }
 
 /**
