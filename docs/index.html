@@ -754,9 +754,11 @@
             <span class="sb-sep">·</span>
             <span style="color:var(--cyan)">⚡ Bash</span>
             <span class="sb-sep">·</span>
+            <span style="color:rgba(220,230,245,0.9)">✎ 4</span>
+            <span class="sb-sep">·</span>
             <span class="sb-pct">18%</span><span class="sb-dim"> ctx</span>
             <span class="sb-sep">·</span>
-            <span class="sb-cost">$3.42</span><span class="sb-dim"> month</span>
+            <span class="sb-cost">$0.42</span><span class="sb-dim"> session</span>
           </div>
         </div>
       </div>
@@ -776,24 +778,24 @@
       <p class="feat-desc">Always know which branch you're on. The status bar reads git on every refresh — branch name and a clickable <code style="font-family:var(--mono);font-size:.85em">+A ~M -D</code> count that expands to a full file list inline.</p>
     </div>
     <div class="feat-card fade-in">
+      <span class="feat-icon">✎</span>
+      <div class="feat-title">Session Tracking</div>
+      <p class="feat-desc">Automatically tracks every file touched this session via PostToolUse hooks. The <code style="font-family:var(--mono);font-size:.85em">✎ N</code> count is clickable — expands an inline list of files edited. Use <code style="font-family:var(--mono);font-size:.85em">/session</code> for a full summary.</p>
+    </div>
+    <div class="feat-card fade-in">
       <span class="feat-icon">◆</span>
-      <div class="feat-title">Live Model Display</div>
-      <p class="feat-desc">See the exact model Claude Code is using in real time — Sonnet, Opus, Haiku — directly in the status bar. No more guessing.</p>
+      <div class="feat-title">Live Model &amp; Tool</div>
+      <p class="feat-desc">See the exact model and the last tool Claude Code called — Sonnet, Opus, Bash, Edit — directly in the status bar. MCP tools show as <code style="font-family:var(--mono);font-size:.85em">MCP:server</code>.</p>
     </div>
     <div class="feat-card fade-in">
       <span class="feat-icon">⊞</span>
-      <div class="feat-title">Context Usage</div>
-      <p class="feat-desc">A live color-coded percentage shows how full your context window is — green, yellow, or red. Know when you're approaching limits before Claude Code truncates your history.</p>
-    </div>
-    <div class="feat-card fade-in">
-      <span class="feat-icon">◈</span>
-      <div class="feat-title">Monthly Cost</div>
-      <p class="feat-desc">Month-to-date spend pulled from the Anthropic Cost Report API, cached and displayed live. Understand your spend without leaving the terminal.</p>
+      <div class="feat-title">Context &amp; Cost</div>
+      <p class="feat-desc">A color-coded context percentage (green → yellow → red ⚠) plus live session cost and optional month-to-date spend from the Anthropic Cost Report API. Know your limits before they hit.</p>
     </div>
     <div class="feat-card fade-in">
       <span class="feat-icon" style="font-family:var(--mono)">/</span>
-      <div class="feat-title">Extensible via <code style="font-family:var(--mono);font-size:.82em">/add-metric</code></div>
-      <p class="feat-desc">A built-in Claude Code slash command guides you through adding any new metric to the status bar — data source, display format, caching — in a single pass. Zero boilerplate.</p>
+      <div class="feat-title">Slash Commands</div>
+      <p class="feat-desc"><code style="font-family:var(--mono);font-size:.82em">/session</code> prints a full session report. <code style="font-family:var(--mono);font-size:.82em">/add-metric</code> guides you through adding any new segment to the status bar — data source, display format, caching — in a single pass.</p>
     </div>
   </div>
 </section>
@@ -818,7 +820,7 @@
         <div class="step-num">2</div>
         <div>
           <div class="step-title">Run brocode</div>
-          <p class="step-desc">Use <code style="font-family:var(--mono);font-size:.875em">brocode</code> anywhere you'd use <code style="font-family:var(--mono);font-size:.875em">claude</code>. All flags and arguments pass through unchanged.</p>
+          <p class="step-desc">Use <code style="font-family:var(--mono);font-size:.875em">brocode</code> anywhere you'd use <code style="font-family:var(--mono);font-size:.875em">claude</code>. On first run it auto-configures the status bar and registers PostToolUse + Stop hooks for session tracking.</p>
           <br/>
           <span class="step-code">brocode --resume</span>
         </div>
@@ -827,7 +829,7 @@
         <div class="step-num">3</div>
         <div>
           <div class="step-title">See your metrics</div>
-          <p class="step-desc">The status bar at the bottom of Claude Code updates live — branch, model, active tool, context %, and monthly cost. Click the git changes to expand a file list inline.</p>
+          <p class="step-desc">The status bar updates live — branch, model, active tool, files touched, context %, and session cost. Click git changes or the file count to expand inline lists. Run <code style="font-family:var(--mono);font-size:.875em">/session</code> for a full summary.</p>
         </div>
       </div>
     </div>
@@ -847,8 +849,8 @@
         <div class="stat-label">dependencies</div>
       </div>
       <div class="stat-item">
-        <div class="stat-val">3</div>
-        <div class="stat-label">commands added</div>
+        <div class="stat-val">5</div>
+        <div class="stat-label">bin scripts</div>
       </div>
       <div class="stat-item">
         <div class="stat-val">MIT</div>

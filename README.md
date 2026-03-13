@@ -2,32 +2,52 @@
 
 > Claude Code, extended.
 
-brocode wraps the `claude` CLI with a persistent live status bar showing git branch, active model, context window usage, and monthly cost — always visible at the bottom of Claude Code.
+brocode wraps the `claude` CLI with a live status bar, automatic session tracking,
+and hooks — giving you a real-time HUD at the bottom of Claude Code with no
+configuration required.
 
-**[Website](https://your-username.github.io/brocode)** · [npm](https://www.npmjs.com/package/brocode) · [Issues](https://github.com/your-username/brocode/issues)
+**[Website](https://im-adarsh.github.io/brocode)** · [npm](https://www.npmjs.com/package/brocode) · [Issues](https://github.com/im-adarsh/brocode/issues)
 
 ---
 
 ## What it looks like
 
-Status bar — a full-width cyan box at the bottom of Claude Code, updates live:
+Full-width cyan box at the bottom of Claude Code, updates live:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                               │
-│  ⎇ main  +2 ~3 -1  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  18% ctx  ·  $3.42 month │
-│                                                                               │
+│ ⎇ main +2 ~3  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  ✎ 4  ·  18% ctx  ·  $0.42 session │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Clicking `+2 ~3 -1` expands the file list inline:
+Context warning fires at ≥ 80%:
 
 ```
-⎇ main  ▲  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  18% ctx  ·  $3.42 month
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ ⎇ main  ·  ◆ Sonnet 4.6  ·  ✎ 12  ·  ⚠ 87% ctx  ·  $3.21 session  ·  $18.40 /mo │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+Clicking `+2 ~3` expands the git file list inline:
+
+```
+⎇ main  ▲  ·  ◆ Sonnet 4.6  ·  ✎ 4  ·  18% ctx  ·  $0.42 session
 ────────────────────────────────────────────────────────────────────────────────
   M  src/metrics.js
   M  src/render.js
-  A  bin/brocode-git.js
+  A  bin/brocode-hook-tool.js
+────────────────────────────────────────────────────────────────────────────────
+```
+
+Clicking `✎ 4` expands the session file list (files touched this session):
+
+```
+⎇ main  ·  ◆ Sonnet 4.6  ·  ✎ 4 ▲  ·  18% ctx  ·  $0.42 session
+────────────────────────────────────────────────────────────────────────────────
+  ✎  src/metrics.js
+  ✎  src/render.js
+  ✎  bin/brocode-status.js
+  ✎  package.json
 ────────────────────────────────────────────────────────────────────────────────
 ```
 
@@ -51,7 +71,10 @@ brocode --resume         # same as: claude --resume
 brocode "fix the bug"    # same as: claude "fix the bug"
 ```
 
-On first run, brocode writes a `statusLine` entry into `~/.claude/settings.json` so the status bar appears automatically inside Claude Code.
+On first run, brocode automatically:
+- Writes a `statusLine` entry into `~/.claude/settings.json`
+- Registers `PostToolUse` and `Stop` hooks to track session activity
+- Initialises the session state (records git HEAD as a checkpoint reference)
 
 ---
 
@@ -59,22 +82,44 @@ On first run, brocode writes a `statusLine` entry into `~/.claude/settings.json`
 
 | Command | Role |
 |---|---|
-| `brocode` | Configures the status line once (on first run), then launches `claude` |
-| `brocode-status` | Called by Claude Code on each refresh — reads context JSON from stdin, outputs one formatted line |
+| `brocode` | Configures status line + hooks on first run, then launches `claude` |
+| `brocode-status` | Called by Claude Code on each refresh — reads stdin JSON, outputs the status bar |
 | `brocode-git` | Interactive full-screen git status TUI — collapsible sections, mouse support |
+| `brocode-hook-tool` | PostToolUse hook — tracks every tool call and records edited file paths |
+| `brocode-hook-stop` | Stop hook — archives session summary when Claude Code exits |
 
-**Data sources:**
-- **Branch + changes** — `git branch --show-current` and `git status --porcelain` in the current working directory; clicking the `+A ~M -D` segment toggles an inline file list
-- **Model** — `model.id` from Claude Code's stdin JSON
-- **Active tool** — most recent `tool_use` in the session JSONL; MCP tools shown as `MCP:server`
-- **Context %** — `context_window.used_percentage` from Claude Code's stdin JSON; color: green < 60%, yellow 60–80%, red ≥ 80%
-- **Monthly cost** — `GET /v1/organizations/cost_report` (requires `ANTHROPIC_ADMIN_API_KEY`; cached 5 min); omitted silently if key is absent
+**Status bar segments:**
+
+| Segment | Source | Notes |
+|---|---|---|
+| `⎇ branch +A ~M -D` | `git branch`, `git status --porcelain` | Clickable — expands git file list |
+| `◆ Model` | `model.id` from Claude Code stdin | |
+| `⚡ Tool` | Last `tool_use` in session JSONL | MCP tools shown as `MCP:server` |
+| `✎ N` | Session state file (`/tmp/brocode-session.json`) | Clickable — expands files-touched list |
+| `18% ctx` | `context_window.used_percentage` from stdin | Green < 60%, yellow 60–80%, red + ⚠ ≥ 80% |
+| `$0.42 session` | `cost.total_cost_usd` from Claude Code stdin | Cost so far this session |
+| `$N.NN /mo` | `GET /v1/organizations/cost_report` | Requires `ANTHROPIC_ADMIN_API_KEY`; cached 5 min |
+
+**Hooks (auto-registered in `~/.claude/settings.json`):**
+
+| Hook | Trigger | What it does |
+|---|---|---|
+| `PostToolUse` | Every tool call | Increments call counter; records `file_path` for Edit/Write/MultiEdit/NotebookEdit |
+| `Stop` | Session exit | Archives session state to `/tmp/brocode-last-session.json` |
+
+**Slash commands (`.claude/commands/`):**
+
+| Command | What it does |
+|---|---|
+| `/session` | Prints a session summary — duration, files touched, tool calls, cost, git checkpoint SHA |
+| `/add-metric` | Guided walkthrough for adding a new status bar segment |
 
 ---
 
 ## Zero dependencies
 
-brocode uses only Node.js standard library modules (`child_process`, `fs`, `path`, `os`). Nothing to `npm audit`. Nothing that breaks on a major version bump.
+brocode uses only Node.js standard library modules (`child_process`, `fs`, `path`, `os`, `https`).
+Nothing to `npm audit`. Nothing that breaks on a major version bump.
 
 ---
 
@@ -93,7 +138,7 @@ The project website lives in `docs/`. To enable:
 See [CLAUDE.md](./CLAUDE.md) for architecture notes, coding conventions, and how to add new metrics.
 
 ```bash
-git clone https://github.com/your-username/brocode.git
+git clone https://github.com/im-adarsh/brocode.git
 cd brocode
 npm install -g .   # install locally for testing
 brocode            # test it
@@ -101,17 +146,12 @@ brocode            # test it
 
 ### Adding a new metric
 
-The project ships a Claude Code slash command that guides you through the full
-three-file pipeline (data → wiring → render) in one go:
-
 ```
 /add-metric
 ```
 
-Run it inside Claude Code from the brocode repo directory.  It will ask what data
-you want to show, where it comes from, and how to display it — then write all the
-required changes to `src/metrics.js`, `bin/brocode-status.js`, and `src/render.js`
-following brocode's conventions (zero deps, spawnSync, ANSI via C object, etc.).
+Run inside Claude Code from the brocode repo. Guides you through the full
+`metrics.js` → `brocode-status.js` → `render.js` pipeline in one pass.
 
 ## License
 

@@ -37,7 +37,6 @@ function visLen(s) {
 /**
  * Wraps text in an OSC 8 terminal hyperlink.
  * Clicking opens the URL in a supporting terminal (iTerm2, Warp, Kitty, etc.).
- * Falls back to plain text in terminals that don't support OSC 8.
  *
  * @param {string} url
  * @param {string} text  May contain ANSI codes
@@ -45,6 +44,17 @@ function visLen(s) {
  */
 function osc8(url, text) {
   return `\x1b]8;;${url}\x1b\\${text}\x1b]8;;\x1b\\`;
+}
+
+/**
+ * Returns terminal width. Prefers $COLUMNS because stdout is piped when
+ * Claude Code calls brocode-status, making process.stdout.columns undefined.
+ * @returns {number}
+ */
+function termWidth() {
+  return parseInt(process.env.COLUMNS, 10) ||
+         process.stdout.columns            ||
+         process.stderr.columns            || 80;
 }
 
 // ─── Shared utilities ─────────────────────────────────────────────────────────
@@ -74,154 +84,218 @@ function shortModelName(modelId) {
   return `${tier.charAt(0).toUpperCase() + tier.slice(1)} ${major}.${minor}`;
 }
 
-// ─── Status line ──────────────────────────────────────────────────────────────
+// ─── Segment builder (shared by all render functions) ─────────────────────────
 
 /**
- * Renders the collapsed status bar inside a single-row Unicode box.
- * Outputs 4 lines:
- *   line 0 — blank  (creates a gap so Claude Code's nudge text lands here,
- *             above the box, without overlapping the border)
- *   line 1 — ┌─────────────────────────────────────────────────────┐
- *   line 2 — │ ⎇ branch  ·  ◆ Model  ·  ⚡ Tool  ·  18% ctx  ·  $ │
- *   line 3 — └─────────────────────────────────────────────────────┘
+ * Builds the array of display segments from shared metrics.
+ * All render functions call this then format the result differently.
  *
- * @param {object}        opts
- * @param {string|null}   opts.branch         Git branch name
- * @param {object|null}   opts.gitChanges      { added, modified, deleted } counts
- * @param {string|null}   opts.toggleCmd       Path to .command toggle script
- * @param {string|null}   opts.model           Active model ID
- * @param {string|null}   opts.activeTool      Most recently called tool name
- * @param {number|null}   opts.usedPct         Context window usage 0–100
- * @param {number|null}   opts.monthlyCost     Month-to-date cost in USD
- * @returns {string}
+ * @param {object} opts
+ * @param {string|null}   opts.branch
+ * @param {object|null}   opts.gitChanges      { added, modified, deleted }
+ * @param {string|null}   opts.gitToggleCmd
+ * @param {string|null}   opts.model
+ * @param {string|null}   opts.activeTool
+ * @param {number|null}   opts.usedPct
+ * @param {number|null}   opts.sessionCost
+ * @param {number|null}   opts.monthlyCost
+ * @param {string[]|null} opts.sessionFiles     Files touched this session
+ * @param {string|null}   opts.sessionToggleCmd
+ * @param {boolean}       opts.collapseGit      Show ▲ collapse link instead of changes
+ * @param {boolean}       opts.collapseSession  Show ▲ collapse link instead of file count
+ * @returns {string[]}
  */
-function renderStatusLine({ branch, gitChanges, toggleCmd, model, activeTool, usedPct, monthlyCost }) {
-  const SEP   = `  ${C.dim}·${C.reset}  `;
+function buildSegments({
+  branch, gitChanges, gitToggleCmd,
+  model, activeTool, usedPct,
+  sessionCost, monthlyCost,
+  sessionFiles, sessionToggleCmd,
+  collapseGit = false, collapseSession = false,
+}) {
   const parts = [];
 
-  // ── Branch + expand link ──────────────────────────────────────────────────
+  // ── Branch ───────────────────────────────────────────────────────────────
   if (branch) {
     let seg = `${C.green}⎇ ${branch}${C.reset}`;
 
-    if (gitChanges) {
+    if (collapseGit) {
+      const label = `${C.yellow}▲${C.reset}`;
+      seg += `  ${gitToggleCmd ? osc8(`file://${gitToggleCmd}`, label) : label}`;
+    } else if (gitChanges) {
       const { added, modified, deleted } = gitChanges;
       const bits = [];
       if (added)    bits.push(`${C.green}+${added}${C.reset}`);
       if (modified) bits.push(`${C.yellow}~${modified}${C.reset}`);
       if (deleted)  bits.push(`${C.red}-${deleted}${C.reset}`);
-
       if (bits.length) {
-        const label = bits.join('  ');
-        seg += `  ${toggleCmd ? osc8(`file://${toggleCmd}`, label) : label}`;
+        const label = bits.join(' ');
+        seg += `  ${gitToggleCmd ? osc8(`file://${gitToggleCmd}`, label) : label}`;
       }
     }
 
     parts.push(seg);
   }
 
-  // ── Model ─────────────────────────────────────────────────────────────────
+  // ── Model ────────────────────────────────────────────────────────────────
   if (model) {
     parts.push(`${C.magenta}◆ ${shortModelName(model)}${C.reset}`);
   }
 
-  // ── Active tool ───────────────────────────────────────────────────────────
+  // ── Active tool ──────────────────────────────────────────────────────────
   if (activeTool) {
     parts.push(`${C.cyan}⚡ ${activeTool}${C.reset}`);
   }
 
-  // ── Context % ─────────────────────────────────────────────────────────────
+  // ── Files touched this session ────────────────────────────────────────────
+  if (sessionFiles != null) {
+    const count = sessionFiles.length;
+    if (count > 0) {
+      const label = `${C.white}✎ ${count}${C.reset}`;
+      if (collapseSession) {
+        const collapse = `${C.yellow}▲${C.reset}`;
+        const link = sessionToggleCmd ? osc8(`file://${sessionToggleCmd}`, collapse) : collapse;
+        parts.push(`${label}  ${link}`);
+      } else {
+        const link = sessionToggleCmd ? osc8(`file://${sessionToggleCmd}`, label) : label;
+        parts.push(link);
+      }
+    }
+  }
+
+  // ── Context % ────────────────────────────────────────────────────────────
   if (usedPct != null) {
+    const pct   = Math.round(usedPct);
     const color = usedPct >= 80 ? C.red : usedPct >= 60 ? C.yellow : C.green;
-    parts.push(`${color}${Math.round(usedPct)}%${C.reset} ${C.dim}ctx${C.reset}`);
+    const warn  = usedPct >= 80 ? `${C.red}⚠ ${C.reset}` : '';
+    parts.push(`${warn}${color}${pct}%${C.reset} ${C.dim}ctx${C.reset}`);
   }
 
-  // ── Monthly cost ──────────────────────────────────────────────────────────
+  // ── Session cost ─────────────────────────────────────────────────────────
+  if (sessionCost != null && sessionCost > 0) {
+    parts.push(`${C.yellow}${formatCost(sessionCost)}${C.reset} ${C.dim}session${C.reset}`);
+  }
+
+  // ── Monthly cost ─────────────────────────────────────────────────────────
   if (monthlyCost != null) {
-    parts.push(`${C.yellow}${formatCost(monthlyCost)}${C.reset} ${C.dim}month${C.reset}`);
+    parts.push(`${C.yellow}${formatCost(monthlyCost)}${C.reset} ${C.dim}/mo${C.reset}`);
   }
 
-  // ── Box ───────────────────────────────────────────────────────────────────
-  // Layout (5 rows):
-  //   row 0 — blank           outside top padding; Claude Code nudge text lands here
-  //   row 1 — ┌──────────────┐
-  //   row 2 — │  content     │  1 space horizontal padding each side
-  //   row 3 — └──────────────┘
-  //   row 4 — blank           outside bottom padding
-  // W: prefer $COLUMNS (set by the shell) because stdout is piped when Claude
-  // Code calls this script, making process.stdout.columns undefined.
-  const W      = parseInt(process.env.COLUMNS, 10) ||
-                 process.stdout.columns            ||
-                 process.stderr.columns            || 80;
-  const inner  = W - 2;            // columns between the │ borders
-  const hPad   = 1;                // 1 space padding each side
-  const cWidth = inner - hPad * 2; // usable content width
-  const content = parts.join(SEP);
-  const fill   = Math.max(0, cWidth - visLen(content));
+  return parts;
+}
 
-  const BX  = C.cyan;             // box colour — matches Claude Code theme
+// ─── Status line (collapsed) ──────────────────────────────────────────────────
+
+/**
+ * Renders the status bar inside a full-width cyan box.
+ *
+ * Output (5 rows):
+ *   row 0 — blank            outside top; Claude Code nudge text lands here
+ *   row 1 — ┌───────────┐
+ *   row 2 — │ segments  │   1 space padding each side
+ *   row 3 — └───────────┘
+ *   row 4 — blank            outside bottom padding
+ *
+ * @param {object} opts  — same shape as buildSegments opts
+ * @returns {string}
+ */
+function renderStatusLine(opts) {
+  const SEP    = `  ${C.dim}·${C.reset}  `;
+  const W      = termWidth();
+  const inner  = W - 2;
+  const hPad   = 1;
+  const cWidth = inner - hPad * 2;
+
+  // Drop segments from the end (lowest priority last) until content fits.
+  // Use cWidth - 2 as the threshold to give a 2-char buffer for any
+  // double-wide Unicode symbols (⚡, ⚠, etc.) that may render wider than
+  // their code-point count in some terminals.
+  let parts = buildSegments(opts);
+  let content = parts.join(SEP);
+  while (visLen(content) > cWidth - 2 && parts.length > 1) {
+    parts = parts.slice(0, -1);
+    content = parts.join(SEP);
+  }
+
+  const fill = Math.max(0, cWidth - visLen(content));
+
+  const BX  = C.cyan;
   const top = `${BX}┌${'─'.repeat(inner)}┐${C.reset}`;
   const mid = `${BX}│${C.reset}${' '.repeat(hPad)}${content}${' '.repeat(fill + hPad)}${BX}│${C.reset}`;
   const bot = `${BX}└${'─'.repeat(inner)}┘${C.reset}`;
 
   return [
-    C.clearEol,       // row 0 — outside top blank (nudge lands here)
-    top,              // row 1 — ┌────┐
-    mid,              // row 2 — │ content │
-    bot,              // row 3 — └────┘
-    C.clearEol,       // row 4 — outside bottom blank
+    C.clearEol,
+    top,
+    mid,
+    bot,
+    C.clearEol,
   ].map((l, i) => (i === 0 || i === 4 ? l : l + C.clearEol)).join('\n');
 }
 
+// ─── Expanded views ───────────────────────────────────────────────────────────
+
 /**
- * Renders the expanded multi-line git file list shown below the status bar.
- * Line 0: the normal status bar with a ▲ collapse link instead of +A ~M -D.
- * Lines 1+: one line per changed file, grouped modified → added → deleted → untracked.
+ * Shared renderer for expanded inline file lists (git or session).
+ * Renders: status bar line (with collapse ▲) + divider + file rows + divider.
  *
- * @param {object}                          opts
- * @param {string|null}                     opts.branch
- * @param {Array<{symbol,file}>|null}       opts.gitFiles    From getGitFiles()
- * @param {string|null}                     opts.toggleCmd   Path to .command toggle script
- * @param {string|null}                     opts.model
- * @param {string|null}                     opts.activeTool
- * @param {number|null}                     opts.usedPct
- * @param {number|null}                     opts.monthlyCost
- * @returns {string}  Multi-line ANSI string (lines joined with \n)
+ * @param {object}                    opts        Same as renderStatusLine opts
+ * @param {Array<{icon,color,file}>}  files       File rows to display
+ * @param {boolean}                   collapseGit
+ * @param {boolean}                   collapseSession
+ * @returns {string}
  */
-function renderGitExpanded({ branch, gitFiles, toggleCmd, model, activeTool, usedPct, monthlyCost }) {
+function renderExpanded(opts, files, { collapseGit = false, collapseSession = false } = {}) {
   const SEP     = `  ${C.dim}·${C.reset}  `;
-  const W       = process.stdout.columns || 80;
-  const divider = `${C.dim}${'─'.repeat(W)}${C.reset}`;
+  const W       = termWidth();
+  const divider = `${C.cyan}${'─'.repeat(W)}${C.reset}`;
 
-  // ── Status line with collapse link ────────────────────────────────────────
-  const parts = [];
+  const parts = buildSegments({ ...opts, collapseGit, collapseSession });
+  const lines = [ parts.join(SEP) + C.clearEol, divider + C.clearEol ];
 
-  if (branch) {
-    const collapseLabel = `${C.yellow}▲${C.reset}`;
-    const collapseLink  = toggleCmd ? osc8(`file://${toggleCmd}`, collapseLabel) : collapseLabel;
-    parts.push(`${C.green}⎇ ${branch}${C.reset}  ${collapseLink}`);
-  }
-  if (model)       parts.push(`${C.magenta}◆ ${shortModelName(model)}${C.reset}`);
-  if (activeTool)  parts.push(`${C.cyan}⚡ ${activeTool}${C.reset}`);
-  if (usedPct != null) {
-    const color = usedPct >= 80 ? C.red : usedPct >= 60 ? C.yellow : C.green;
-    parts.push(`${color}${Math.round(usedPct)}%${C.reset} ${C.dim}ctx${C.reset}`);
-  }
-  if (monthlyCost != null) {
-    parts.push(`${C.yellow}${formatCost(monthlyCost)}${C.reset} ${C.dim}month${C.reset}`);
+  for (const { icon, color, file } of files) {
+    lines.push(`  ${color}${icon}${C.reset}  ${C.white}${file}${C.reset}${C.clearEol}`);
   }
 
-  const lines = [ parts.join(SEP), divider ];
-
-  // ── File list ─────────────────────────────────────────────────────────────
-  const symbolColor = { M: C.yellow, A: C.green, D: C.red, '?': C.cyan };
-
-  for (const { symbol, file } of gitFiles ?? []) {
-    const col = symbolColor[symbol] ?? C.white;
-    lines.push(`  ${col}${symbol}${C.reset}  ${C.white}${file}${C.reset}`);
-  }
-
-  lines.push(divider);
-  return lines.map(l => l + C.clearEol).join('\n');
+  lines.push(divider + C.clearEol);
+  return lines.join('\n');
 }
 
-module.exports = { renderStatusLine, renderGitExpanded, formatCost, shortModelName };
+/**
+ * Renders the expanded git file list.
+ *
+ * @param {object}                    opts
+ * @param {Array<{symbol,file}>|null} opts.gitFiles
+ * @returns {string}
+ */
+function renderGitExpanded(opts) {
+  const symbolColor = { M: C.yellow, A: C.green, D: C.red, '?': C.cyan };
+  const files = (opts.gitFiles ?? []).map(({ symbol, file }) => ({
+    icon:  symbol,
+    color: symbolColor[symbol] ?? C.white,
+    file,
+  }));
+  return renderExpanded(opts, files, { collapseGit: true });
+}
+
+/**
+ * Renders the expanded session files list (files touched this session).
+ *
+ * @param {object} opts
+ * @returns {string}
+ */
+function renderSessionExpanded(opts) {
+  const files = (opts.sessionFiles ?? []).map(file => ({
+    icon:  '✎',
+    color: C.white,
+    file,
+  }));
+  return renderExpanded(opts, files, { collapseSession: true });
+}
+
+module.exports = {
+  renderStatusLine,
+  renderGitExpanded,
+  renderSessionExpanded,
+  formatCost,
+  shortModelName,
+};

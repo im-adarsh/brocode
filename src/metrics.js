@@ -9,8 +9,12 @@ const os    = require('os');
 const COST_CACHE      = path.join(os.tmpdir(), 'brocode-monthly-cost.json');
 const COST_CACHE_TTL  = 5 * 60 * 1000; // 5 minutes
 
-const GIT_EXPANDED_FILE = path.join(os.tmpdir(), 'brocode-git-expanded');
-const GIT_TOGGLE_CMD    = path.join(os.tmpdir(), 'brocode-git-toggle.command');
+const GIT_EXPANDED_FILE     = path.join(os.tmpdir(), 'brocode-git-expanded');
+const GIT_TOGGLE_CMD        = path.join(os.tmpdir(), 'brocode-git-toggle.command');
+
+const SESSION_FILE          = path.join(os.tmpdir(), 'brocode-session.json');
+const SESSION_EXPANDED_FILE = path.join(os.tmpdir(), 'brocode-session-expanded');
+const SESSION_TOGGLE_CMD    = path.join(os.tmpdir(), 'brocode-session-toggle.command');
 
 // ─── Git ──────────────────────────────────────────────────────────────────────
 
@@ -66,7 +70,6 @@ function getGitFiles(cwd = process.cwd()) {
   });
   if (result.status !== 0 || !result.stdout.trim()) return null;
 
-  // Collect in display order: modified, added/staged, deleted, untracked
   const modified = [], added = [], deleted = [], untracked = [];
 
   for (const line of result.stdout.split('\n').filter(Boolean)) {
@@ -98,11 +101,7 @@ function isGitExpanded() {
 }
 
 /**
- * Writes (or refreshes) the toggle .command script to /tmp.
- * On macOS, clicking an OSC 8 `file://` link to a .command file opens it in
- * Terminal.app. The script flips the expansion state file and closes itself
- * silently via osascript so the window disappears in under a second.
- *
+ * Writes (or refreshes) the git toggle .command script to /tmp.
  * @returns {string}  Absolute path to the .command file
  */
 function ensureGitToggleCommand() {
@@ -110,7 +109,6 @@ function ensureGitToggleCommand() {
     '#!/bin/bash',
     `TOGGLE="${GIT_EXPANDED_FILE}"`,
     '[ -f "$TOGGLE" ] && rm -f "$TOGGLE" || touch "$TOGGLE"',
-    '# Close this window silently',
     'osascript -e \'tell application "Terminal" to close front window\' 2>/dev/null || true',
     'osascript -e \'tell application "iTerm2" to close current session\' 2>/dev/null || true',
     'exit 0',
@@ -118,6 +116,78 @@ function ensureGitToggleCommand() {
 
   fs.writeFileSync(GIT_TOGGLE_CMD, script, { mode: 0o755 });
   return GIT_TOGGLE_CMD;
+}
+
+// ─── Session state ────────────────────────────────────────────────────────────
+
+/**
+ * Writes the initial session state to SESSION_FILE.
+ * Records the current git HEAD as a checkpoint reference.
+ * Called once by brocode.js on launch, before spawning claude.
+ *
+ * @param {string} cwd
+ */
+function initSessionState(cwd) {
+  let checkpointSha = null;
+  try {
+    const r = spawnSync('git', ['rev-parse', 'HEAD'], {
+      cwd, encoding: 'utf8', timeout: 2000,
+    });
+    if (r.status === 0) checkpointSha = r.stdout.trim();
+  } catch {}
+
+  const state = {
+    startTime:     Date.now(),
+    checkpointSha,
+    checkpointCwd: cwd,
+    files:         [],
+    toolCalls:     0,
+  };
+
+  try { fs.writeFileSync(SESSION_FILE, JSON.stringify(state)); } catch {}
+}
+
+/**
+ * Reads the current session state from SESSION_FILE.
+ * Returns a safe default when the file is absent or unreadable.
+ *
+ * @returns {{ files: string[], toolCalls: number, startTime: number, checkpointSha: string|null }}
+ */
+function getSessionData() {
+  try {
+    return JSON.parse(fs.readFileSync(SESSION_FILE, 'utf8'));
+  } catch {
+    return { files: [], toolCalls: 0, startTime: Date.now(), checkpointSha: null };
+  }
+}
+
+/**
+ * Returns true if the user has toggled the session file list open.
+ * @returns {boolean}
+ */
+function isSessionExpanded() {
+  return fs.existsSync(SESSION_EXPANDED_FILE);
+}
+
+/**
+ * Writes (or refreshes) the session toggle .command script to /tmp.
+ * Same mechanism as git toggle — clicking the OSC 8 link opens/closes
+ * the session files inline in the status bar.
+ *
+ * @returns {string}  Absolute path to the .command file
+ */
+function ensureSessionToggleCommand() {
+  const script = [
+    '#!/bin/bash',
+    `TOGGLE="${SESSION_EXPANDED_FILE}"`,
+    '[ -f "$TOGGLE" ] && rm -f "$TOGGLE" || touch "$TOGGLE"',
+    'osascript -e \'tell application "Terminal" to close front window\' 2>/dev/null || true',
+    'osascript -e \'tell application "iTerm2" to close current session\' 2>/dev/null || true',
+    'exit 0',
+  ].join('\n') + '\n';
+
+  fs.writeFileSync(SESSION_TOGGLE_CMD, script, { mode: 0o755 });
+  return SESSION_TOGGLE_CMD;
 }
 
 // ─── Session JSONL ────────────────────────────────────────────────────────────
@@ -232,6 +302,10 @@ module.exports = {
   getGitFiles,
   isGitExpanded,
   ensureGitToggleCommand,
+  initSessionState,
+  getSessionData,
+  isSessionExpanded,
+  ensureSessionToggleCommand,
   getActiveTool,
   fetchMonthlyCost,
 };

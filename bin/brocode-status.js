@@ -6,15 +6,10 @@
  *
  * Claude Code calls this script on every refresh, piping a JSON blob to stdin.
  *
- * Collapsed (default):  prints one line — git changes are an OSC 8 link to
- *   the toggle .command script.  Clicking expands the file list.
- *
- * Expanded:  prints multiple lines — status bar + divider + file list.
- *   The ▲ in the status bar collapses it again.
- *
- * The expansion state lives in /tmp/brocode-git-expanded (presence = expanded).
- * The toggle is driven by /tmp/brocode-git-toggle.command (a macOS shell
- * script that flips the state file and closes its Terminal.app window).
+ * Modes (checked in order):
+ *   1. Git expanded   — status bar + git file list (click +A~M to toggle)
+ *   2. Session expanded — status bar + session files list (click ✎ N to toggle)
+ *   3. Collapsed      — normal full-width cyan box status bar
  *
  * stdin schema (supplied by Claude Code):
  * {
@@ -32,11 +27,14 @@ const {
   getGitFiles,
   isGitExpanded,
   ensureGitToggleCommand,
+  getSessionData,
+  isSessionExpanded,
+  ensureSessionToggleCommand,
   getActiveTool,
   fetchMonthlyCost,
 } = require('../src/metrics');
 
-const { renderStatusLine, renderGitExpanded } = require('../src/render');
+const { renderStatusLine, renderGitExpanded, renderSessionExpanded } = require('../src/render');
 
 let raw = '';
 process.stdin.setEncoding('utf8');
@@ -53,19 +51,42 @@ process.stdin.on('end', async () => {
   const transcriptPath = data.transcript_path ?? null;
   const ctx            = data.context_window || {};
 
-  const monthlyCost = await fetchMonthlyCost();
+  const monthlyCost  = await fetchMonthlyCost();
+  const sessionData  = getSessionData();
 
-  const branch     = getGitBranch(cwd);
-  const model      = data.model?.id ?? null;
-  const activeTool = getActiveTool(transcriptPath);
-  const usedPct    = ctx.used_percentage ?? null;
-  const toggleCmd  = ensureGitToggleCommand();
+  // Sanity-check cost: Claude Code may send values in micro-dollars or
+  // other units. A real session costs $0–$100. Discard anything outside
+  // that range to avoid displaying garbage like "$78900session".
+  const rawCost    = data.cost?.total_cost_usd ?? null;
+  const sessionCost = (typeof rawCost === 'number' && rawCost >= 0 && rawCost <= 100)
+    ? rawCost
+    : null;
 
-  const shared = { branch, model, activeTool, usedPct, monthlyCost, toggleCmd };
+  const branch          = getGitBranch(cwd);
+  const model           = data.model?.id ?? null;
+  const activeTool      = getActiveTool(transcriptPath);
+  // Sanity-check context %: must be 0–100. Claude Code occasionally sends
+  // values like 563 when data is in wrong units or corrupt.
+  const rawPct  = ctx.used_percentage ?? null;
+  const usedPct = (typeof rawPct === 'number' && rawPct >= 0 && rawPct <= 100)
+    ? rawPct
+    : null;
+  const gitToggleCmd    = ensureGitToggleCommand();
+  const sessionToggleCmd = ensureSessionToggleCommand();
+
+  const shared = {
+    branch, model, activeTool, usedPct,
+    monthlyCost, sessionCost,
+    sessionFiles:   sessionData.files,
+    gitToggleCmd,
+    sessionToggleCmd,
+  };
 
   if (isGitExpanded()) {
     const gitFiles = getGitFiles(cwd);
     process.stdout.write(renderGitExpanded({ ...shared, gitFiles }) + '\n');
+  } else if (isSessionExpanded()) {
+    process.stdout.write(renderSessionExpanded(shared) + '\n');
   } else {
     const gitChanges = getGitChanges(cwd);
     process.stdout.write(renderStatusLine({ ...shared, gitChanges }) + '\n');
