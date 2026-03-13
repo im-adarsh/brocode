@@ -167,17 +167,17 @@ function buildSegments({
     const pct   = Math.round(usedPct);
     const color = usedPct >= 80 ? C.red : usedPct >= 60 ? C.yellow : C.green;
     const warn  = usedPct >= 80 ? `${C.red}⚠ ${C.reset}` : '';
-    parts.push(`${warn}${color}${pct}%${C.reset} ${C.dim}ctx${C.reset}`);
+    parts.push(`${warn}${color}${pct}%${C.reset}${C.dim} ctx${C.reset}`);
   }
 
   // ── Session cost ─────────────────────────────────────────────────────────
   if (sessionCost != null && sessionCost > 0) {
-    parts.push(`${C.yellow}${formatCost(sessionCost)}${C.reset} ${C.dim}session${C.reset}`);
+    parts.push(`${C.yellow}${formatCost(sessionCost)}${C.reset}${C.dim} session${C.reset}`);
   }
 
   // ── Monthly cost ─────────────────────────────────────────────────────────
   if (monthlyCost != null) {
-    parts.push(`${C.yellow}${formatCost(monthlyCost)}${C.reset} ${C.dim}/mo${C.reset}`);
+    parts.push(`${C.yellow}${formatCost(monthlyCost)}${C.reset}${C.dim} /mo${C.reset}`);
   }
 
   return parts;
@@ -206,12 +206,12 @@ function renderStatusLine(opts) {
   const cWidth = inner - hPad * 2;
 
   // Drop segments from the end (lowest priority last) until content fits.
-  // Use cWidth - 2 as the threshold to give a 2-char buffer for any
-  // double-wide Unicode symbols (⚡, ⚠, etc.) that may render wider than
-  // their code-point count in some terminals.
+  // Use cWidth - 4 as threshold: 2-char buffer for double-wide Unicode
+  // symbols (⚡, ⚠) that may render wider than their code-point count,
+  // plus 2-char buffer for Claude Code's own left-margin padding.
   let parts = buildSegments(opts);
   let content = parts.join(SEP);
-  while (visLen(content) > cWidth - 2 && parts.length > 1) {
+  while (visLen(content) > cWidth - 4 && parts.length > 1) {
     parts = parts.slice(0, -1);
     content = parts.join(SEP);
   }
@@ -223,13 +223,10 @@ function renderStatusLine(opts) {
   const mid = `${BX}│${C.reset}${' '.repeat(hPad)}${content}${' '.repeat(fill + hPad)}${BX}│${C.reset}`;
   const bot = `${BX}└${'─'.repeat(inner)}┘${C.reset}`;
 
-  return [
-    C.clearEol,
-    top,
-    mid,
-    bot,
-    C.clearEol,
-  ].map((l, i) => (i === 0 || i === 4 ? l : l + C.clearEol)).join('\n');
+  // 3-row box: top border + content + bottom border.
+  // No outer blank rows — they don't affect Claude Code's nudge placement
+  // and just waste vertical space.
+  return [top, mid, bot].map(l => l + C.clearEol).join('\n');
 }
 
 // ─── Expanded views ───────────────────────────────────────────────────────────

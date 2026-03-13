@@ -296,6 +296,39 @@ async function fetchMonthlyCost() {
   }
 }
 
+// ─── Terminal width ────────────────────────────────────────────────────────────
+
+/**
+ * Returns the terminal column count.
+ *
+ * When Claude Code calls brocode-status it pipes both stdin and stdout,
+ * so process.stdout.columns is undefined and COLUMNS may be unset.
+ * As a fallback we query stty via /dev/tty, which connects directly to
+ * the controlling terminal regardless of stdio redirection.
+ *
+ * @returns {number}
+ */
+function getTerminalWidth() {
+  const fromEnv = parseInt(process.env.COLUMNS, 10);
+  if (fromEnv > 0) return fromEnv;
+  if (process.stdout.columns > 0) return process.stdout.columns;
+  if (process.stderr.columns > 0) return process.stderr.columns;
+
+  try {
+    const ttyFd = fs.openSync('/dev/tty', 'r');
+    const r = spawnSync('stty', ['size'], {
+      encoding: 'utf8',
+      stdio: [ttyFd, 'pipe', 'pipe'],
+      timeout: 500,
+    });
+    fs.closeSync(ttyFd);
+    const cols = parseInt((r.stdout.trim().split(' '))[1], 10);
+    if (cols > 0) return cols;
+  } catch { /* /dev/tty unavailable (CI, containers, etc.) */ }
+
+  return 80;
+}
+
 module.exports = {
   getGitBranch,
   getGitChanges,
@@ -308,4 +341,5 @@ module.exports = {
   ensureSessionToggleCommand,
   getActiveTool,
   fetchMonthlyCost,
+  getTerminalWidth,
 };

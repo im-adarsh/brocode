@@ -32,7 +32,13 @@ const {
   ensureSessionToggleCommand,
   getActiveTool,
   fetchMonthlyCost,
+  getTerminalWidth,
 } = require('../src/metrics');
+
+// Detect real terminal width and publish it before any render calls.
+// stdout is piped when Claude Code calls us, so process.stdout.columns is
+// undefined. getTerminalWidth() falls back to stty via /dev/tty.
+process.env.COLUMNS = String(getTerminalWidth());
 
 const { renderStatusLine, renderGitExpanded, renderSessionExpanded } = require('../src/render');
 
