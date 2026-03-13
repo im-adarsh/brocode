@@ -142,37 +142,34 @@ function renderStatusLine({ branch, gitChanges, toggleCmd, model, activeTool, us
 
   // ── Box ───────────────────────────────────────────────────────────────────
   // Layout (5 rows):
-  //   row 0 — blank           outside top padding + space for Claude Code nudge text
+  //   row 0 — blank           outside top padding; Claude Code nudge text lands here
   //   row 1 — ┌──────────────┐
-  //   row 2 — │ (blank row)  │  inside top padding (≈8px)
-  //   row 3 — │  content     │  1 space padding each side (≈8px horizontal)
-  //   row 4 — │ (blank row)  │  inside bottom padding (≈8px)
-  //   row 5 — └──────────────┘
-  //   row 6 — blank           outside bottom padding (≈8px)
-  // Box borders drawn in cyan to match Claude Code's structural UI colour.
-  const W      = process.stdout.columns || 80;
+  //   row 2 — │  content     │  1 space horizontal padding each side
+  //   row 3 — └──────────────┘
+  //   row 4 — blank           outside bottom padding
+  // W: prefer $COLUMNS (set by the shell) because stdout is piped when Claude
+  // Code calls this script, making process.stdout.columns undefined.
+  const W      = parseInt(process.env.COLUMNS, 10) ||
+                 process.stdout.columns            ||
+                 process.stderr.columns            || 80;
   const inner  = W - 2;            // columns between the │ borders
-  const hPad   = 1;                // horizontal padding (spaces each side)
+  const hPad   = 1;                // 1 space padding each side
   const cWidth = inner - hPad * 2; // usable content width
   const content = parts.join(SEP);
   const fill   = Math.max(0, cWidth - visLen(content));
-  const blank  = ' '.repeat(inner);
 
   const BX  = C.cyan;             // box colour — matches Claude Code theme
   const top = `${BX}┌${'─'.repeat(inner)}┐${C.reset}`;
-  const gap = `${BX}│${C.reset}${blank}${BX}│${C.reset}`;
   const mid = `${BX}│${C.reset}${' '.repeat(hPad)}${content}${' '.repeat(fill + hPad)}${BX}│${C.reset}`;
   const bot = `${BX}└${'─'.repeat(inner)}┘${C.reset}`;
 
   return [
     C.clearEol,       // row 0 — outside top blank (nudge lands here)
     top,              // row 1 — ┌────┐
-    gap,              // row 2 — │    │  inside top padding
-    mid,              // row 3 — │ content │
-    gap,              // row 4 — │    │  inside bottom padding
-    bot,              // row 5 — └────┘
-    C.clearEol,       // row 6 — outside bottom blank
-  ].map((l, i) => (i === 0 || i === 6 ? l : l + C.clearEol)).join('\n');
+    mid,              // row 2 — │ content │
+    bot,              // row 3 — └────┘
+    C.clearEol,       // row 4 — outside bottom blank
+  ].map((l, i) => (i === 0 || i === 4 ? l : l + C.clearEol)).join('\n');
 }
 
 /**
