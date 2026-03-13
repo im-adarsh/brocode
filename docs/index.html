@@ -315,14 +315,20 @@
     .b-cost   { color: var(--amber); }
     .b-dim    { color: rgba(255,255,255,0.25); }
 
-    /* Status bar */
+    /* Status bar — full-width cyan box with 8px padding all sides */
+    .term-statusbar-wrap {
+      background: #111126;
+      padding: 0.5rem 0;    /* outside vertical padding */
+    }
+    .term-statusbar-box {
+      border: 1px solid var(--cyan);
+      margin: 0 0.5rem;
+      padding: 0.5rem 0.75rem;  /* inside padding ≈ 8px */
+    }
     .term-statusbar {
       display: flex;
       align-items: center;
       gap: 0;
-      background: #111126;
-      border-top: 1px solid rgba(255,255,255,0.07);
-      padding: 0.4rem 1.1rem;
       font-size: 0.75rem;
       white-space: nowrap;
       overflow: hidden;
@@ -332,7 +338,7 @@
     .sb-sep    { color: rgba(255,255,255,0.2); margin: 0 0.6rem; }
     .sb-bar    { color: var(--green); }
     .sb-bar-empty { color: rgba(255,255,255,0.18); }
-    .sb-pct    { color: var(--amber); margin-left: 0.4rem; }
+    .sb-pct    { color: var(--green); margin-left: 0.4rem; }
     .sb-cost   { color: var(--amber); }
     .sb-dim    { color: rgba(255,255,255,0.3); margin-left: 0.35rem; }
 
@@ -409,6 +415,7 @@
     .feat-card:nth-child(2) .feat-icon { color: var(--magenta); }
     .feat-card:nth-child(3) .feat-icon { color: var(--cyan); }
     .feat-card:nth-child(4) .feat-icon { color: var(--amber); }
+    .feat-card:nth-child(5) .feat-icon { color: var(--cyan); }
 
     /* ── How it works ────────────────────────────────────── */
     #how {
@@ -735,19 +742,23 @@
         <div style="height:0.4rem"></div>
       </div>
 
-      <!-- Status bar -->
-      <div class="term-statusbar">
-        <span class="sb-branch">⎇ main</span>
-        <span style="color:var(--green);margin-left:0.5rem">+2</span>
-        <span style="color:var(--amber);margin-left:0.4rem">~3</span>
-        <span class="sb-sep">·</span>
-        <span class="sb-model">◆ Sonnet 4.6</span>
-        <span class="sb-sep">·</span>
-        <span style="color:var(--cyan)">⚡ Bash</span>
-        <span class="sb-sep">·</span>
-        <span class="sb-pct">18%</span><span class="sb-dim"> ctx</span>
-        <span class="sb-sep">·</span>
-        <span class="sb-cost">$3.42</span><span class="sb-dim"> month</span>
+      <!-- Status bar — full-width cyan box -->
+      <div class="term-statusbar-wrap">
+        <div class="term-statusbar-box">
+          <div class="term-statusbar">
+            <span class="sb-branch">⎇ main</span>
+            <span style="color:var(--green);margin-left:0.5rem">+2</span>
+            <span style="color:var(--amber);margin-left:0.4rem">~3</span>
+            <span class="sb-sep">·</span>
+            <span class="sb-model">◆ Sonnet 4.6</span>
+            <span class="sb-sep">·</span>
+            <span style="color:var(--cyan)">⚡ Bash</span>
+            <span class="sb-sep">·</span>
+            <span class="sb-pct">18%</span><span class="sb-dim"> ctx</span>
+            <span class="sb-sep">·</span>
+            <span class="sb-cost">$3.42</span><span class="sb-dim"> month</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -778,6 +789,11 @@
       <span class="feat-icon">◈</span>
       <div class="feat-title">Monthly Cost</div>
       <p class="feat-desc">Month-to-date spend pulled from the Anthropic Cost Report API, cached and displayed live. Understand your spend without leaving the terminal.</p>
+    </div>
+    <div class="feat-card fade-in">
+      <span class="feat-icon" style="font-family:var(--mono)">/</span>
+      <div class="feat-title">Extensible via <code style="font-family:var(--mono);font-size:.82em">/add-metric</code></div>
+      <p class="feat-desc">A built-in Claude Code slash command guides you through adding any new metric to the status bar — data source, display format, caching — in a single pass. Zero boilerplate.</p>
     </div>
   </div>
 </section>

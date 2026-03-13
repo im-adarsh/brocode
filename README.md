@@ -10,10 +10,14 @@ brocode wraps the `claude` CLI with a persistent live status bar showing git bra
 
 ## What it looks like
 
-Status bar (bottom of Claude Code, updates live):
+Status bar — a full-width cyan box at the bottom of Claude Code, updates live:
 
 ```
-⎇ main  +2 ~3 -1  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  18% ctx  ·  $3.42 month
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                               │
+│  ⎇ main  +2 ~3 -1  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  18% ctx  ·  $3.42 month │
+│                                                                               │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 Clicking `+2 ~3 -1` expands the file list inline:
@@ -94,6 +98,20 @@ cd brocode
 npm install -g .   # install locally for testing
 brocode            # test it
 ```
+
+### Adding a new metric
+
+The project ships a Claude Code slash command that guides you through the full
+three-file pipeline (data → wiring → render) in one go:
+
+```
+/add-metric
+```
+
+Run it inside Claude Code from the brocode repo directory.  It will ask what data
+you want to show, where it comes from, and how to display it — then write all the
+required changes to `src/metrics.js`, `bin/brocode-status.js`, and `src/render.js`
+following brocode's conventions (zero deps, spawnSync, ANSI via C object, etc.).
 
 ## License
 

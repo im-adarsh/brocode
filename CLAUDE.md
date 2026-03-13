@@ -3,10 +3,14 @@
 ## Project purpose
 
 `brocode` is a zero-dependency Node.js CLI that wraps Claude Code (`claude`) and adds a
-**live status bar** at the bottom of the Claude Code UI:
+**live status bar** — a full-width cyan box — at the bottom of the Claude Code UI:
 
 ```
-⎇ main  +2 ~3 -1  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  18% ctx  ·  $3.42 month
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                               │
+│  ⎇ main  +2 ~3 -1  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  18% ctx  ·  $3.42 month │
+│                                                                               │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 | Segment | Source | Notes |
@@ -76,6 +80,27 @@ interpolated into a shell string — which prevents command injection.
 The `C` object holds all ANSI codes including `C.clearEol` (`\x1b[0K`). Do not
 inline escape literals elsewhere. `clearEol` is appended to every output line so
 that shorter refreshes don't leave stale characters from a previous longer line.
+
+### Status bar box rendering
+`renderStatusLine` outputs **7 lines** forming a full-width cyan box with ~8px
+padding on all sides (1 blank line outside top/bottom, 1 blank row inside
+top/bottom, 1 space inside left/right):
+
+```
+[blank]                  ← outside top padding; Claude Code nudge text lands here
+┌──────────────────────┐  ← box border in C.cyan
+│                      │  ← inside top padding
+│  content segments    │  ← 1 space left/right padding
+│                      │  ← inside bottom padding
+└──────────────────────┘  ← box border in C.cyan
+[blank]                  ← outside bottom padding
+```
+
+Box borders use `C.cyan` to match Claude Code's structural UI colour. Content is
+right-padded to fill the inner width exactly using `visLen()` (which strips ANSI
+codes before measuring).  The helper `stripAnsi()` handles both CSI SGR sequences
+and OSC 8 hyperlink sequences so the padding calculation is accurate even when the
+branch segment contains a clickable link.
 
 ### Git changes are clickable via OSC 8
 `ensureGitToggleCommand()` writes a bash script to `/tmp/brocode-git-toggle.command`
@@ -156,9 +181,16 @@ Running `brocode-git` opens a full-screen interactive viewer:
 ## Common tasks
 
 **Add a new metric to the status bar**
+
+The fastest way is to use the `/add-metric` slash command (`.claude/commands/add-metric.md`).
+It will ask what to show and where the data comes from, then make all three changes
+atomically.
+
+Manually:
 1. Add a data-fetching function to `src/metrics.js` and export it
-2. Call it in `bin/brocode-status.js` and pass the result to `renderStatusLine`
-3. Add a new `parts.push(...)` block in `renderStatusLine` in `src/render.js`
+2. Call it in `bin/brocode-status.js` and pass the result to both render functions
+3. Add a new `parts.push(...)` block in **both** `renderStatusLine` and
+   `renderGitExpanded` in `src/render.js` (keep them in sync)
 
 **Change the monthly cost cache TTL**
 Edit `COST_CACHE_TTL` at the top of `src/metrics.js`.
