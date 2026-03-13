@@ -218,15 +218,27 @@ function renderStatusLine(opts) {
 
   const fill = Math.max(0, cWidth - visLen(content));
 
-  const BX  = C.cyan;
-  const top = `${BX}┌${'─'.repeat(inner)}┐${C.reset}`;
-  const mid = `${BX}│${C.reset}${' '.repeat(hPad)}${content}${' '.repeat(fill + hPad)}${BX}│${C.reset}`;
-  const bot = `${BX}└${'─'.repeat(inner)}┘${C.reset}`;
+  const BX      = C.cyan;
+  const top     = `${BX}┌${'─'.repeat(inner)}┐${C.reset}`;
+  const mid     = `${BX}│${C.reset}${' '.repeat(hPad)}${content}${' '.repeat(fill + hPad)}${BX}│${C.reset}`;
+  const bot     = `${BX}└${'─'.repeat(inner)}┘${C.reset}`;
+  const divider = `${C.cyan}${'─'.repeat(W)}${C.reset}`;
 
-  // 3-row box: top border + content + bottom border.
-  // No outer blank rows — they don't affect Claude Code's nudge placement
-  // and just waste vertical space.
-  return [top, mid, bot].map(l => l + C.clearEol).join('\n');
+  const lines = [top, mid, bot].map(l => l + C.clearEol);
+
+  // Always show uncommitted git files below a separator when present.
+  const { gitFiles } = opts;
+  if (gitFiles && gitFiles.length > 0) {
+    const symbolColor = { M: C.yellow, A: C.green, D: C.red, '?': C.cyan };
+    lines.push(divider + C.clearEol);
+    for (const { symbol, file } of gitFiles) {
+      const color = symbolColor[symbol] ?? C.white;
+      lines.push(`  ${color}${symbol}${C.reset}  ${C.white}${file}${C.reset}${C.clearEol}`);
+    }
+    lines.push(divider + C.clearEol);
+  }
+
+  return lines.join('\n');
 }
 
 // ─── Expanded views ───────────────────────────────────────────────────────────

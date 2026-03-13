@@ -7,9 +7,8 @@
  * Claude Code calls this script on every refresh, piping a JSON blob to stdin.
  *
  * Modes (checked in order):
- *   1. Git expanded   — status bar + git file list (click +A~M to toggle)
- *   2. Session expanded — status bar + session files list (click ✎ N to toggle)
- *   3. Collapsed      — normal full-width cyan box status bar
+ *   1. Session expanded — status bar + session files list (click ✎ N to toggle)
+ *   2. Default         — cyan box + uncommitted git files below a separator
  *
  * stdin schema (supplied by Claude Code):
  * {
@@ -25,8 +24,6 @@ const {
   getGitBranch,
   getGitChanges,
   getGitFiles,
-  isGitExpanded,
-  ensureGitToggleCommand,
   getSessionData,
   isSessionExpanded,
   ensureSessionToggleCommand,
@@ -40,7 +37,7 @@ const {
 // undefined. getTerminalWidth() falls back to stty via /dev/tty.
 process.env.COLUMNS = String(getTerminalWidth());
 
-const { renderStatusLine, renderGitExpanded, renderSessionExpanded } = require('../src/render');
+const { renderStatusLine, renderSessionExpanded } = require('../src/render');
 
 let raw = '';
 process.stdin.setEncoding('utf8');
@@ -68,33 +65,31 @@ process.stdin.on('end', async () => {
     ? rawCost
     : null;
 
-  const branch          = getGitBranch(cwd);
-  const model           = data.model?.id ?? null;
-  const activeTool      = getActiveTool(transcriptPath);
+  const branch     = getGitBranch(cwd);
+  const model      = data.model?.id ?? null;
+  const activeTool = getActiveTool(transcriptPath);
   // Sanity-check context %: must be 0–100. Claude Code occasionally sends
   // values like 563 when data is in wrong units or corrupt.
   const rawPct  = ctx.used_percentage ?? null;
   const usedPct = (typeof rawPct === 'number' && rawPct >= 0 && rawPct <= 100)
     ? rawPct
     : null;
-  const gitToggleCmd    = ensureGitToggleCommand();
   const sessionToggleCmd = ensureSessionToggleCommand();
+  const gitChanges       = getGitChanges(cwd);
+  const gitFiles         = getGitFiles(cwd);
 
   const shared = {
     branch, model, activeTool, usedPct,
     monthlyCost, sessionCost,
-    sessionFiles:   sessionData.files,
-    gitToggleCmd,
+    sessionFiles: sessionData.files,
     sessionToggleCmd,
+    gitChanges,
+    gitFiles,
   };
 
-  if (isGitExpanded()) {
-    const gitFiles = getGitFiles(cwd);
-    process.stdout.write(renderGitExpanded({ ...shared, gitFiles }) + '\n');
-  } else if (isSessionExpanded()) {
+  if (isSessionExpanded()) {
     process.stdout.write(renderSessionExpanded(shared) + '\n');
   } else {
-    const gitChanges = getGitChanges(cwd);
-    process.stdout.write(renderStatusLine({ ...shared, gitChanges }) + '\n');
+    process.stdout.write(renderStatusLine(shared) + '\n');
   }
 });
