@@ -186,45 +186,38 @@ function buildSegments({
 // ─── Status line (collapsed) ──────────────────────────────────────────────────
 
 /**
- * Renders the status bar inside a full-width cyan box.
+ * Renders the status bar as a compact single line (no box).
  *
- * Output (5 rows):
- *   row 0 — blank            outside top; Claude Code nudge text lands here
- *   row 1 — ┌───────────┐
- *   row 2 — │ segments  │   1 space padding each side
- *   row 3 — └───────────┘
- *   row 4 — blank            outside bottom padding
+ * Claude Code's statusLine area is split: our output gets the left portion
+ * and Claude Code's own model/effort/progress indicators get the right
+ * portion. A full-width box overflows that boundary and gets truncated with
+ * "…". A plain line degrades gracefully — Claude Code just clips it cleanly.
+ *
+ * Output:
+ *   row 0 — segments joined by  ·  separators
+ *   (optional) ─────── divider
+ *   (optional) file rows
+ *   (optional) ─────── divider
  *
  * @param {object} opts  — same shape as buildSegments opts
  * @returns {string}
  */
 function renderStatusLine(opts) {
-  const SEP    = `  ${C.dim}·${C.reset}  `;
-  const W      = termWidth();
-  const inner  = W - 2;
-  const hPad   = 1;
-  const cWidth = inner - hPad * 2;
+  const SEP     = `  ${C.dim}·${C.reset}  `;
+  const W       = termWidth();
+  const divider = `${C.cyan}${'─'.repeat(W)}${C.reset}`;
 
   // Drop segments from the end (lowest priority last) until content fits.
-  // Use cWidth - 4 as threshold: 2-char buffer for double-wide Unicode
-  // symbols (⚡, ⚠) that may render wider than their code-point count,
-  // plus 2-char buffer for Claude Code's own left-margin padding.
+  // W - 4: 2-char buffer for double-wide Unicode symbols (⚡, ⚠) + 2-char
+  // buffer for Claude Code's own left-margin padding.
   let parts = buildSegments(opts);
   let content = parts.join(SEP);
-  while (visLen(content) > cWidth - 4 && parts.length > 1) {
+  while (visLen(content) > W - 4 && parts.length > 1) {
     parts = parts.slice(0, -1);
     content = parts.join(SEP);
   }
 
-  const fill = Math.max(0, cWidth - visLen(content));
-
-  const BX      = C.cyan;
-  const top     = `${BX}┌${'─'.repeat(inner)}┐${C.reset}`;
-  const mid     = `${BX}│${C.reset}${' '.repeat(hPad)}${content}${' '.repeat(fill + hPad)}${BX}│${C.reset}`;
-  const bot     = `${BX}└${'─'.repeat(inner)}┘${C.reset}`;
-  const divider = `${C.cyan}${'─'.repeat(W)}${C.reset}`;
-
-  const lines = [top, mid, bot].map(l => l + C.clearEol);
+  const lines = [content + C.clearEol];
 
   // Always show uncommitted git files below a separator when present.
   const { gitFiles } = opts;

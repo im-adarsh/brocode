@@ -3,12 +3,10 @@
 ## Project purpose
 
 `brocode` is a zero-dependency Node.js CLI that wraps Claude Code (`claude`) and adds a
-**live status bar** — a full-width cyan box — at the bottom of the Claude Code UI:
+**live status bar** — a compact single line — at the bottom of the Claude Code UI:
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ ⎇ main +2 ~3  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  ✎ 4  ·  18% ctx  ·  $0.42 session │
-└──────────────────────────────────────────────────────────────────────────────┘
+⎇ main +2 ~3  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  ✎ 4  ·  18% ctx  ·  $0.42 session
 ```
 
 | Segment | Source | Notes |
@@ -100,23 +98,29 @@ interpolated into a shell string — which prevents command injection.
 The `C` object holds all ANSI codes including `C.clearEol` (`\x1b[0K`). Do not
 inline escape literals elsewhere. `clearEol` is appended to every output line.
 
-### Status bar box rendering (5 rows)
-`renderStatusLine` outputs a full-width cyan box:
+### Status bar rendering (compact single line)
+`renderStatusLine` outputs a plain line — no box. Claude Code's `statusLine` area
+is split: our output gets the left portion and Claude Code's own model/effort/progress
+indicators get the right portion. A full-width box would overflow that boundary and
+get truncated with `…`. A plain line degrades cleanly.
 
 ```
-[clearEol]                      ← row 0: outside top; Claude Code nudge text lands here
-┌──────────────────────────────┐  ← row 1: border (C.cyan)
-│ content segments             │  ← row 2: 1 space padding each side
-└──────────────────────────────┘  ← row 3: border (C.cyan)
-[clearEol]                      ← row 4: outside bottom blank
+⎇ main +2 ~3  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  ✎ 4  ·  18% ctx  ·  $0.42 session
 ```
 
-Content that is too wide for the terminal drops trailing segments (lowest priority
-last: monthly cost, then session cost) until it fits — prevents line wrap artifacts.
+When uncommitted files exist, a divider and file rows follow:
+
+```
+⎇ main +2 ~3  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  ✎ 4  ·  18% ctx  ·  $0.42 session
+────────────────────────────────────────────────────────────────────────────────
+  M  src/metrics.js
+  A  bin/brocode-hook-tool.js
+────────────────────────────────────────────────────────────────────────────────
+```
 
 ### Content overflow protection
 `renderStatusLine` measures `visLen(content)` and drops segments from the end until
-`visLen(content) <= cWidth`. `visLen()` uses `stripAnsi()` to strip CSI SGR codes
+`visLen(content) <= W - 4`. `visLen()` uses `stripAnsi()` to strip CSI SGR codes
 and OSC 8 hyperlink sequences before counting characters.
 
 ### sessionCost sanity check

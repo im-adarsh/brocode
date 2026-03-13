@@ -12,31 +12,27 @@ configuration required.
 
 ## What it looks like
 
-Full-width cyan box at the bottom of Claude Code, updates live:
+Compact status line at the bottom of Claude Code, updates live:
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ ⎇ main +2 ~3  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  ✎ 4  ·  18% ctx  ·  $0.42 session │
-└──────────────────────────────────────────────────────────────────────────────┘
+⎇ main +2 ~3  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  ✎ 4  ·  18% ctx  ·  $0.42 session
 ```
 
-Context warning fires at ≥ 80%:
+Uncommitted files are always shown below a separator:
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ ⎇ main  ·  ◆ Sonnet 4.6  ·  ✎ 12  ·  ⚠ 87% ctx  ·  $3.21 session  ·  $18.40 /mo │
-└──────────────────────────────────────────────────────────────────────────────┘
-```
-
-Clicking `+2 ~3` expands the git file list inline:
-
-```
-⎇ main  ▲  ·  ◆ Sonnet 4.6  ·  ✎ 4  ·  18% ctx  ·  $0.42 session
+⎇ main +2 ~3  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  ✎ 4  ·  18% ctx  ·  $0.42 session
 ────────────────────────────────────────────────────────────────────────────────
   M  src/metrics.js
   M  src/render.js
   A  bin/brocode-hook-tool.js
 ────────────────────────────────────────────────────────────────────────────────
+```
+
+Context warning fires at ≥ 80%:
+
+```
+⎇ main  ·  ◆ Sonnet 4.6  ·  ✎ 12  ·  ⚠ 87% ctx  ·  $3.21 session  ·  $18.40 /mo
 ```
 
 Clicking `✎ 4` expands the session file list (files touched this session):

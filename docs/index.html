@@ -315,15 +315,14 @@
     .b-cost   { color: var(--amber); }
     .b-dim    { color: rgba(255,255,255,0.25); }
 
-    /* Status bar — full-width cyan box with 8px padding all sides */
+    /* Status bar — compact single line (no box) */
     .term-statusbar-wrap {
       background: #111126;
-      padding: 0.5rem 0;    /* outside vertical padding */
+      padding: 0.4rem 0;
     }
     .term-statusbar-box {
-      border: 1px solid var(--cyan);
       margin: 0 0.5rem;
-      padding: 0.5rem 0.75rem;  /* inside padding ≈ 8px */
+      padding: 0.1rem 0.75rem;
     }
     .term-statusbar {
       display: flex;
@@ -742,7 +741,7 @@
         <div style="height:0.4rem"></div>
       </div>
 
-      <!-- Status bar — full-width cyan box -->
+      <!-- Status bar — compact line -->
       <div class="term-statusbar-wrap">
         <div class="term-statusbar-box">
           <div class="term-statusbar">
