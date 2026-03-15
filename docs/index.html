@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>claude-setup — AI Dev Environment</title>
+  <title>brocode — Claude Code AI Dev Environment</title>
   <style>
     :root {
       --bg: #0d0d0d;
       --surface: #161616;
+      --surface2: #1a1a1a;
       --border: #2a2a2a;
       --accent: #d97706;
       --accent-dim: #92400e;
@@ -17,7 +18,8 @@
       --blue: #60a5fa;
       --purple: #a78bfa;
       --red: #f87171;
-      --code-bg: #1a1a1a;
+      --yellow: #fbbf24;
+      --code-bg: #111;
       font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
     }
 
@@ -66,7 +68,7 @@
     .tagline {
       color: var(--muted);
       font-size: 1.05rem;
-      max-width: 520px;
+      max-width: 580px;
       margin: 0 auto 2rem;
     }
 
@@ -93,18 +95,40 @@
     .btn-primary { background: var(--accent); color: #000; font-weight: 600; }
     .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
 
+    /* ── NAV ── */
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: .6rem 2rem;
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    nav a {
+      color: var(--muted);
+      font-size: .82rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    nav a:hover { color: var(--text); text-decoration: none; }
+
     /* ── LAYOUT ── */
     main {
-      max-width: 900px;
+      max-width: 960px;
       margin: 0 auto;
       padding: 3rem 2rem 5rem;
     }
 
-    section { margin-bottom: 3.5rem; }
+    section { margin-bottom: 4rem; }
 
     h2 {
-      font-size: 1.15rem;
-      letter-spacing: .06em;
+      font-size: 1.1rem;
+      letter-spacing: .08em;
       text-transform: uppercase;
       color: var(--muted);
       margin-bottom: 1.25rem;
@@ -113,9 +137,10 @@
     }
 
     h3 {
-      font-size: 1rem;
+      font-size: .95rem;
       color: var(--text);
-      margin-bottom: .5rem;
+      margin-bottom: .45rem;
+      margin-top: 1.5rem;
     }
 
     p { color: var(--muted); margin-bottom: .75rem; }
@@ -246,9 +271,11 @@
       border-radius: 3px;
       font-weight: 500;
     }
-    .tag-green { background: #052e16; color: var(--green); }
+    .tag-green  { background: #052e16; color: var(--green); }
     .tag-yellow { background: #1c1200; color: var(--accent); }
-    .tag-red { background: #1c0a0a; color: var(--red); }
+    .tag-red    { background: #1c0a0a; color: var(--red); }
+    .tag-blue   { background: #0c1a2e; color: var(--blue); }
+    .tag-purple { background: #160d2e; color: var(--purple); }
 
     /* ── GSD SECTION ── */
     .gsd-banner {
@@ -261,6 +288,7 @@
       grid-template-columns: 1fr auto;
       gap: 1.5rem;
       align-items: center;
+      margin-bottom: 1.25rem;
     }
 
     .gsd-title { color: var(--text); font-size: 1rem; font-weight: 600; margin-bottom: .3rem; }
@@ -269,9 +297,8 @@
     .commands-list {
       list-style: none;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: .5rem;
-      margin-top: 1rem;
     }
 
     .commands-list li {
@@ -285,6 +312,63 @@
     .commands-list li .cmd { color: var(--purple); }
     .commands-list li .cmd-desc { color: var(--muted); margin-left: .5rem; }
 
+    /* ── FLOW ── */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+    }
+
+    .flow-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .4rem .9rem;
+      font-size: .82rem;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .flow-arrow {
+      color: var(--accent);
+      padding: 0 .4rem;
+      font-size: .9rem;
+    }
+
+    /* ── CALLOUT ── */
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--blue);
+      border-radius: 6px;
+      padding: .9rem 1.1rem;
+      font-size: .85rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .callout strong { color: var(--text); }
+
+    /* ── HOOK SUBSECTIONS ── */
+    .hook-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .hook-block h3 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+
+    .hook-block p:last-child { margin-bottom: 0; }
+
     /* ── FOOTER ── */
     footer {
       border-top: 1px solid var(--border);
@@ -297,31 +381,42 @@
     footer a { color: var(--muted); }
     footer a:hover { color: var(--text); }
 
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
       header { padding: 3rem 1.25rem 2rem; }
       main { padding: 2rem 1.25rem 4rem; }
       .gsd-banner { grid-template-columns: 1fr; }
+      nav { gap: 1rem; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="badge">dotfiles · claude code</div>
-  <h1>claude<span>-setup</span></h1>
+  <div class="badge">dotfiles · claude code · hooks</div>
+  <h1>bro<span>code</span></h1>
   <p class="tagline">
-    My personal Claude Code configuration — MCP servers, plugins, hooks, and workflow tooling. Clone and bootstrap in two commands.
+    A shareable Claude Code configuration with enforcement hooks, MCP servers, plugins, and the GSD workflow system. Clone and bootstrap in two commands.
   </p>
   <div class="cta-row">
-    <a class="btn btn-primary" href="https://github.com/adarshkumar/claude-setup">View on GitHub</a>
-    <a class="btn btn-secondary" href="https://github.com/adarshkumar/claude-setup/blob/main/settings.template.json">settings.json</a>
+    <a class="btn btn-primary" href="https://github.com/im-adarsh/brocode" target="_blank">View on GitHub</a>
+    <a class="btn btn-secondary" href="https://github.com/im-adarsh/brocode/blob/main/settings.template.json" target="_blank">settings.json</a>
   </div>
 </header>
+
+<nav>
+  <a href="#install">Install</a>
+  <a href="#hooks">Hooks</a>
+  <a href="#gsd">GSD</a>
+  <a href="#mcp">MCP Servers</a>
+  <a href="#plugins">Plugins</a>
+  <a href="#secrets">Secrets</a>
+  <a href="#updating">Updating</a>
+</nav>
 
 <main>
 
   <!-- INSTALL -->
-  <section>
+  <section id="install">
     <h2>Install</h2>
     <div class="install-block">
       <div class="step">
@@ -329,9 +424,10 @@
         <div class="step-content">
           <div class="step-label">Clone and run the bootstrap script</div>
           <div class="code-line">
-            <code>git clone https://github.com/adarshkumar/claude-setup && cd claude-setup && bash install.sh</code>
-            <button class="copy-btn" onclick="copy(this, 'git clone https://github.com/adarshkumar/claude-setup && cd claude-setup && bash install.sh')">copy</button>
+            <code>git clone https://github.com/im-adarsh/brocode &amp;&amp; cd brocode &amp;&amp; bash install.sh</code>
+            <button class="copy-btn" onclick="copy(this, 'git clone https://github.com/im-adarsh/brocode && cd brocode && bash install.sh')">copy</button>
           </div>
+          <p style="margin-top:.5rem;font-size:.82rem">Copies all <code>hooks/*.js</code> to <code>~/.claude/hooks/</code>. If <code>~/.claude/settings.json</code> already exists it is left untouched — you get a diff command to review and merge manually.</p>
         </div>
       </div>
       <div class="step">
@@ -347,7 +443,17 @@
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-content">
-          <div class="step-label">Launch Claude Code — plugins and MCP servers activate automatically</div>
+          <div class="step-label">Install GSD and any missing plugins inside Claude Code</div>
+          <div class="code-line">
+            <code>/plugins install gsd@claude-plugins-official</code>
+            <button class="copy-btn" onclick="copy(this, '/plugins install gsd@claude-plugins-official')">copy</button>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-label">Launch Claude Code — everything activates automatically</div>
           <div class="code-line">
             <code>claude</code>
             <button class="copy-btn" onclick="copy(this, 'claude')">copy</button>
@@ -357,33 +463,236 @@
     </div>
   </section>
 
+  <!-- HOOKS -->
+  <section id="hooks">
+    <h2>Hooks</h2>
+
+    <p>
+      All <code>bc-*.js</code> hooks live in <code>hooks/</code> in this repo and are installed to <code>~/.claude/hooks/</code> by <code>install.sh</code>.
+      They form a layered enforcement pipeline that fires before and after Claude touches files.
+    </p>
+
+    <div class="callout">
+      <strong>Execution order.</strong> On every <code>PreToolUse</code> event the chain runs in sequence:
+      <code>bc-programmer</code> → <code>bc-planner</code> → <code>bc-secret-guard</code> → <code>bc-test-review</code> → <code>bc-commit-msg</code> → <code>bc-branch-guard</code> → <code>bc-lint</code>.
+      Any hook can hard-block with a message. <code>bc-doc-sync</code> fires on <code>Stop</code>.
+    </div>
+
+    <!-- bc-programmer -->
+    <div class="hook-block">
+      <h3>bc-programmer <span class="tag tag-purple">PreToolUse</span></h3>
+      <p>
+        The primary evaluation gate. Fires <strong>once per session</strong> on the first <code>Write</code> / <code>Edit</code> / <code>MultiEdit</code> / <code>NotebookEdit</code>.
+        Reads the conversation transcript, classifies task complexity and type, recommends the right workflow or skill,
+        and requires Claude to answer five completeness questions before any file is touched.
+        Also suppresses <code>bc-planner</code> by writing its flag file.
+      </p>
+
+      <table style="margin:.75rem 0">
+        <thead>
+          <tr><th>Task signal detected in transcript</th><th>Recommended workflow</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>"new project / app / system / from scratch / greenfield"</td><td><code>/gsd:new-project</code></td></tr>
+          <tr><td>"new feature / refactor / migrate / redesign / rewrite"</td><td><code>/gsd:plan-phase</code></td></tr>
+          <tr><td>"bug / debug / not working / broken / error / crash"</td><td><code>/gsd:debug</code></td></tr>
+          <tr><td>"ui / component / design / css / layout / frontend"</td><td><code>/frontend-design</code> skill</td></tr>
+          <tr><td>"review / PR / audit / check code / pull request"</td><td><code>/pr-review-toolkit</code> skill</td></tr>
+          <tr><td>"implement / build / create / add / integrate / develop"</td><td><code>/feature-dev</code> skill</td></tr>
+          <tr><td>"monitor / watch / poll / every N / schedule / recurring"</td><td><code>/loop</code> skill</td></tr>
+          <tr><td>"update / change / rename / fix (small)"</td><td><code>/gsd:quick</code></td></tr>
+          <tr><td>focused or trivial task</td><td>Direct (with written plan)</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong style="color:var(--text)">Completeness gate</strong> — Claude must write out answers to all five before proceeding:</p>
+      <ol style="color:var(--muted);font-size:.85rem;padding-left:1.5rem;line-height:2">
+        <li>Are you using the recommended workflow (or have a clear reason to deviate)?</li>
+        <li>Have you read every file relevant to this task?</li>
+        <li>Can you state in 3–5 bullets what will change, why, and in what order?</li>
+        <li>Do you know what "done" looks like and how to verify it?</li>
+        <li>Which tests cover this area and will new ones be needed?</li>
+      </ol>
+
+      <p style="margin-top:.75rem"><strong style="color:var(--text)">Allow-through conditions:</strong> GSD workflow or skill already invoked this session · prior edits already exist in the transcript · target file is <code>CLAUDE.md</code>, <code>README.md</code>, <code>.gitignore</code>, <code>LICENSE</code>, or any path under <code>docs/</code> or <code>.planning/</code>.</p>
+      <p style="margin-bottom:0"><strong style="color:var(--text)">Session flags:</strong> <code>/tmp/bc-programmer-&lt;session_id&gt;.flag</code> and <code>/tmp/bc-planner-&lt;session_id&gt;.flag</code> (suppresses bc-planner).</p>
+    </div>
+
+    <!-- bc-planner -->
+    <div class="hook-block">
+      <h3>bc-planner <span class="tag tag-purple">PreToolUse</span></h3>
+      <p>
+        Fallback planning gate. Fires when bc-programmer didn't (e.g. GSD was already active at session start).
+        Asks Claude to write a structured plan covering: what changes, why, in what order, and what risks exist — before the first file edit.
+        Uses <code>/tmp/bc-planner-&lt;session_id&gt;.flag</code> to fire only once per session.
+        Skips doc-only targets and sessions where prior edits are detected in the transcript.
+      </p>
+    </div>
+
+    <!-- bc-secret-guard -->
+    <div class="hook-block">
+      <h3>bc-secret-guard <span class="tag tag-purple">PreToolUse</span></h3>
+      <p>
+        Scans file content <em>before it is written to disk</em>. Blocks if a real credential is found in a git-tracked file.
+      </p>
+      <p><strong style="color:var(--text)">Detected patterns:</strong> Anthropic / OpenAI / AWS / GitHub / GitLab / Stripe / SendGrid / Slack API keys · PEM private key blocks · database connection URLs with embedded passwords · hardcoded <code>password</code> / <code>token</code> / <code>apikey</code> variable assignments.</p>
+      <p style="margin-bottom:0"><strong style="color:var(--text)">Allow-through:</strong> Value matches a placeholder pattern (<code>YOUR_KEY_HERE</code>, <code>process.env.X</code>, <code>&lt;TOKEN&gt;</code>) · file is git-ignored (<code>git check-ignore</code> exits 0) · file is a template, example, fixture, test, or doc file.</p>
+    </div>
+
+    <!-- bc-commit-msg -->
+    <div class="hook-block">
+      <h3>bc-commit-msg <span class="tag tag-purple">PreToolUse</span></h3>
+      <p>Intercepts every <code>git commit</code> Bash call. Extracts the <code>-m</code> argument and validates it:</p>
+      <ul style="color:var(--muted);font-size:.85rem;padding-left:1.5rem;line-height:2">
+        <li>Must start with a conventional commit prefix: <code>feat</code> <code>fix</code> <code>docs</code> <code>chore</code> <code>refactor</code> <code>test</code> <code>perf</code> <code>ci</code> <code>build</code> <code>style</code> <code>revert</code></li>
+        <li>Description after the prefix must be at least 10 characters</li>
+        <li>Not on the vague blocklist: <code>fix</code> <code>update</code> <code>wip</code> <code>misc</code> <code>stuff</code> <code>temp</code> <code>hack</code> <code>asdf</code></li>
+      </ul>
+      <p style="margin-bottom:0"><strong style="color:var(--text)">Pass-through:</strong> HEREDOC-style commits · <code>--allow-empty</code> · <code>--amend --no-edit</code> · merge commits.</p>
+    </div>
+
+    <!-- bc-branch-guard -->
+    <div class="hook-block">
+      <h3>bc-branch-guard <span class="tag tag-purple">PreToolUse</span></h3>
+      <p>Protects against accidental pushes and commits to long-lived branches.</p>
+      <p><strong style="color:var(--text)">Protected branches:</strong> <code>main</code> · <code>master</code> · <code>production</code> · <code>prod</code> · <code>release</code> · <code>stable</code></p>
+      <ul style="color:var(--muted);font-size:.85rem;padding-left:1.5rem;line-height:2">
+        <li><strong style="color:var(--text)">git push on protected branch</strong> → hard block. Suggests <code>git checkout -b &lt;name&gt; &amp;&amp; git push -u origin &lt;name&gt;</code>, deriving the branch name from the last commit message.</li>
+        <li><strong style="color:var(--text)">git commit on protected branch</strong> → soft block. Explains the risk and asks Claude to confirm intent.</li>
+        <li><strong style="color:var(--text)">Per-repo opt-out:</strong> create <code>.bc-branch-override</code> at repo root.</li>
+      </ul>
+    </div>
+
+    <!-- bc-test-review -->
+    <div class="hook-block">
+      <h3>bc-test-review <span class="tag tag-purple">PreToolUse</span></h3>
+      <p>
+        Intercepts <code>git commit</code>. Detects staged source files (<code>.js .ts .py .go</code>, etc.) vs test files.
+        If source changed but zero test files are staged, blocks and asks Claude to review, add, or run tests first.
+      </p>
+      <p><strong style="color:var(--text)">Quality bar enforced in the blocking prompt:</strong> assert behaviour not just execution · cover edge cases · readable test names · no padding tests.</p>
+      <p style="margin-bottom:0"><strong style="color:var(--text)">Auto-detected runners:</strong> <code>npm test</code> · <code>pytest</code> · <code>go test ./...</code> · <code>make test</code>. Skips repos with no test infrastructure, and config/doc/lock-only commits.</p>
+    </div>
+
+    <!-- bc-lint -->
+    <div class="hook-block">
+      <h3>bc-lint <span class="tag tag-purple">PreToolUse</span></h3>
+      <p>Runs the project's linter and type-checker before every <code>git commit</code>. Skips if no code files are staged (docs/config only).</p>
+      <table style="margin:.5rem 0">
+        <thead><tr><th>Runner</th><th>Detected by</th></tr></thead>
+        <tbody>
+          <tr><td><code>lint-staged</code></td><td><code>package.json</code> scripts</td></tr>
+          <tr><td><code>type-check</code> / <code>tsc</code></td><td><code>package.json</code> scripts</td></tr>
+          <tr><td><code>lint</code> / <code>eslint</code></td><td><code>package.json</code> scripts</td></tr>
+          <tr><td><code>make lint</code></td><td><code>Makefile</code> with <code>lint:</code> target</td></tr>
+          <tr><td><code>go vet ./...</code></td><td><code>go.mod</code> present</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-bottom:0">Runs with a 60-second timeout via <code>spawnSync</code>. On failure: shows full output and blocks the commit. On pass: silently allows through.</p>
+    </div>
+
+    <!-- bc-doc-sync -->
+    <div class="hook-block">
+      <h3>bc-doc-sync <span class="tag tag-yellow">Stop</span></h3>
+      <p>
+        Fires when Claude is about to finish responding. If non-doc files have uncommitted changes, blocks and requires documentation to be updated first.
+      </p>
+      <p><strong style="color:var(--text)">Allow-through:</strong> Any file under <code>docs/</code> or <code>CLAUDE.md</code> was updated in the same session pass.</p>
+      <p><strong style="color:var(--text)">When blocked, Claude must:</strong></p>
+      <ol style="color:var(--muted);font-size:.85rem;padding-left:1.5rem;line-height:2">
+        <li>Update <code>CLAUDE.md</code> if architecture, conventions, data flow, or key decisions changed.</li>
+        <li>Update <code>README.md</code> if install steps, features, or usage changed.</li>
+        <li>For each changed API/source file, create or update <code>docs/&lt;Name&gt;.md</code> with: Overview · How It Works · Interface · Configuration · Dependencies · Release Notes (date, summary, breaking changes).</li>
+        <li>Commit and push all docs and code together in a single commit.</li>
+      </ol>
+      <p style="margin-bottom:0"><strong style="color:var(--text)">Release note rules:</strong> one entry per meaningful change · prepend to existing entries · breaking change = removed export, changed signature, changed config key, or changed observable behaviour.</p>
+    </div>
+
+  </section>
+
+  <!-- GSD -->
+  <section id="gsd">
+    <h2>GSD Workflow System</h2>
+
+    <div class="gsd-banner">
+      <div>
+        <div class="gsd-title">Get Shit Done</div>
+        <p class="gsd-desc">A structured Claude Code workflow system. Deep questioning → research → requirements → roadmap → phased execution with atomic commits and verification loops.</p>
+      </div>
+      <a class="btn btn-secondary" href="https://github.com/sjkaliski/gsd" target="_blank">docs →</a>
+    </div>
+
+    <p>Install inside Claude Code:</p>
+    <div class="code-line" style="margin-bottom:1.25rem">
+      <code style="color:var(--purple)">/plugins install gsd@claude-plugins-official</code>
+      <button class="copy-btn" onclick="copy(this, '/plugins install gsd@claude-plugins-official')">copy</button>
+    </div>
+
+    <p>New project lifecycle:</p>
+    <div class="flow">
+      <div class="flow-step">/gsd:new-project</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Research</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Roadmap</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">/gsd:plan-phase N</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">/gsd:execute-phase</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">/gsd:verify-work</div>
+    </div>
+
+    <ul class="commands-list" style="margin-top:1.25rem">
+      <li><span class="cmd">/gsd:new-project</span><span class="cmd-desc">init project: question → research → roadmap</span></li>
+      <li><span class="cmd">/gsd:new-milestone</span><span class="cmd-desc">start a new milestone cycle</span></li>
+      <li><span class="cmd">/gsd:plan-phase N</span><span class="cmd-desc">research + plan a phase before coding</span></li>
+      <li><span class="cmd">/gsd:execute-phase</span><span class="cmd-desc">run plans with atomic commits</span></li>
+      <li><span class="cmd">/gsd:quick</span><span class="cmd-desc">fast task with GSD guarantees, no phase</span></li>
+      <li><span class="cmd">/gsd:progress</span><span class="cmd-desc">check where you are and what's next</span></li>
+      <li><span class="cmd">/gsd:debug</span><span class="cmd-desc">hypothesis-driven bug investigation</span></li>
+      <li><span class="cmd">/gsd:verify-work</span><span class="cmd-desc">UAT against phase requirements</span></li>
+      <li><span class="cmd">/gsd:resume-work</span><span class="cmd-desc">restore context from last session</span></li>
+      <li><span class="cmd">/gsd:pause-work</span><span class="cmd-desc">create handoff for mid-phase pause</span></li>
+      <li><span class="cmd">/gsd:map-codebase</span><span class="cmd-desc">parallel codebase analysis agents</span></li>
+      <li><span class="cmd">/gsd:update</span><span class="cmd-desc">update GSD to latest version</span></li>
+    </ul>
+
+    <div class="callout" style="margin-top:1.25rem">
+      <strong>GSD hook scripts</strong> — <code>gsd-check-update.js</code> (SessionStart), <code>gsd-context-monitor.js</code> (PostToolUse), and <code>gsd-statusline.js</code> (status line) — are installed by GSD itself to <code>~/.claude/hooks/</code>. They handle update checks on session start, context-window warnings as tools run, and the persistent status line display.
+    </div>
+  </section>
+
   <!-- MCP SERVERS -->
-  <section>
+  <section id="mcp">
     <h2>MCP Servers</h2>
-    <p>All servers use <code>npx</code> — no global installs required. Node.js 18+ needed.</p>
+    <p>All servers use <code>npx</code> — no global installs required. Node.js 18+ needed. Configured in <code>settings.template.json</code> under <code>mcpServers</code>.</p>
     <div class="cards">
       <div class="card">
         <div class="card-icon">📚</div>
         <div class="card-name">context7</div>
-        <div class="card-desc">Injects up-to-date library documentation into Claude's context on demand. No more hallucinated APIs.</div>
+        <div class="card-desc">Injects up-to-date library documentation into Claude's context on demand. Eliminates hallucinated APIs and stale examples from the training cutoff.</div>
+        <div style="margin-top:.5rem;font-size:.78rem;color:var(--muted)"><code>@upstash/context7-mcp</code></div>
       </div>
       <div class="card">
         <div class="card-icon">🧠</div>
         <div class="card-name">sequential-thinking</div>
-        <div class="card-desc">Structured multi-step reasoning protocol. Helps Claude think through complex problems methodically.</div>
+        <div class="card-desc">Structured multi-step reasoning protocol. Helps Claude break down complex problems methodically without losing track of intermediate conclusions.</div>
+        <div style="margin-top:.5rem;font-size:.78rem;color:var(--muted)"><code>@modelcontextprotocol/server-sequential-thinking</code></div>
       </div>
       <div class="card">
         <div class="card-icon">🎭</div>
         <div class="card-name">playwright</div>
-        <div class="card-desc">Headless browser automation. Claude can navigate, click, fill forms, and screenshot web pages.</div>
+        <div class="card-desc">Headless browser automation. Claude can navigate pages, click elements, fill forms, scrape content, and take screenshots. Runs headless by default.</div>
+        <div style="margin-top:.5rem;font-size:.78rem;color:var(--muted)"><code>@playwright/mcp@latest</code></div>
       </div>
     </div>
   </section>
 
   <!-- PLUGINS -->
-  <section>
+  <section id="plugins">
     <h2>Plugins</h2>
-    <p>From the official Claude plugins marketplace. Enabled in <code>settings.template.json</code>.</p>
+    <p>From the official Claude plugins marketplace. Declared in <code>settings.template.json</code> under <code>enabledPlugins</code> — they activate automatically when Claude Code loads the settings.</p>
     <table>
       <thead>
         <tr>
@@ -394,109 +703,87 @@
       </thead>
       <tbody>
         <tr>
-          <td>code-review</td>
-          <td>Reviews PRs against project guidelines and style</td>
-          <td><span class="tag tag-yellow">review</span></td>
-        </tr>
-        <tr>
-          <td>commit-commands</td>
-          <td>Commit, push, open PRs with a single slash command</td>
-          <td><span class="tag tag-green">git</span></td>
-        </tr>
-        <tr>
-          <td>pr-review-toolkit</td>
-          <td>Comprehensive PR review — silent failures, type design, test coverage</td>
-          <td><span class="tag tag-yellow">review</span></td>
-        </tr>
-        <tr>
           <td>feature-dev</td>
-          <td>Guided feature development with codebase exploration and architecture planning</td>
+          <td>Guided feature development: explore codebase → design architecture → implement with full context</td>
+          <td><span class="tag tag-green">dev</span></td>
+        </tr>
+        <tr>
+          <td>frontend-design</td>
+          <td>Production-grade UI generation with distinctive aesthetics — avoids generic AI look</td>
           <td><span class="tag tag-green">dev</span></td>
         </tr>
         <tr>
           <td>code-simplifier</td>
-          <td>Refines code for clarity, consistency, and maintainability</td>
+          <td>Refines completed code for clarity, consistency, and maintainability while preserving all behaviour</td>
           <td><span class="tag tag-green">dev</span></td>
         </tr>
         <tr>
+          <td>code-review</td>
+          <td>Reviews code against project guidelines, CLAUDE.md conventions, and style guides</td>
+          <td><span class="tag tag-yellow">review</span></td>
+        </tr>
+        <tr>
+          <td>pr-review-toolkit</td>
+          <td>Comprehensive PR review via parallel agents: silent failures, type design, test coverage, comment accuracy</td>
+          <td><span class="tag tag-yellow">review</span></td>
+        </tr>
+        <tr>
+          <td>commit-commands</td>
+          <td>Commit, push, and open PRs with a single slash command</td>
+          <td><span class="tag tag-green">git</span></td>
+        </tr>
+        <tr>
           <td>security-guidance</td>
-          <td>Detects OWASP vulnerabilities and security issues</td>
+          <td>Detects OWASP vulnerabilities, injection flaws, and insecure patterns in code</td>
           <td><span class="tag tag-red">security</span></td>
         </tr>
         <tr>
           <td>hookify</td>
-          <td>Create Claude Code hooks to prevent unwanted behaviors</td>
+          <td>Analyze conversation transcripts to create Claude Code hooks that prevent repeated mistakes</td>
           <td><span class="tag tag-yellow">workflow</span></td>
         </tr>
         <tr>
           <td>claude-code-setup</td>
-          <td>Recommends hooks, agents, and MCP servers for your project</td>
+          <td>Analyzes a codebase and recommends hooks, subagents, skills, and MCP servers to configure</td>
           <td><span class="tag tag-yellow">workflow</span></td>
         </tr>
         <tr>
           <td>claude-md-management</td>
-          <td>Audits and improves CLAUDE.md files across your repos</td>
+          <td>Audits and improves CLAUDE.md files across all repos for quality and completeness</td>
           <td><span class="tag tag-yellow">workflow</span></td>
         </tr>
         <tr>
-          <td>frontend-design</td>
-          <td>Production-grade UI generation — avoids generic AI aesthetics</td>
-          <td><span class="tag tag-green">dev</span></td>
-        </tr>
-        <tr>
           <td>typescript-lsp</td>
-          <td>TypeScript language server — inline diagnostics and completions</td>
-          <td><span class="tag tag-green">lsp</span></td>
-        </tr>
-        <tr>
-          <td>swift-lsp</td>
-          <td>Swift language server</td>
-          <td><span class="tag tag-green">lsp</span></td>
+          <td>TypeScript language server — inline diagnostics, type errors, and completions</td>
+          <td><span class="tag tag-blue">lsp</span></td>
         </tr>
         <tr>
           <td>pyright-lsp</td>
-          <td>Python type checking via Pyright</td>
-          <td><span class="tag tag-green">lsp</span></td>
+          <td>Python static type checking via Pyright</td>
+          <td><span class="tag tag-blue">lsp</span></td>
         </tr>
         <tr>
           <td>gopls-lsp</td>
-          <td>Go language server</td>
-          <td><span class="tag tag-green">lsp</span></td>
+          <td>Go language server — type checking, imports, and diagnostics</td>
+          <td><span class="tag tag-blue">lsp</span></td>
+        </tr>
+        <tr>
+          <td>swift-lsp</td>
+          <td>Swift language server integration</td>
+          <td><span class="tag tag-blue">lsp</span></td>
         </tr>
       </tbody>
     </table>
-  </section>
-
-  <!-- GSD -->
-  <section>
-    <h2>GSD Workflow System</h2>
-    <div class="gsd-banner">
-      <div>
-        <div class="gsd-title">Get Shit Done</div>
-        <p class="gsd-desc">A structured Claude Code workflow system. Deep questioning → research → requirements → roadmap → execution with atomic commits and verification.</p>
-      </div>
-      <a class="btn btn-secondary" href="https://github.com/sjkaliski/gsd" target="_blank">docs →</a>
-    </div>
-
-    <ul class="commands-list" style="margin-top:1rem">
-      <li><span class="cmd">/gsd:new-project</span><span class="cmd-desc">init project from scratch</span></li>
-      <li><span class="cmd">/gsd:plan-phase</span><span class="cmd-desc">research + plan a phase</span></li>
-      <li><span class="cmd">/gsd:execute-phase</span><span class="cmd-desc">run plans with atomic commits</span></li>
-      <li><span class="cmd">/gsd:progress</span><span class="cmd-desc">check where you are</span></li>
-      <li><span class="cmd">/gsd:debug</span><span class="cmd-desc">systematic bug investigation</span></li>
-      <li><span class="cmd">/gsd:verify-work</span><span class="cmd-desc">UAT against requirements</span></li>
-    </ul>
-
-    <p style="margin-top:1rem">Install inside Claude Code:</p>
-    <div class="code-line" style="background:var(--code-bg);border:1px solid var(--border);border-radius:5px;padding:.4rem .75rem;margin-top:.25rem">
-      <code style="color:var(--purple)">/plugins install gsd@claude-plugins-official</code>
-      <button class="copy-btn" onclick="copy(this, '/plugins install gsd@claude-plugins-official')">copy</button>
+    <p style="margin-top:.75rem">To install a missing plugin inside Claude Code:</p>
+    <div class="code-line">
+      <code>/plugins install &lt;name&gt;@claude-plugins-official</code>
     </div>
   </section>
 
   <!-- SECRETS -->
-  <section>
+  <section id="secrets">
     <h2>Secrets &amp; Security</h2>
+    <p>The repo is safe to make public. Nothing sensitive is committed.</p>
     <table>
       <thead>
         <tr><th>Item</th><th>In repo?</th><th>Notes</th></tr>
@@ -505,37 +792,60 @@
         <tr>
           <td><code>ANTHROPIC_API_KEY</code></td>
           <td><span class="tag tag-red">no</span></td>
-          <td>Placeholder only. Fill in after install.</td>
+          <td>Placeholder only in template. Fill in <code>~/.claude/settings.json</code> after install.</td>
         </tr>
         <tr>
           <td><code>ANTHROPIC_ADMIN_API_KEY</code></td>
           <td><span class="tag tag-red">no</span></td>
-          <td>Optional. For org-level cost reporting.</td>
+          <td>Optional. For org-level cost reporting. Placeholder only.</td>
         </tr>
         <tr>
           <td>MCP server configs</td>
           <td><span class="tag tag-green">yes</span></td>
-          <td>All use <code>npx</code>, no credentials.</td>
+          <td>All use <code>npx</code> with public package names — no credentials.</td>
         </tr>
         <tr>
-          <td>Plugin names</td>
+          <td>Plugin identifiers</td>
           <td><span class="tag tag-green">yes</span></td>
-          <td>Public marketplace identifiers.</td>
+          <td>Public marketplace names only.</td>
         </tr>
         <tr>
           <td>Hook commands</td>
           <td><span class="tag tag-green">yes</span></td>
-          <td>Use <code>$HOME</code> — no machine-specific paths.</td>
+          <td>Template uses <code>$HOME</code> — no machine-specific paths.</td>
+        </tr>
+        <tr>
+          <td><code>~/.claude/settings.json</code></td>
+          <td><span class="tag tag-red">no</span></td>
+          <td>Live settings file is never tracked. Only <code>settings.template.json</code> is committed.</td>
         </tr>
       </tbody>
     </table>
+    <div class="callout" style="margin-top:1rem">
+      <strong>bc-secret-guard</strong> enforces this at runtime — it blocks any attempt to write a real credential to a tracked file, even accidentally during a session.
+    </div>
+  </section>
+
+  <!-- UPDATING -->
+  <section id="updating">
+    <h2>Updating</h2>
+    <p>Pull the latest hooks and re-run install:</p>
+    <div class="code-line" style="margin-bottom:.75rem">
+      <code>git pull &amp;&amp; bash install.sh</code>
+      <button class="copy-btn" onclick="copy(this, 'git pull && bash install.sh')">copy</button>
+    </div>
+    <p>For GSD updates, inside Claude Code:</p>
+    <div class="code-line">
+      <code style="color:var(--purple)">/gsd:update</code>
+      <button class="copy-btn" onclick="copy(this, '/gsd:update')">copy</button>
+    </div>
   </section>
 
 </main>
 
 <footer>
   <p>
-    <a href="https://github.com/adarshkumar/claude-setup">GitHub</a>
+    <a href="https://github.com/im-adarsh/brocode" target="_blank">GitHub</a>
     &nbsp;·&nbsp;
     MIT License
   </p>
@@ -550,6 +860,21 @@
       setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1500);
     });
   }
+
+  // Sticky nav active highlight
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks  = document.querySelectorAll('nav a');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => {
+          a.style.color = a.getAttribute('href') === '#' + e.target.id
+            ? 'var(--accent)' : '';
+        });
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => io.observe(s));
 </script>
 
 </body>
