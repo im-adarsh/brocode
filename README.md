@@ -1,154 +1,143 @@
-# brocode ✦
+# claude-setup
 
-> Claude Code, extended.
+My personal Claude Code configuration — plugins, MCP servers, hooks, and workflow settings. Clone this to bootstrap the same setup on any machine.
 
-brocode wraps the `claude` CLI with a live status bar, automatic session tracking,
-and hooks — giving you a real-time HUD at the bottom of Claude Code with no
-configuration required.
-
-**[Website](https://im-adarsh.github.io/brocode)** · [npm](https://www.npmjs.com/package/brocode) · [Issues](https://github.com/im-adarsh/brocode/issues)
+> **[View the full setup guide →](https://adarshkumar.github.io/claude-setup)**
 
 ---
 
-## What it looks like
+## What's in here
 
-Compact status line at the bottom of Claude Code, updates live:
-
-```
-⎇ main +2 ~3  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  ✎ 4  ·  18% ctx  ·  $0.42 session
-```
-
-Uncommitted files are always shown below a separator:
-
-```
-⎇ main +2 ~3  ·  ◆ Sonnet 4.6  ·  ⚡ Bash  ·  ✎ 4  ·  18% ctx  ·  $0.42 session
-────────────────────────────────────────────────────────────────────────────────
-  M  src/metrics.js
-  M  src/render.js
-  A  bin/brocode-hook-tool.js
-────────────────────────────────────────────────────────────────────────────────
-```
-
-Context warning fires at ≥ 80%:
-
-```
-⎇ main  ·  ◆ Sonnet 4.6  ·  ✎ 12  ·  ⚠ 87% ctx  ·  $3.21 session  ·  $18.40 /mo
-```
-
-Clicking `✎ 4` expands the session file list (files touched this session):
-
-```
-⎇ main  ·  ◆ Sonnet 4.6  ·  ✎ 4 ▲  ·  18% ctx  ·  $0.42 session
-────────────────────────────────────────────────────────────────────────────────
-  ✎  src/metrics.js
-  ✎  src/render.js
-  ✎  bin/brocode-status.js
-  ✎  package.json
-────────────────────────────────────────────────────────────────────────────────
-```
+| File | What it does |
+|------|-------------|
+| `settings.template.json` | Claude Code settings: MCP servers, plugins, hooks, permissions |
+| `install.sh` | Bootstrap script — installs settings and checks dependencies |
 
 ---
 
-## Install
+## Quick start
 
 ```bash
-npm install -g brocode
+git clone https://github.com/adarshkumar/claude-setup
+cd claude-setup
+bash install.sh
 ```
 
-Requires Node.js ≥ 18 and `claude` (Claude Code) in your PATH.
+Then open `~/.claude/settings.json` and fill in your API keys:
 
-## Usage
+```json
+"env": {
+  "ANTHROPIC_API_KEY": "sk-ant-...",
+  "ANTHROPIC_ADMIN_API_KEY": "sk-ant-admin-..."  // optional
+}
+```
 
-Use `brocode` anywhere you'd use `claude`. Every argument is forwarded unchanged.
+---
+
+## MCP Servers
+
+Configured via `settings.template.json`. All use `npx` — no global installs needed. Requires Node.js 18+.
+
+| Server | Package | Purpose |
+|--------|---------|---------|
+| `context7` | `@upstash/context7-mcp` | Up-to-date library docs injected into context |
+| `sequential-thinking` | `@modelcontextprotocol/server-sequential-thinking` | Structured multi-step reasoning |
+| `playwright` | `@playwright/mcp@latest` | Headless browser automation |
+
+---
+
+## Plugins
+
+All plugins are from the official Claude plugins marketplace. They are declared in `settings.template.json` under `enabledPlugins` and activate automatically when Claude Code loads the settings.
+
+| Plugin | Purpose |
+|--------|---------|
+| `code-review` | Review PRs against project guidelines |
+| `commit-commands` | Commit, push, and open PRs |
+| `pr-review-toolkit` | Comprehensive PR review with specialized agents |
+| `feature-dev` | Guided feature development with architecture focus |
+| `code-simplifier` | Simplify code for clarity and maintainability |
+| `security-guidance` | Security review and vulnerability detection |
+| `hookify` | Create hooks to prevent unwanted Claude behaviors |
+| `claude-code-setup` | Automation recommendations for Claude Code projects |
+| `claude-md-management` | Audit and improve CLAUDE.md files |
+| `frontend-design` | Production-grade frontend UI generation |
+| `swift-lsp` | Swift language server (LSP) integration |
+| `typescript-lsp` | TypeScript language server integration |
+| `pyright-lsp` | Python type checking via Pyright |
+| `gopls-lsp` | Go language server integration |
+
+To install a missing plugin inside Claude Code:
+```
+/plugins install <name>@claude-plugins-official
+```
+
+---
+
+## Hooks
+
+The hooks in `settings.template.json` are provided by the **GSD** workflow system (see below). They register automatically when GSD is installed.
+
+| Hook | Trigger | Purpose |
+|------|---------|---------|
+| `gsd-check-update.js` | `SessionStart` | Checks for GSD updates in the background |
+| `gsd-context-monitor.js` | `PostToolUse` | Warns when context window is nearly full |
+| `gsd-statusline.js` | Status line | Shows model, task, directory, context % |
+
+Hook scripts live in `~/.claude/hooks/` after GSD is installed.
+
+---
+
+## GSD — Get Shit Done
+
+GSD is a structured AI workflow system for Claude Code. It adds:
+
+- `/gsd:new-project` — initialize a project with deep questioning → research → requirements → roadmap
+- `/gsd:plan-phase` — research + plan a phase before execution
+- `/gsd:execute-phase` — execute plans with atomic commits and state tracking
+- `/gsd:progress` — check where you are and what's next
+- and [many more commands](https://github.com/sjkaliski/gsd)
+
+**Install GSD** inside Claude Code:
+
+```
+/plugins install gsd@claude-plugins-official
+```
+
+Or follow the [GSD docs](https://github.com/sjkaliski/gsd).
+
+---
+
+## Secrets — what's safe to commit
+
+| Setting | In repo? | Notes |
+|---------|----------|-------|
+| `ANTHROPIC_API_KEY` | No — placeholder only | Fill in `~/.claude/settings.json` after install |
+| `ANTHROPIC_ADMIN_API_KEY` | No — placeholder only | Optional, for org cost reporting |
+| MCP server configs | Yes | All use `npx`, no credentials |
+| Plugin list | Yes | Plugin names are public |
+| Hook commands | Yes | Paths use `$HOME`, no secrets |
+
+**Never commit your actual API keys.** The `settings.template.json` uses `YOUR_..._HERE` placeholders. Your real `~/.claude/settings.json` is not tracked by this repo.
+
+---
+
+## Updating
+
+Pull the latest and re-run install:
 
 ```bash
-brocode                  # same as: claude
-brocode --resume         # same as: claude --resume
-brocode "fix the bug"    # same as: claude "fix the bug"
+git pull
+bash install.sh
 ```
 
-On first run, brocode automatically:
-- Writes a `statusLine` entry into `~/.claude/settings.json`
-- Registers `PostToolUse` and `Stop` hooks to track session activity
-- Initialises the session state (records git HEAD as a checkpoint reference)
-
----
-
-## How it works
-
-| Command | Role |
-|---|---|
-| `brocode` | Configures status line + hooks on first run, then launches `claude` |
-| `brocode-status` | Called by Claude Code on each refresh — reads stdin JSON, outputs the status bar |
-| `brocode-git` | Interactive full-screen git status TUI — collapsible sections, mouse support |
-| `brocode-hook-tool` | PostToolUse hook — tracks every tool call and records edited file paths |
-| `brocode-hook-stop` | Stop hook — archives session summary when Claude Code exits |
-
-**Status bar segments:**
-
-| Segment | Source | Notes |
-|---|---|---|
-| `⎇ branch +A ~M -D` | `git branch`, `git status --porcelain` | Clickable — expands git file list |
-| `◆ Model` | `model.id` from Claude Code stdin | |
-| `⚡ Tool` | Last `tool_use` in session JSONL | MCP tools shown as `MCP:server` |
-| `✎ N` | Session state file (`/tmp/brocode-session.json`) | Clickable — expands files-touched list |
-| `18% ctx` | `context_window.used_percentage` from stdin | Green < 60%, yellow 60–80%, red + ⚠ ≥ 80% |
-| `$0.42 session` | `cost.total_cost_usd` from Claude Code stdin | Cost so far this session |
-| `$N.NN /mo` | `GET /v1/organizations/cost_report` | Requires `ANTHROPIC_ADMIN_API_KEY`; cached 5 min |
-
-**Hooks (auto-registered in `~/.claude/settings.json`):**
-
-| Hook | Trigger | What it does |
-|---|---|---|
-| `PostToolUse` | Every tool call | Increments call counter; records `file_path` for Edit/Write/MultiEdit/NotebookEdit |
-| `Stop` | Session exit | Archives session state to `/tmp/brocode-last-session.json` |
-
-**Slash commands (`.claude/commands/`):**
-
-| Command | What it does |
-|---|---|
-| `/session` | Prints a session summary — duration, files touched, tool calls, cost, git checkpoint SHA |
-| `/add-metric` | Guided walkthrough for adding a new status bar segment |
-
----
-
-## Zero dependencies
-
-brocode uses only Node.js standard library modules (`child_process`, `fs`, `path`, `os`, `https`).
-Nothing to `npm audit`. Nothing that breaks on a major version bump.
-
----
-
-## GitHub Pages
-
-The project website lives in `docs/`. To enable:
-
-1. Push to GitHub
-2. Go to **Settings → Pages → Source**
-3. Set branch to `main`, folder to `/docs`
-
----
-
-## Contributing
-
-See [CLAUDE.md](./CLAUDE.md) for architecture notes, coding conventions, and how to add new metrics.
-
-```bash
-git clone https://github.com/im-adarsh/brocode.git
-cd brocode
-npm install -g .   # install locally for testing
-brocode            # test it
+For GSD updates, inside Claude Code:
+```
+/gsd:update
 ```
 
-### Adding a new metric
-
-```
-/add-metric
-```
-
-Run inside Claude Code from the brocode repo. Guides you through the full
-`metrics.js` → `brocode-status.js` → `render.js` pipeline in one pass.
+---
 
 ## License
 
-[MIT](./LICENSE)
+MIT
