@@ -85,11 +85,57 @@ The hooks in `settings.template.json` are provided by the **GSD** workflow syste
 | `gsd-statusline.js` | Status line | Shows model, task, directory, context % |
 | `bc-programmer.js` | `PreToolUse` | Fires first on the first edit — reads the transcript, classifies task complexity + type, recommends the right GSD command or skill, and requires scope/plan/verification answers before proceeding. Suppresses bc-planner. |
 | `bc-planner.js` | `PreToolUse` | Fallback to bc-programmer. Asks for a written plan if bc-programmer didn't fire (e.g. GSD already active). |
+| `bc-secret-guard.js` | `PreToolUse` | Scans file content being written for hardcoded credentials (API keys, tokens, passwords, private keys, DB URLs). Blocks if a real secret is found in a git-tracked file |
 | `bc-test-review.js` | `PreToolUse` | Intercepts `git commit` — if source files changed but no tests updated, blocks and asks Claude to review/add/run high-quality tests first |
+| `bc-commit-msg.js` | `PreToolUse` | Enforces conventional commit format (`feat/fix/docs/…`), minimum description length, and rejects vague messages (`"fix"`, `"wip"`, `"update"`) |
+| `bc-branch-guard.js` | `PreToolUse` | Blocks `git push` to `main`/`master`/`production`. Soft-blocks `git commit` on protected branches. Suggests feature branch + PR workflow. Opt-out: add `.bc-branch-override` to repo root |
+| `bc-lint.js` | `PreToolUse` | Runs the project's linter/type-checker before `git commit`. Auto-detects: `lint-staged`, `type-check`, `eslint`, `tsc`, `go vet`, `make lint`. Blocks if lint fails |
 | `bc-doc-sync.js` | `Stop` | Blocks finishing if non-doc files have uncommitted changes. Asks Claude to update CLAUDE.md, README.md, and generate/update `docs/<Name>.md` for each changed API file with implementation details and a release note entry |
 
 GSD hook scripts (`gsd-*.js`) live in `~/.claude/hooks/` after GSD is installed.
 `bc-*.js` hooks are included in this repo under `hooks/` and installed to `~/.claude/hooks/` by `install.sh`.
+
+### bc-secret-guard behaviour
+
+Fires on `Write` / `Edit` / `MultiEdit` before content is saved. Scans the new content for real credentials using pattern matching. Allows through if:
+- Value matches a placeholder pattern (`YOUR_API_KEY_HERE`, `process.env.X`, `<TOKEN>`, etc.)
+- File is git-ignored (`git check-ignore` returns 0)
+- File is a template, example, fixture, test, or doc file
+
+Detected patterns: Anthropic / OpenAI / AWS / GitHub / GitLab / Stripe / SendGrid / Slack keys, private key blocks, DB URLs with passwords, hardcoded password/token/apikey assignments.
+
+### bc-commit-msg behaviour
+
+Fires on any `Bash` call matching `git commit`. Extracts the `-m` argument and validates:
+- Presence of a conventional commit prefix (`feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `perf`, `ci`, `build`, `style`, `revert`)
+- Minimum 10-character description after the prefix
+- Not a vague message from the blocklist (`fix`, `update`, `wip`, `misc`, `stuff`, `temp`, `hack`, `asdf`, etc.)
+
+Passes through: HEREDOC-style commits, `--allow-empty`, `--amend --no-edit`, merge commits.
+
+### bc-branch-guard behaviour
+
+Fires on `git push` and `git commit`. Checks `git branch --show-current` against protected set: `main`, `master`, `production`, `prod`, `release`, `stable`.
+
+- **`git push` on protected branch** → hard block, suggests `git checkout -b <name> && git push -u origin <name>`
+- **`git commit` on protected branch** → soft block, explains risk and asks to confirm intent
+- Suggests a branch name derived from the last commit message
+- Passes through `--force` (user consciously chose it)
+- Per-repo opt-out: create `.bc-branch-override` at repo root
+
+### bc-lint behaviour
+
+Fires on `git commit`. Skips if no code files are staged (only docs/config). Auto-detects the best available runner in priority order:
+
+| Runner | Detected by |
+|--------|-------------|
+| `lint-staged` | `package.json` scripts |
+| `type-check` / `tsc` | `package.json` scripts |
+| `lint` / `eslint` | `package.json` scripts |
+| `make lint` | `Makefile` with `lint:` target |
+| `go vet ./...` | `go.mod` present |
+
+Runs the linter with `spawnSync` (60s timeout). On failure, shows the full output and blocks. On pass, allows the commit through silently.
 
 ### bc-doc-sync behaviour
 

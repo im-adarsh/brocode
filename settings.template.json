@@ -31,7 +31,23 @@
           },
           {
             "type": "command",
+            "command": "node \"$HOME/.claude/hooks/bc-secret-guard.js\""
+          },
+          {
+            "type": "command",
             "command": "node \"$HOME/.claude/hooks/bc-test-review.js\""
+          },
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/bc-commit-msg.js\""
+          },
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/bc-branch-guard.js\""
+          },
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/bc-lint.js\""
           }
         ]
       }
