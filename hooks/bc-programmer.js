@@ -80,7 +80,7 @@ function parseTranscript(tPath) {
         if (role === 'user' && block.type === 'text' && block.text) {
           userTexts.push(block.text.trim());
           // User invoked a GSD command or skill directly
-          if (/\/gsd:|\/feature-dev|\/frontend-design|\/code-review|\/pr-review|\/commit/.test(block.text)) {
+          if (/\/gsd:|\/feature-dev|\/frontend-design|\/code-review|\/pr-review|\/commit|\/loop/.test(block.text)) {
             gsdActive = true;
           }
         }
@@ -92,7 +92,7 @@ function parseTranscript(tPath) {
           // Skill tool invocations
           if (block.name === 'Skill') {
             const skill = block.input?.skill || '';
-            if (/gsd|feature-dev|frontend-design|code-review|pr-review|claude-api/.test(skill)) {
+            if (/gsd|feature-dev|frontend-design|code-review|pr-review|claude-api|loop/.test(skill)) {
               gsdActive = true;
             }
           }
@@ -177,6 +177,14 @@ function classify(text) {
       reason:    'Codebase exploration + architecture design before writing code' };
   }
 
+  // ── Skill: recurring / monitoring ──
+  if (/\b(monitor|watch|poll|check every|recurring|repeat|loop|schedule|every \d+|periodically|background (check|task|job))\b/.test(t)) {
+    return { complexity: 'LOW', type: 'Recurring / Monitoring',
+      primary:   '/loop  (skill)',
+      alternate: 'Direct (one-off)',
+      reason:    'Schedules a recurring prompt at a set interval; e.g. /loop 5m /gsd:progress' };
+  }
+
   // ── GSD: quick contained task ──
   if (/\b(update|change|rename|move|delete|remove|swap|replace|fix (the|a|this|small))\b/.test(t)) {
     return { complexity: 'LOW', type: 'Contained Change',
@@ -227,6 +235,7 @@ L.push(`  /feature-dev        guided feature dev with codebase exploration`);
 L.push(`  /frontend-design    production-grade UI generation`);
 L.push(`  /pr-review-toolkit  comprehensive PR review (parallel agents)`);
 L.push(`  /code-review        targeted code quality review`);
+L.push(`  /loop               schedule a recurring task: /loop 5m /gsd:progress`);
 L.push(hr);
 L.push(``);
 L.push(`Before touching any files, confirm ALL of the following:`);
