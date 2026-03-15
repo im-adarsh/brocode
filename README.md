@@ -85,10 +85,56 @@ The hooks in `settings.template.json` are provided by the **GSD** workflow syste
 | `gsd-statusline.js` | Status line | Shows model, task, directory, context % |
 | `bc-planner.js` | `PreToolUse` | Blocks the first file edit per session and asks Claude to write a full plan (what, why, order) before touching anything |
 | `bc-test-review.js` | `PreToolUse` | Intercepts `git commit` — if source files changed but no tests updated, blocks and asks Claude to review/add/run high-quality tests first |
-| `bc-doc-sync.js` | `Stop` | Blocks finishing if non-doc files have uncommitted changes without updating CLAUDE.md/README.md — asks Claude to sync, commit, and push |
+| `bc-doc-sync.js` | `Stop` | Blocks finishing if non-doc files have uncommitted changes. Asks Claude to update CLAUDE.md, README.md, and generate/update `docs/<Name>.md` for each changed API file with implementation details and a release note entry |
 
 GSD hook scripts (`gsd-*.js`) live in `~/.claude/hooks/` after GSD is installed.
 `bc-*.js` hooks are included in this repo under `hooks/` and installed to `~/.claude/hooks/` by `install.sh`.
+
+### bc-doc-sync behaviour
+
+Fires as a Stop hook. Allow-through condition: any file under `docs/` or `CLAUDE.md` was updated in the same pass — assumes Claude already handled it.
+
+When blocked, Claude is instructed to:
+
+1. **CLAUDE.md** — update if architecture, conventions, data flow, or key decisions changed
+2. **README.md** — update if install steps, features, or usage changed
+3. **`docs/<Name>.md`** — for every changed API/source file, create or update a doc with this structure:
+
+```
+# <API / Module Name>
+
+## Overview
+What this module does and its responsibility.
+
+## How It Works
+- Key algorithms, patterns, data structures
+- Step-by-step data flow
+- Non-obvious implementation decisions
+- Edge cases handled internally
+
+## Interface
+Exported functions/classes with signatures, params, return values.
+
+## Configuration
+Environment variables or config keys read by this module.
+
+## Dependencies
+Other modules/files imported and what they're used for.
+
+## Release Notes
+
+### YYYY-MM-DD
+- **MR:** [short title](https://github.com/.../compare/branch)
+- **Summary:** 1–2 sentence description of what changed
+- **Breaking Changes:** None / description
+```
+
+4. **Commit and push** all docs + code together
+
+**Release note rules:**
+- One entry per meaningful change (per commit/PR)
+- Breaking change = removed export, changed signature, changed config key, or changed behaviour callers relied on
+- If the doc file already exists, new entries are prepended — existing entries are preserved
 
 ### bc-planner behaviour
 
