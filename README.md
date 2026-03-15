@@ -83,7 +83,8 @@ The hooks in `settings.template.json` are provided by the **GSD** workflow syste
 | `gsd-check-update.js` | `SessionStart` | Checks for GSD updates in the background |
 | `gsd-context-monitor.js` | `PostToolUse` | Warns when context window is nearly full |
 | `gsd-statusline.js` | Status line | Shows model, task, directory, context % |
-| `bc-planner.js` | `PreToolUse` | Blocks the first file edit per session and asks Claude to write a full plan (what, why, order) before touching anything |
+| `bc-programmer.js` | `PreToolUse` | Fires first on the first edit — reads the transcript, classifies task complexity + type, recommends the right GSD command or skill, and requires scope/plan/verification answers before proceeding. Suppresses bc-planner. |
+| `bc-planner.js` | `PreToolUse` | Fallback to bc-programmer. Asks for a written plan if bc-programmer didn't fire (e.g. GSD already active). |
 | `bc-test-review.js` | `PreToolUse` | Intercepts `git commit` — if source files changed but no tests updated, blocks and asks Claude to review/add/run high-quality tests first |
 | `bc-doc-sync.js` | `Stop` | Blocks finishing if non-doc files have uncommitted changes. Asks Claude to update CLAUDE.md, README.md, and generate/update `docs/<Name>.md` for each changed API file with implementation details and a release note entry |
 
@@ -135,6 +136,39 @@ Other modules/files imported and what they're used for.
 - One entry per meaningful change (per commit/PR)
 - Breaking change = removed export, changed signature, changed config key, or changed behaviour callers relied on
 - If the doc file already exists, new entries are prepended — existing entries are preserved
+
+### bc-programmer behaviour
+
+Fires first in the PreToolUse chain on the first `Write`/`Edit`/`MultiEdit`/`NotebookEdit` of a session.
+
+**What it evaluates:**
+
+| Signal | Recommendation |
+|--------|---------------|
+| "new project / app / system" | `/gsd:new-project` |
+| "new feature / refactor / migrate" | `/gsd:plan-phase` |
+| "bug / debug / not working" | `/gsd:debug` |
+| "ui / component / design / layout" | `/frontend-design` skill |
+| "review / PR / audit" | `/pr-review-toolkit` skill |
+| "implement / build / add" | `/feature-dev` skill |
+| "update / change / fix (small)" | `/gsd:quick` |
+| focused / trivial | Direct (with plan) |
+
+**Completeness gate** — before allowing through, Claude must answer:
+1. Are you using the recommended approach?
+2. Have you read all relevant files?
+3. Can you state in 3–5 bullets what will change, why, and in what order?
+4. Do you know what "done" looks like and how to verify it?
+5. Which tests cover this area and will new ones be needed?
+
+**Allow-through conditions:**
+- GSD workflow or skill already invoked in this session's transcript
+- Prior file edits already exist in the transcript
+- Target file is `CLAUDE.md`, `README.md`, `.gitignore`, `LICENSE`, or any `docs/` or `.planning/` file
+
+**Session state:**
+- Sets `/tmp/bc-programmer-<session_id>.flag`
+- Also sets `/tmp/bc-planner-<session_id>.flag` — suppresses bc-planner to avoid double-blocking
 
 ### bc-planner behaviour
 

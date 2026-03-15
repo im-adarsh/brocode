@@ -23,6 +23,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"$HOME/.claude/hooks/bc-programmer.js\""
+          },
+          {
+            "type": "command",
             "command": "node \"$HOME/.claude/hooks/bc-planner.js\""
           },
           {
