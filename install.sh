@@ -39,7 +39,26 @@ else
   echo ""
 fi
 
-# 3. GSD (Get Shit Done) workflow system
+# 3. Install hook scripts
+echo "  ─── Hooks ───────────────────────────────────"
+echo ""
+mkdir -p "$CLAUDE_DIR/hooks"
+
+HOOKS_DIR="$SCRIPT_DIR/hooks"
+if [ -d "$HOOKS_DIR" ]; then
+  for hook in "$HOOKS_DIR"/*.js; do
+    [ -f "$hook" ] || continue
+    dest="$CLAUDE_DIR/hooks/$(basename "$hook")"
+    cp "$hook" "$dest"
+    chmod +x "$dest"
+    echo "  ✓  $(basename "$hook") → $dest"
+  done
+else
+  echo "  (no hooks/ directory found)"
+fi
+echo ""
+
+# 4. GSD (Get Shit Done) workflow system
 echo "  ─── GSD Workflow System ─────────────────────"
 echo ""
 if [ -d "$CLAUDE_DIR/get-shit-done" ]; then

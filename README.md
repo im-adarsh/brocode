@@ -83,8 +83,9 @@ The hooks in `settings.template.json` are provided by the **GSD** workflow syste
 | `gsd-check-update.js` | `SessionStart` | Checks for GSD updates in the background |
 | `gsd-context-monitor.js` | `PostToolUse` | Warns when context window is nearly full |
 | `gsd-statusline.js` | Status line | Shows model, task, directory, context % |
+| `bc-doc-sync.js` | `Stop` | Blocks finishing if non-doc files changed without updating CLAUDE.md/README.md — then asks Claude to update, commit, and push |
 
-Hook scripts live in `~/.claude/hooks/` after GSD is installed.
+GSD hook scripts (`gsd-*.js`) live in `~/.claude/hooks/` after GSD is installed. `bc-doc-sync.js` is included in this repo and installed by `install.sh`.
 
 ---
 

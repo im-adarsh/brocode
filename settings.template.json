@@ -27,6 +27,16 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/bc-doc-sync.js\""
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
