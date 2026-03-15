@@ -9,6 +9,18 @@ This repo is a shareable snapshot of my Claude Code configuration.
 - `docs/` — GitHub Pages site
 - `README.md` — setup guide
 
+## Hooks in this repo
+
+All `hooks/*.js` files are the authoritative source. `install.sh` copies them to `~/.claude/hooks/` on bootstrap.
+
+When adding or updating a hook:
+1. Write/edit the file in `hooks/`
+2. Also copy it to `~/.claude/hooks/` (or re-run `install.sh`)
+3. Register it in both `settings.template.json` and `~/.claude/settings.json`
+4. Document it in `README.md` hooks table
+
+Hook naming convention: `bc-<purpose>.js` (`bc` = this setup repo prefix).
+
 ## Rules for editing this repo
 
 ### Never commit real secrets

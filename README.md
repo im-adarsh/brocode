@@ -83,9 +83,30 @@ The hooks in `settings.template.json` are provided by the **GSD** workflow syste
 | `gsd-check-update.js` | `SessionStart` | Checks for GSD updates in the background |
 | `gsd-context-monitor.js` | `PostToolUse` | Warns when context window is nearly full |
 | `gsd-statusline.js` | Status line | Shows model, task, directory, context % |
-| `bc-doc-sync.js` | `Stop` | Blocks finishing if non-doc files changed without updating CLAUDE.md/README.md — then asks Claude to update, commit, and push |
+| `bc-planner.js` | `PreToolUse` | Blocks the first file edit per session and asks Claude to write a full plan (what, why, order) before touching anything |
+| `bc-test-review.js` | `PreToolUse` | Intercepts `git commit` — if source files changed but no tests updated, blocks and asks Claude to review/add/run high-quality tests first |
+| `bc-doc-sync.js` | `Stop` | Blocks finishing if non-doc files have uncommitted changes without updating CLAUDE.md/README.md — asks Claude to sync, commit, and push |
 
-GSD hook scripts (`gsd-*.js`) live in `~/.claude/hooks/` after GSD is installed. `bc-doc-sync.js` is included in this repo and installed by `install.sh`.
+GSD hook scripts (`gsd-*.js`) live in `~/.claude/hooks/` after GSD is installed.
+`bc-*.js` hooks are included in this repo under `hooks/` and installed to `~/.claude/hooks/` by `install.sh`.
+
+### bc-planner behaviour
+
+- Fires once per session on the first `Write`/`Edit`/`MultiEdit`/`NotebookEdit` call
+- Asks for a structured plan: what changes, why, in what order, risks
+- Uses `/tmp/bc-planner-<session_id>.flag` as session state — only blocks once
+- Skips edits to `CLAUDE.md`, `README.md`, `.gitignore`, `LICENSE`
+- Skips if prior edits are detected in the session transcript
+
+### bc-test-review behaviour
+
+- Intercepts any Bash call containing `git commit`
+- Detects staged source files (`.js`, `.ts`, `.py`, `.go`, etc.) vs test files
+- If source changed but zero test files staged → blocks
+- Auto-detects test runner: `npm test`, `pytest`, `go test ./...`, `make test`
+- Skips repos with no test infrastructure
+- Skips config/doc/lock-file-only commits
+- Quality bar in the blocking prompt: assert behaviour not just execution, cover edge cases, readable names, no padding
 
 ---
 

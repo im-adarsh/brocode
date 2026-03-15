@@ -18,6 +18,20 @@
         ]
       }
     ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/bc-planner.js\""
+          },
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/bc-test-review.js\""
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "hooks": [
