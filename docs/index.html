@@ -214,19 +214,15 @@
     .badge-subagent { background: rgba(88,166,255,.12); color: var(--accent); }
     .flow-diagram {
       background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 1.5rem;
-      font-family: var(--font-mono); font-size: .78rem;
-      line-height: 1.85; overflow-x: auto; color: var(--muted);
+      border-radius: var(--radius-lg); padding: 1rem;
+      overflow: hidden;
     }
-    .flow-diagram pre {
-      margin: 0; font: inherit; white-space: pre; line-height: inherit;
+    .flow-diagram .mermaid {
+      display: flex; justify-content: center;
     }
-    .fd-title { color: var(--accent); font-weight: 700; }
-    .fd-node { color: var(--text); }
-    .fd-subagent { color: var(--teal); }
-    .fd-gate { color: var(--orange); }
-    .fd-output { color: var(--green); }
-    .fd-parallel { color: var(--accent2); font-size: .72rem; }
+    .flow-diagram .mermaid svg {
+      max-width: 100%; height: auto;
+    }
 
     /* ── SUBAGENT SECTION ── */
     .subagent-explainer {
@@ -648,34 +644,35 @@
           </div>
         </div>
       </div>
-      <div class="flow-diagram"><pre>
-<span class="fd-title">/brocode &lt;bug&gt;</span>
-                         │
-  <span class="fd-parallel">▼ SWE sub-agents — spawned in parallel, scope-based</span>
-                         │
-        ┌────────────────┼────────────────┐
-        │                │                │
-┌───────┴──────┐  ┌──────┴───────┐  ┌────┴─────────┐
-│   <span class="fd-subagent">Backend</span>    │  │   <span class="fd-subagent">Frontend</span>   │  │   <span class="fd-subagent">Mobile</span>    │
-│  <span class="fd-subagent">(if BE bug)</span>  │  │  <span class="fd-subagent">(if FE bug)</span>  │  │ <span class="fd-subagent">(if mobile)</span>  │
-└───────┬──────┘  └──────┬───────┘  └────┬─────────┘
-        │                │                │
-        └────────────────┼────────────────┘
-                         │  <span class="fd-parallel">← debate in swe-debate.md</span>
-          ┌──────────────┴─────────────┐
-          │     <span class="fd-node">SWE Coordinator</span>      │  <span class="fd-parallel">← SRE runs in parallel</span>
-          └──────────────┬─────────────┘
-                         │
-          ┌──────────────┴─────────────┐
-          │         <span class="fd-node">Staff SWE</span>         │
-          └──────────────┬─────────────┘
-                         │
-          ┌──────────────┴─────────────┐
-          │   <span class="fd-gate">Engineering BR  ⟳</span>     │  <span class="fd-parallel">← max 2 rounds</span>
-          └──────────────┬─────────────┘
-                         │
-                 <span class="fd-output">08-final-spec.md</span>
-</pre></div>
+      <div class="flow-diagram">
+        <div class="mermaid">
+flowchart TD
+    A(["/brocode &lt;bug&gt;"]):::entry
+    subgraph SWE_AGENTS["⚡ SWE sub-agents — parallel, scope-based"]
+      B["⚙️ Backend\n(if BE bug)"]:::subagent
+      C["🖥️ Frontend\n(if FE bug)"]:::subagent
+      D["📱 Mobile\n(if mobile)"]:::subagent
+    end
+    E["🤝 SWE Coordinator\n+ 🚨 SRE in parallel"]:::node
+    F["🏗️ Staff SWE"]:::node
+    G["⚖️ Engineering BR ⟳\nmax 2 rounds"]:::gate
+    H(["📄 08-final-spec.md"]):::output
+
+    A --> SWE_AGENTS
+    B --> E
+    C --> E
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+
+    classDef entry fill:#1f6feb,stroke:#388bfd,color:#e6edf3,rx:8
+    classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
+    classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
+    classDef gate fill:#3d2b00,stroke:#d29922,color:#d29922
+    classDef output fill:#0d3321,stroke:#3fb950,color:#3fb950
+        </div>
+      </div>
     </div>
 
     <div class="flow-panel" id="panel-spec">
@@ -730,51 +727,56 @@
           </div>
         </div>
       </div>
-      <div class="flow-diagram"><pre>
-<span class="fd-title">/brocode &lt;feature&gt;</span>
-          │
-<span class="fd-parallel">  ── PRODUCT TRACK ─────────────────────────────────────</span>
-          │
-  ┌───────┴───────┐   <span class="fd-parallel">↔ converse</span>   ┌───────────────┐
-  │      <span class="fd-node">PM</span>       ├───────────────┤   <span class="fd-node">Designer</span>    │
-  └───────┬───────┘               └───────┬───────┘
-          └──────────────┬─────────────────┘
-                         │
-          ┌──────────────┴─────────────┐
-          │   <span class="fd-gate">Product BR  ⟳  GATE</span>    │  <span class="fd-parallel">← max 2 rounds</span>
-          └──────────────┬─────────────┘
-                         │
-<span class="fd-parallel">  ── ENGINEERING TRACK ─────────────────────────────────</span>
-                         │
-  <span class="fd-parallel">▼ SWE sub-agents — spawned in parallel, scope-based</span>
-                         │
-        ┌────────────────┼────────────────┐
-        │                │                │
-┌───────┴──────┐  ┌──────┴───────┐  ┌────┴─────────┐
-│   <span class="fd-subagent">Backend</span>    │  │   <span class="fd-subagent">Frontend</span>   │  │   <span class="fd-subagent">Mobile</span>    │
-└───────┬──────┘  └──────┬───────┘  └────┬─────────┘
-        │                │                │
-        └────────────────┼────────────────┘
-                         │  <span class="fd-parallel">← debate in swe-debate.md</span>
-          ┌──────────────┴─────────────┐
-          │     <span class="fd-node">SWE Coordinator</span>      │
-          └──────────────┬─────────────┘
-                         │
-          ┌──────────────┴─────────────┐
-          │         <span class="fd-node">Staff SWE</span>         │
-          └───────┬──────────┬─────────┘
-                  │          │
-          ┌───────┴───┐  ┌───┴───────┐
-          │   <span class="fd-node">SRE</span>    │  │    <span class="fd-node">QA</span>    │  <span class="fd-parallel">← parallel</span>
-          └───────┬───┘  └───┬───────┘
-                  └────┬─────┘
-                       │
-          ┌────────────┴────────────┐
-          │  <span class="fd-gate">Engineering BR  ⟳</span>    │  <span class="fd-parallel">← max 2 rounds</span>
-          └────────────┬────────────┘
-                       │
-               <span class="fd-output">08-final-spec.md</span>
-</pre></div>
+      <div class="flow-diagram">
+        <div class="mermaid">
+flowchart TD
+    A(["/brocode &lt;feature&gt;"]):::entry
+
+    subgraph PRODUCT["🎯 Product Track"]
+      PM["🎯 PM"]:::node
+      DS["🎨 Designer"]:::node
+      PM <-->|"converse"| DS
+    end
+
+    PBR["🔬 Product BR ⟳ GATE\nmax 2 rounds · blocks engineering"]:::gate
+
+    subgraph ENG["⚡ SWE sub-agents — parallel, scope-based"]
+      BE["⚙️ Backend"]:::subagent
+      FE["🖥️ Frontend"]:::subagent
+      MB["📱 Mobile"]:::subagent
+    end
+
+    SWE["🤝 SWE Coordinator"]:::node
+    STAFF["🏗️ Staff SWE"]:::node
+
+    subgraph OPS["Parallel"]
+      SRE["🚨 SRE"]:::node
+      QA["🧪 QA"]:::node
+    end
+
+    EBR["⚖️ Engineering BR ⟳\nmax 2 rounds"]:::gate
+    OUT(["📄 08-final-spec.md"]):::output
+
+    A --> PRODUCT
+    PM --> PBR
+    DS --> PBR
+    PBR --> ENG
+    BE --> SWE
+    FE --> SWE
+    MB --> SWE
+    SWE --> STAFF
+    STAFF --> OPS
+    SRE --> EBR
+    QA --> EBR
+    EBR --> OUT
+
+    classDef entry fill:#1f6feb,stroke:#388bfd,color:#e6edf3
+    classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
+    classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
+    classDef gate fill:#3d2b00,stroke:#d29922,color:#d29922
+    classDef output fill:#0d3321,stroke:#3fb950,color:#3fb950
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1271,6 +1273,27 @@
     <div class="footer-mit">MIT License</div>
   </div>
 </footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      background: '#161b22',
+      primaryColor: '#21262d',
+      primaryTextColor: '#e6edf3',
+      primaryBorderColor: '#484f58',
+      lineColor: '#8b949e',
+      secondaryColor: '#21262d',
+      tertiaryColor: '#0d1117',
+      edgeLabelBackground: '#161b22',
+      clusterBkg: '#0d1117',
+      clusterBorder: '#30363d',
+    },
+    flowchart: { curve: 'basis', padding: 20 },
+  });
+</script>
 
 <script>
   function switchTab(mode, el) {
