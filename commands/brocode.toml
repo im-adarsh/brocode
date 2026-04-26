@@ -78,10 +78,36 @@ TPM (you) — overall orchestrator, logs all transitions to 00-tpm-log.md
 ### Phase 2 (sequential)
 - **Staff SWE** reads `agents/staff-eng.md` — reads `03-investigation.md`, converses with Tech Lead via thread, validates root cause architecturally, produces `04-architecture.md`
 
-### Phase 3
-- **Engineering Bar Raiser** reads `agents/engineering-bar-raiser.md` — challenges `03-investigation.md` + `04-architecture.md` + `05-ops.md`
-  - Max 2 rounds per artifact — then escalate to user with specific question
-  - On approval: writes `08-final-spec.md` (root cause + fix + test + ops) and `09-tasks.md` (domain-scoped task list)
+### Phase 3 — Engineering BR loop
+
+For each artifact (`03-investigation.md`, `04-architecture.md`, `05-ops.md`):
+
+```
+round = 1
+loop:
+  dispatch Engineering BR sub-agent (fresh context):
+    - reads artifact + all prior challenge files for this artifact
+    - reads agents/engineering-bar-raiser.md
+    - either: writes 07-eng-br-reviews/0N-<artifact>-challenge-round<round>.md
+    - or:     writes 07-eng-br-reviews/0N-<artifact>-approved.md → BREAK loop
+
+  if challenged:
+    print: ⚠️  ⚖️ Eng BR  →  [N challenges on <artifact>] (round <round>)
+    dispatch producer sub-agent (fresh context):
+      - reads challenge file + current artifact
+      - reads their agent file
+      - revises artifact (appends ## Changes from BR Challenge)
+    print: 🟢  [producer]  →  revised <artifact> v<round+1>
+    round += 1
+
+  if round > 3:
+    print: 🚫  ⚖️ Eng BR  →  ESCALATE: unresolved after 3 rounds on <artifact>
+    surface exact unresolved challenge to user
+    wait for user answer before continuing
+    break
+```
+
+When all three artifacts approved: write `08-final-spec.md` + `09-tasks.md`.
 
 ### Iron laws
 1. No fix proposed without confirmed root cause
@@ -131,11 +157,38 @@ TPM (you) — overall orchestrator, logs all transitions to 00-tpm-log.md
 
 PM and Designer converse freely. Both artifacts stable before Product BR reviews.
 
-**Step 1c: Product Bar Raiser** reads `agents/product-bar-raiser.md`
-- Challenges `01-requirements.md` and `02-design.md` separately
-- Uses web search for competitor references
-- Max 2 rounds per artifact — then escalate to user
-- On approval: writes `07-product-br-reviews/gate-approved.md`
+**Step 1c: Product Bar Raiser loop**
+
+For each artifact (`01-requirements.md`, `02-design.md`):
+
+```
+round = 1
+loop:
+  dispatch Product BR sub-agent (fresh context):
+    - reads artifact + all prior challenge files for this artifact
+    - reads agents/product-bar-raiser.md
+    - uses web search when competitors referenced
+    - either: writes 07-product-br-reviews/0N-<artifact>-challenge-round<round>.md
+    - or:     writes 07-product-br-reviews/0N-<artifact>-approved.md → BREAK loop
+
+  if challenged:
+    print: ⚠️  🔬 Product BR  →  [N challenges on <artifact>] (round <round>)
+    dispatch producer sub-agent (PM or Designer, fresh context):
+      - reads challenge file + current artifact
+      - reads their agent file
+      - revises artifact (appends ## Changes from BR Challenge)
+      - notifies the other if change affects their artifact
+    print: 🟢  [producer]  →  revised <artifact> v<round+1>
+    round += 1
+
+  if round > 3:
+    print: 🚫  🔬 Product BR  →  ESCALATE: unresolved after 3 rounds on <artifact>
+    surface exact unresolved challenge to user
+    wait for user answer before continuing
+    break
+```
+
+When both artifacts approved: write `07-product-br-reviews/gate-approved.md`.
 
 **Engineering track does NOT start until Product BR gate is approved.**
 
@@ -161,16 +214,43 @@ Tech Lead + Staff SWE must converge on single recommendation before Step 2c.
 - **QA** reads `agents/qa.md` — reads approved artifacts, produces `06-test-cases.md`
 - Both can ask Tech Lead / Staff SWE via `threads/eng-conversation.md`
 
-**Step 2d: Engineering Bar Raiser** reads `agents/engineering-bar-raiser.md`
-- Challenges all four: `03`, `04`, `05`, `06` — checks cross-artifact consistency
-- Max 2 rounds per artifact — then escalate to user
-- On all approved: writes `08-final-spec.md` + `09-tasks.md`
+**Step 2d: Engineering Bar Raiser loop**
+
+For each artifact (`03-implementation-options.md`, `04-architecture.md`, `05-ops.md`, `06-test-cases.md`):
+
+```
+round = 1
+loop:
+  dispatch Engineering BR sub-agent (fresh context):
+    - reads this artifact + all other eng artifacts (cross-consistency check)
+    - reads all prior challenge files for this artifact
+    - reads agents/engineering-bar-raiser.md
+    - either: writes 07-eng-br-reviews/0N-<artifact>-challenge-round<round>.md
+    - or:     writes 07-eng-br-reviews/0N-<artifact>-approved.md → BREAK loop
+
+  if challenged:
+    print: ⚠️  ⚖️ Eng BR  →  [N challenges on <artifact>] (round <round>)
+    dispatch producer sub-agent (Tech Lead / Staff SWE / SRE / QA, fresh context):
+      - reads challenge file + current artifact
+      - reads their agent file
+      - revises artifact (appends ## Changes from BR Challenge)
+    print: 🟢  [producer]  →  revised <artifact> v<round+1>
+    round += 1
+
+  if round > 3:
+    print: 🚫  ⚖️ Eng BR  →  ESCALATE: unresolved after 3 rounds on <artifact>
+    surface exact unresolved challenge to user
+    wait for user answer before continuing
+    break
+```
+
+When all four artifacts approved: write `08-final-spec.md` + `09-tasks.md`.
 
 ### Iron laws
 1. Product BR must approve before engineering starts
 2. Tech Lead + Staff SWE must converge before SRE/QA start
 3. Engineering BR must approve all 4 artifacts before final spec
-4. Max 2 BR challenge rounds per artifact — then escalate to user
+4. Max 3 BR rounds per artifact — escalate to user if unresolved
 5. No agent edits another agent's artifact
 
 ---
