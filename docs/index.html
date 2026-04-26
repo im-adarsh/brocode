@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>brocode — Multi-Agent SDLC for Claude Code</title>
-  <meta name="description" content="One command. Full engineering org. Multi-agent SDLC plugin for Claude Code — investigates bugs and produces engineering specs with PM, Designer, Backend, Frontend, Mobile, Staff SWE, SRE, QA, and two Bar Raisers." />
+  <meta name="description" content="One command. Full engineering org. Multi-agent SDLC plugin for Claude Code — investigates bugs, produces engineering specs, and implements features with PM, Designer, Tech Lead, Backend, Frontend, Mobile, Staff SWE, SRE, QA, and two Bar Raisers." />
   <style>
     :root {
       --bg: #0d1117;
@@ -62,9 +62,7 @@
       transition: opacity .15s; white-space: nowrap;
     }
     .nav-cta:hover { opacity: .85; }
-    @media (max-width: 680px) {
-      .nav-links { display: none; }
-    }
+    @media (max-width: 680px) { .nav-links { display: none; } }
 
     /* ── HERO ── */
     .hero {
@@ -87,7 +85,6 @@
       line-height: 1.1; margin-bottom: 1.25rem;
     }
     h1 .accent { color: var(--accent); }
-    h1 .dim { color: var(--muted); }
     .hero-sub {
       font-size: clamp(1rem, 2.5vw, 1.2rem);
       color: var(--muted); max-width: 660px;
@@ -97,7 +94,7 @@
     .hero-terminal {
       background: var(--bg2); border: 1px solid var(--border);
       border-radius: var(--radius-lg); overflow: hidden;
-      max-width: 680px; margin: 0 auto 2.5rem;
+      max-width: 700px; margin: 0 auto 2.5rem;
       text-align: left;
     }
     .terminal-bar {
@@ -105,27 +102,24 @@
       display: flex; align-items: center; gap: .5rem;
       border-bottom: 1px solid var(--border);
     }
-    .terminal-dot {
-      width: 12px; height: 12px; border-radius: 50%;
-    }
+    .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
     .td-red { background: #ff5f56; }
     .td-yellow { background: #ffbd2e; }
     .td-green { background: #27c93f; }
     .terminal-title { color: var(--muted); font-size: .78rem; margin-left: .5rem; font-family: var(--font-mono); }
     .terminal-body {
       padding: 1.25rem 1.5rem;
-      font-family: var(--font-mono); font-size: .88rem;
-      line-height: 2;
+      font-family: var(--font-mono); font-size: .85rem;
+      line-height: 2.1;
     }
     .t-prompt { color: var(--green); }
     .t-cmd { color: var(--accent); font-weight: 600; }
     .t-arg { color: var(--text); }
     .t-out { color: var(--muted); }
     .t-agent { color: var(--teal); font-weight: 600; }
-    .t-approved { color: var(--green); }
-    .t-warn { color: var(--orange); }
-    .t-blocked { color: var(--red); }
-    .t-arrow { color: var(--muted); }
+    .t-approved { color: var(--green); font-weight: 600; }
+    .t-warn { color: var(--orange); font-weight: 600; }
+    .t-arrow { color: var(--muted); margin: 0 .3rem; }
     .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
     .btn {
       padding: .65rem 1.5rem; border-radius: 6px;
@@ -145,15 +139,15 @@
     .container { max-width: 1040px; margin: 0 auto; }
     h2 {
       font-size: clamp(1.5rem, 3vw, 2rem);
-      font-weight: 800; letter-spacing: -.02em;
-      margin-bottom: .4rem;
+      font-weight: 800; letter-spacing: -.02em; margin-bottom: .4rem;
     }
     .section-lead { color: var(--muted); margin-bottom: 3rem; font-size: 1rem; }
     hr.divider { border: none; border-top: 1px solid var(--border); }
 
-    /* ── STATS BAR ── */
+    /* ── STATS ── */
     .stats-bar {
-      background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
       padding: 1.5rem 2rem;
     }
     .stats-inner {
@@ -161,21 +155,18 @@
       display: flex; gap: 0; flex-wrap: wrap;
     }
     .stat {
-      flex: 1; min-width: 140px; padding: .5rem 2rem;
+      flex: 1; min-width: 120px; padding: .5rem 2rem;
       border-right: 1px solid var(--border); text-align: center;
     }
     .stat:first-child { padding-left: 0; }
     .stat:last-child { border-right: none; }
-    .stat-num {
-      font-size: 2rem; font-weight: 800;
-      letter-spacing: -.04em; color: var(--accent);
-    }
-    .stat-label { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: .1rem; }
+    .stat-num { font-size: 2rem; font-weight: 800; letter-spacing: -.04em; color: var(--accent); }
+    .stat-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: .1rem; }
 
-    /* ── FLOW SECTION ── */
+    /* ── FLOW TABS ── */
     .flow-tabs {
       display: flex; gap: 0; border-bottom: 1px solid var(--border);
-      margin-bottom: 2rem;
+      margin-bottom: 2rem; flex-wrap: wrap;
     }
     .flow-tab {
       padding: .7rem 1.5rem; font-size: .88rem; font-weight: 600;
@@ -183,17 +174,14 @@
       cursor: pointer; transition: color .15s; user-select: none;
     }
     .flow-tab.active { color: var(--text); border-bottom-color: var(--accent); }
-    .flow-panels-wrap { position: relative; }
+    .flow-panels-wrap { position: relative; min-height: 400px; }
     .flow-panel {
-      display: grid; grid-template-columns: 1fr 1.4fr; gap: 2rem; align-items: start;
+      display: grid; grid-template-columns: 1fr 1.3fr; gap: 2rem; align-items: start;
       position: absolute; top: 0; left: 0; right: 0;
       visibility: hidden; pointer-events: none;
     }
-    .flow-panel.active {
-      position: relative;
-      visibility: visible; pointer-events: auto;
-    }
-    @media (max-width: 720px) { .flow-panel { grid-template-columns: 1fr; } }
+    .flow-panel.active { position: relative; visibility: visible; pointer-events: auto; }
+    @media (max-width: 760px) { .flow-panel { grid-template-columns: 1fr; } }
     .flow-steps-list { display: flex; flex-direction: column; gap: .5rem; }
     .flow-step {
       display: flex; gap: 1rem; align-items: flex-start;
@@ -203,9 +191,8 @@
     }
     .flow-step:hover { border-color: var(--border-hover); }
     .flow-step-num {
-      min-width: 24px; height: 24px;
-      background: rgba(88,166,255,.12); border-radius: 50%;
-      font-size: .75rem; font-weight: 700; color: var(--accent);
+      min-width: 24px; height: 24px; background: rgba(88,166,255,.12);
+      border-radius: 50%; font-size: .75rem; font-weight: 700; color: var(--accent);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; margin-top: 1px;
     }
@@ -222,45 +209,20 @@
     .badge-subagent { background: rgba(88,166,255,.12); color: var(--accent); }
     .flow-diagram {
       background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 1rem;
-      overflow: hidden;
+      border-radius: var(--radius-lg); padding: 1.25rem;
+      overflow: hidden; display: flex; justify-content: center;
     }
-    .flow-diagram .mermaid {
-      display: flex; justify-content: center;
-    }
-    .flow-diagram .mermaid svg {
-      max-width: 100%; height: auto;
-    }
+    .flow-diagram .mermaid { width: 100%; }
+    .flow-diagram .mermaid svg { max-width: 100%; height: auto; }
 
-    /* ── SUBAGENT SECTION ── */
-    .subagent-explainer {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
-    }
-    @media (max-width: 720px) { .subagent-explainer { grid-template-columns: 1fr; } }
-    .subagent-card {
+    /* ── ORG SECTION ── */
+    .org-diagram {
       background: var(--bg2); border: 1px solid var(--border);
       border-radius: var(--radius-lg); padding: 1.5rem;
+      display: flex; justify-content: center;
     }
-    .subagent-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .4rem; }
-    .subagent-card p { font-size: .85rem; color: var(--muted); margin-bottom: 1rem; }
-    .spawn-example {
-      background: var(--bg3); border-radius: var(--radius);
-      padding: .9rem 1rem; font-family: var(--font-mono); font-size: .78rem;
-      line-height: 1.9; border: 1px solid var(--border);
-    }
-    .se-label { color: var(--muted); }
-    .se-spawned { color: var(--teal); }
-    .se-skipped { color: var(--border-hover); }
-    .se-arrow { color: var(--accent); }
-    .debate-thread {
-      margin-top: 1rem;
-      background: var(--bg3); border-radius: var(--radius);
-      padding: .9rem 1rem; font-family: var(--font-mono); font-size: .78rem;
-      line-height: 1.9; border: 1px solid var(--border);
-    }
-    .de-backend { color: var(--orange); }
-    .de-frontend { color: var(--accent); }
-    .de-mobile { color: var(--accent2); }
+    .org-diagram .mermaid { width: 100%; }
+    .org-diagram .mermaid svg { max-width: 100%; height: auto; }
 
     /* ── AGENTS GRID ── */
     .agents-grid {
@@ -293,10 +255,7 @@
     }
     .agent-meta { flex: 1; }
     .agent-meta h3 { font-size: .95rem; font-weight: 700; line-height: 1.3; }
-    .agent-model {
-      font-family: var(--font-mono); font-size: .7rem;
-      color: var(--muted); margin-top: .1rem;
-    }
+    .agent-model { font-family: var(--font-mono); font-size: .7rem; color: var(--muted); margin-top: .1rem; }
     .model-opus { color: var(--accent2); font-weight: 600; }
     .model-sonnet { color: var(--accent); font-weight: 600; }
     .agent-desc { font-size: .83rem; color: var(--muted); line-height: 1.55; }
@@ -313,7 +272,7 @@
     .tag-gate-eng { background: rgba(248,81,73,.1); color: var(--red); }
     .tag-subagent { background: rgba(57,211,83,.08); color: var(--teal); border: 1px solid rgba(57,211,83,.2); }
 
-    /* ── PROGRESS DISPLAY ── */
+    /* ── PROGRESS ── */
     .progress-demo {
       background: var(--bg2); border: 1px solid var(--border);
       border-radius: var(--radius-lg); overflow: hidden;
@@ -334,7 +293,7 @@
     .pl-blocked { color: var(--red); }
     .pl-agent { color: var(--text); font-weight: 600; }
     .pl-action { color: var(--muted); }
-    .pl-sep { color: var(--border-hover); margin: 0 .3rem; }
+    .pl-sep { color: var(--border-hover); margin: 0 .35rem; }
 
     /* ── BAR RAISERS ── */
     .br-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
@@ -349,10 +308,7 @@
     }
     .br-product::before { background: linear-gradient(90deg, var(--accent2), var(--accent)); }
     .br-eng::before { background: linear-gradient(90deg, var(--red), var(--orange)); }
-    .br-eyebrow {
-      font-size: .72rem; font-weight: 700; letter-spacing: .08em;
-      text-transform: uppercase; margin-bottom: .5rem;
-    }
+    .br-eyebrow { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: .5rem; }
     .br-product .br-eyebrow { color: var(--accent2); }
     .br-eng .br-eyebrow { color: var(--orange); }
     .br-card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: .3rem; }
@@ -362,10 +318,7 @@
       display: flex; gap: .6rem; align-items: flex-start;
       font-size: .85rem; color: var(--muted);
     }
-    .br-checks li::before {
-      content: '›'; font-weight: 700; flex-shrink: 0;
-      margin-top: .05rem;
-    }
+    .br-checks li::before { content: '›'; font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
     .br-product .br-checks li::before { color: var(--accent2); }
     .br-eng .br-checks li::before { color: var(--orange); }
     .br-loop {
@@ -375,8 +328,8 @@
       font-size: .8rem; color: var(--muted);
     }
     .loop-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      flex-shrink: 0; animation: pulse 1.8s ease-in-out infinite;
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      animation: pulse 1.8s ease-in-out infinite;
     }
     .br-product .loop-dot { background: var(--accent2); }
     .br-eng .loop-dot { background: var(--orange); }
@@ -386,9 +339,7 @@
     .repo-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; align-items: start; }
     @media (max-width: 720px) { .repo-layout { grid-template-columns: 1fr; } }
     .repo-steps { display: flex; flex-direction: column; gap: 1rem; }
-    .repo-step {
-      display: flex; gap: 1rem; align-items: flex-start;
-    }
+    .repo-step { display: flex; gap: 1rem; align-items: flex-start; }
     .repo-step-num {
       width: 28px; height: 28px; border-radius: 50%;
       background: rgba(88,166,255,.12); color: var(--accent);
@@ -416,9 +367,8 @@
     .cb-val { color: var(--orange); }
     .cb-comment { color: var(--muted); }
     .cb-cmd { color: var(--green); font-weight: 600; }
-    .cb-flag { color: var(--accent); }
 
-    /* ── CONTEXT TREE ── */
+    /* ── TREE ── */
     .tree {
       background: var(--bg2); border: 1px solid var(--border);
       border-radius: var(--radius-lg); padding: 1.5rem;
@@ -453,30 +403,18 @@
     .install-step-header h4 { font-size: .9rem; font-weight: 700; }
     .install-body {
       padding: 1rem 1.25rem;
-      font-family: var(--font-mono); font-size: .82rem;
-      line-height: 2; color: var(--text);
+      font-family: var(--font-mono); font-size: .82rem; line-height: 2; color: var(--text);
     }
     .install-body .comment { color: var(--muted); }
     .install-body .cmd { color: var(--green); font-weight: 600; }
     .install-body .arg { color: var(--orange); }
-    .install-note {
-      padding: .75rem 1.25rem;
-      border-top: 1px solid var(--border);
-      font-size: .78rem; color: var(--muted);
-    }
-    .install-full-grid {
-      grid-column: 1 / -1;
-    }
+    .install-note { padding: .75rem 1.25rem; border-top: 1px solid var(--border); font-size: .78rem; color: var(--muted); }
 
-    /* ── INPUT FORMATS ── */
-    .inputs-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 1rem;
-    }
+    /* ── INPUTS ── */
+    .inputs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
     .input-card {
       background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 1.25rem;
-      transition: border-color .15s;
+      border-radius: var(--radius-lg); padding: 1.25rem; transition: border-color .15s;
     }
     .input-card:hover { border-color: var(--border-hover); }
     .input-icon { font-size: 1.75rem; margin-bottom: .65rem; }
@@ -485,18 +423,13 @@
     .input-req { font-size: .72rem; color: var(--orange); margin-top: .4rem; font-weight: 600; }
 
     /* ── FOOTER ── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 3rem 2rem;
-    }
+    footer { border-top: 1px solid var(--border); padding: 3rem 2rem; }
     .footer-inner {
       max-width: 1040px; margin: 0 auto;
       display: flex; align-items: center; justify-content: space-between;
       flex-wrap: wrap; gap: 1rem;
     }
-    .footer-brand {
-      font-weight: 800; font-size: 1.05rem; letter-spacing: -.02em;
-    }
+    .footer-brand { font-weight: 800; font-size: 1.05rem; letter-spacing: -.02em; }
     .footer-brand .slash { color: var(--accent); }
     .footer-sub { font-size: .82rem; color: var(--muted); margin-top: .2rem; }
     .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
@@ -516,9 +449,10 @@
   <a class="nav-brand" href="#"><span class="slash">/</span>brocode</a>
   <div class="nav-links">
     <a href="#how-it-works">How it works</a>
+    <a href="#org">The org</a>
     <a href="#agents">Agents</a>
     <a href="#progress">Live progress</a>
-    <a href="#repos">Repo config</a>
+    <a href="#repos">Repos</a>
     <a href="#install">Install</a>
     <a href="https://github.com/im-adarsh/brocode">GitHub</a>
   </div>
@@ -530,7 +464,7 @@
   <div class="hero-badge"><div class="dot"></div>Claude Code Plugin · Open Source · MIT</div>
   <h1>One command.<br><span class="accent">Full engineering org.</span></h1>
   <p class="hero-sub">
-    brocode spins up <strong>12 specialised agents</strong> — PM, Designer, Backend, Frontend, Mobile, Staff SWE, SRE, QA, and two adversarial Bar Raisers — to investigate bugs and produce engineering specs right in your terminal.
+    brocode spins up <strong>12 specialised agents</strong> — PM, Designer, Tech Lead, Backend, Frontend, Mobile, Staff SWE, SRE, QA, and two adversarial Bar Raisers — to investigate bugs, produce specs, and implement features right in your terminal.
   </p>
 
   <div class="hero-terminal">
@@ -544,14 +478,15 @@
       <div><span class="t-prompt">$</span> <span class="t-cmd">/brocode</span> <span class="t-arg">users getting 500s on checkout after the 3pm deploy</span></div>
       <div><span class="t-out">→ INVESTIGATE mode · inv-20260426-checkout-500</span></div>
       <div>&nbsp;</div>
-      <div><span class="t-agent">📋 TPM</span><span class="t-arrow"> → </span><span class="t-action">kicked off investigation, logging all stages</span></div>
-      <div><span class="t-agent">⚙️  Backend</span><span class="t-arrow"> → </span><span class="t-action">reading /api/checkout handler, tracing request flow</span></div>
-      <div><span class="t-agent">🚨 SRE</span><span class="t-arrow"> → </span><span class="t-action">assessing blast radius — parallel with Backend</span></div>
-      <div><span class="t-agent">⚙️  Backend ↔️  🚨 SRE</span><span class="t-arrow"> → </span><span class="t-action">SRE asked: affecting all regions or just eu-west?</span></div>
-      <div><span class="t-agent">🏗️  Staff SWE</span><span class="t-arrow"> → </span><span class="t-action">validating root cause: race condition in token refresh middleware</span></div>
-      <div><span class="t-warn">⚠️  Eng BR</span><span class="t-arrow"> → </span><span class="t-action">challenged: race condition — show log trace, not hypothesis</span></div>
-      <div><span class="t-agent">⚙️  Backend</span><span class="t-arrow"> → </span><span class="t-action">providing APM trace + reproducer test (v2)</span></div>
-      <div><span class="t-approved">✅ Eng BR</span><span class="t-arrow"> → </span><span class="t-action">root cause + fix APPROVED · writing final spec</span></div>
+      <div><span class="t-agent">📋 TPM</span><span class="t-arrow">→</span><span class="t-out">kicked off investigation, logging all stages</span></div>
+      <div><span class="t-agent">🤝 Tech Lead</span><span class="t-arrow">→</span><span class="t-out">triaging — dispatching Backend + SRE in parallel</span></div>
+      <div><span class="t-agent">⚙️  Backend</span><span class="t-arrow">→</span><span class="t-out">reading /api/checkout, tracing request lifecycle</span></div>
+      <div><span class="t-agent">🚨 SRE</span><span class="t-arrow">→</span><span class="t-out">assessing blast radius in parallel</span></div>
+      <div><span class="t-agent">⚙️  Backend ↔️ 🚨 SRE</span><span class="t-arrow">→</span><span class="t-out">SRE: "affecting all regions or just eu-west?"</span></div>
+      <div><span class="t-agent">🏗️  Staff SWE</span><span class="t-arrow">→</span><span class="t-out">validating root cause: race condition in token refresh middleware</span></div>
+      <div><span class="t-warn">⚠️  Eng BR</span><span class="t-arrow">→</span><span class="t-out">challenged: "show APM trace — not hypothesis" (round 1)</span></div>
+      <div><span class="t-agent">⚙️  Backend</span><span class="t-arrow">→</span><span class="t-out">providing trace + reproducer test (v2)</span></div>
+      <div><span class="t-approved">✅ Eng BR</span><span class="t-arrow">→</span><span class="t-out">root cause APPROVED · writing 08-final-spec.md + 09-tasks.md</span></div>
     </div>
   </div>
 
@@ -564,26 +499,11 @@
 <!-- STATS -->
 <div class="stats-bar">
   <div class="stats-inner">
-    <div class="stat">
-      <div class="stat-num">12</div>
-      <div class="stat-label">Specialised Agents</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">2</div>
-      <div class="stat-label">Bar Raisers</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">3</div>
-      <div class="stat-label">SWE Sub-agents</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">2</div>
-      <div class="stat-label">Modes</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">1</div>
-      <div class="stat-label">Command</div>
-    </div>
+    <div class="stat"><div class="stat-num">12</div><div class="stat-label">Agents</div></div>
+    <div class="stat"><div class="stat-num">2</div><div class="stat-label">Bar Raisers</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Modes</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Max BR rounds</div></div>
+    <div class="stat"><div class="stat-num">1</div><div class="stat-label">Command</div></div>
   </div>
 </div>
 
@@ -593,260 +513,310 @@
 <section id="how-it-works">
   <div class="container">
     <h2>How it works</h2>
-    <p class="section-lead">Paste a bug, feature idea, PRD, or screenshot. brocode picks the mode and orchestrates the right agents automatically.</p>
+    <p class="section-lead">Paste a bug, feature idea, PRD, or screenshot. brocode picks the mode and runs the right agents automatically.</p>
 
     <div class="flow-tabs">
       <div class="flow-tab active" onclick="switchTab('investigate', this)">🔴 Investigate — Bug / Incident</div>
       <div class="flow-tab" onclick="switchTab('spec', this)">🔵 Spec — Feature / Design</div>
+      <div class="flow-tab" onclick="switchTab('develop', this)">🟢 Develop — Implement</div>
     </div>
 
     <div class="flow-panels-wrap">
-    <div class="flow-panel active" id="panel-investigate">
-      <div class="flow-steps-list">
-        <div class="flow-step">
-          <div class="flow-step-num">1</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">TPM initialises run log</div>
-            <div class="flow-step-sub">Creates investigation ID, logs all stages throughout execution</div>
+
+      <!-- INVESTIGATE -->
+      <div class="flow-panel active" id="panel-investigate">
+        <div class="flow-steps-list">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">TPM initialises run log</div>
+              <div class="flow-step-sub">Creates investigation ID, logs all stage transitions throughout</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Tech Lead dispatches scoped sub-agents <span class="flow-badge badge-subagent">sub-agents</span> <span class="flow-badge badge-parallel">parallel</span></div>
+              <div class="flow-step-sub">Backend / Frontend / Mobile spawned based on which layer the bug is in. Read real repos. Debate in swe-debate.md.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">SRE assesses blast radius <span class="flow-badge badge-parallel">parallel</span></div>
+              <div class="flow-step-sub">Runs in parallel with Tech Lead's team. Asks questions about topology and deploy window.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Staff SWE validates architecturally</div>
+              <div class="flow-step-sub">Checks for systemic causes beyond this instance. Converses with Tech Lead via eng thread.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Engineering BR loop <span class="flow-badge badge-gate">max 3 rounds</span></div>
+              <div class="flow-step-sub">Fresh BR sub-agent per round challenges root cause and fix. Fresh producer sub-agent revises. Escalates to you after 3 rounds.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">6</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">08-final-spec.md + 09-tasks.md</div>
+              <div class="flow-step-sub">Confirmed root cause + exact fix + failing test + ops rollback + domain-scoped task list for implementation.</div>
+            </div>
           </div>
         </div>
-        <div class="flow-step">
-          <div class="flow-step-num">2</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">SWE sub-agents read real codebase <span class="flow-badge badge-subagent">sub-agents</span> <span class="flow-badge badge-parallel">parallel</span></div>
-            <div class="flow-step-sub">Backend / Frontend / Mobile spawned based on which layer the bug is in. Read repos registered via <code>/brocode repos</code>. Debate in swe-debate.md thread.</div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">3</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">SRE assesses blast radius <span class="flow-badge badge-parallel">parallel</span></div>
-            <div class="flow-step-sub">Runs in parallel with SWE sub-agents. Asks SWE questions about topology and deploy mechanism.</div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">4</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">SWE Coordinator synthesises findings</div>
-            <div class="flow-step-sub">Collects debate output, confirms root cause with evidence from real code.</div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">5</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">Staff SWE validates architecturally</div>
-            <div class="flow-step-sub">Checks for systemic causes beyond this instance. Converses with SWE team.</div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">6</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">Engineering Bar Raiser challenges all findings <span class="flow-badge badge-gate">max 2 rounds</span></div>
-            <div class="flow-step-sub">Adversarial loop. Challenges root cause and fix. Escalates to you after 2 rounds.</div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">7</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">Final spec written</div>
-            <div class="flow-step-sub">Confirmed root cause + exact fix diff + failing test + ops impact + rollback.</div>
-          </div>
-        </div>
-      </div>
-      <div class="flow-diagram">
-        <div class="mermaid">
+        <div class="flow-diagram">
+          <div class="mermaid">
 flowchart TD
     A(["/brocode &lt;bug&gt;"]):::entry
-    subgraph SWE_AGENTS["⚡ SWE sub-agents — parallel, scope-based"]
-      B["⚙️ Backend\n(if BE bug)"]:::subagent
-      C["🖥️ Frontend\n(if FE bug)"]:::subagent
-      D["📱 Mobile\n(if mobile)"]:::subagent
-    end
-    E["🤝 SWE Coordinator\n+ 🚨 SRE in parallel"]:::node
-    F["🏗️ Staff SWE"]:::node
-    G["⚖️ Engineering BR ⟳\nmax 2 rounds"]:::gate
-    H(["📄 08-final-spec.md"]):::output
-
-    A --> SWE_AGENTS
-    B --> E
-    C --> E
-    D --> E
-    E --> F
-    F --> G
-    G --> H
-
-    classDef entry fill:#1f6feb,stroke:#388bfd,color:#e6edf3,rx:8
-    classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
-    classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
-    classDef gate fill:#3d2b00,stroke:#d29922,color:#d29922
-    classDef output fill:#0d3321,stroke:#3fb950,color:#3fb950
-        </div>
-      </div>
-    </div>
-
-    <div class="flow-panel" id="panel-spec">
-      <div class="flow-steps-list">
-        <div class="flow-step">
-          <div class="flow-step-num">1</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">Input ingestion</div>
-            <div class="flow-step-sub">Text, image, Google Doc, wiki — ingested and written to 00-input-raw.md</div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">2</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">PM + Designer produce requirements &amp; contracts <span class="flow-badge badge-parallel">converse freely</span></div>
-            <div class="flow-step-sub">PM covers all personas, journeys, ACs. Designer defines API contracts and all flows.</div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">3</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">Product Bar Raiser challenges both <span class="flow-badge badge-gate">GATE · max 2 rounds</span></div>
-            <div class="flow-step-sub">Web-searches competitors. Hard gate — engineering cannot start until approved.</div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">4</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">SWE sub-agents debate from real code <span class="flow-badge badge-subagent">sub-agents</span> <span class="flow-badge badge-parallel">parallel</span></div>
-            <div class="flow-step-sub">Backend / Frontend / Mobile spawned based on scope. Three-way challenge loop in swe-debate.md.</div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">5</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">Staff SWE architecture review</div>
-            <div class="flow-step-sub">Reviews 3 implementation options for failure modes, scale, coupling. Joint recommendation.</div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">6</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">SRE + QA <span class="flow-badge badge-parallel">parallel</span></div>
-            <div class="flow-step-sub">SRE writes ops plan + rollback. QA writes full test matrix with real test code. Both can ask SWE questions.</div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-step-num">7</div>
-          <div class="flow-step-body">
-            <div class="flow-step-title">Engineering Bar Raiser reviews all 4 artifacts <span class="flow-badge badge-gate">max 2 rounds</span></div>
-            <div class="flow-step-sub">Cross-artifact consistency check. Writes final spec when all approved.</div>
-          </div>
-        </div>
-      </div>
-      <div class="flow-diagram">
-        <div class="mermaid">
-flowchart TD
-    A(["/brocode &lt;feature&gt;"]):::entry
-
-    subgraph PRODUCT["🎯 Product Track"]
-      PM["🎯 PM"]:::node
-      DS["🎨 Designer"]:::node
-      PM -->|"converse ↔"| DS
-      DS -->|"converse ↔"| PM
-    end
-
-    PBR["🔬 Product BR ⟳ GATE\nmax 2 rounds · blocks engineering"]:::gate
-
-    subgraph ENG["⚡ SWE sub-agents — parallel, scope-based"]
+    TL["🤝 Tech Lead"]:::node
+    subgraph SUBS["⚡ Sub-agents — parallel, scope-based"]
       BE["⚙️ Backend"]:::subagent
       FE["🖥️ Frontend"]:::subagent
-      MB["📱 Mobile"]:::subagent
+      MOB["📱 Mobile"]:::subagent
     end
+    SRE["🚨 SRE\nblast radius"]:::node
+    STAFF["🏗️ Staff SWE\nroot cause validation"]:::node
+    EBR["⚖️ Engineering BR\nmax 3 rounds"]:::gate
+    OUT(["08-final-spec.md\n09-tasks.md"]):::output
 
-    SWE["🤝 SWE Coordinator"]:::node
-    STAFF["🏗️ Staff SWE"]:::node
-
-    subgraph OPS["⚡ Parallel"]
-      SRE["🚨 SRE"]:::node
-      QA["🧪 QA"]:::node
-    end
-
-    EBR["⚖️ Engineering BR ⟳\nmax 2 rounds"]:::gate
-    OUT(["📄 08-final-spec.md"]):::output
-
-    A --> PM
-    A --> DS
-    PM --> PBR
-    DS --> PBR
-    PBR --> BE
-    PBR --> FE
-    PBR --> MB
-    BE --> SWE
-    FE --> SWE
-    MB --> SWE
-    SWE --> STAFF
-    STAFF --> SRE
-    STAFF --> QA
+    A --> TL
+    TL --> SUBS
+    SUBS -->|"swe-debate.md"| TL
+    A --> SRE
+    TL --> STAFF
     SRE --> EBR
-    QA --> EBR
-    EBR --> OUT
+    STAFF --> EBR
+    EBR -->|"challenged → producer revises"| EBR
+    EBR -->|"approved"| OUT
 
     classDef entry fill:#1f6feb,stroke:#388bfd,color:#e6edf3
     classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
     classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
     classDef gate fill:#3d2b00,stroke:#d29922,color:#d29922
     classDef output fill:#0d3321,stroke:#3fb950,color:#3fb950
+          </div>
         </div>
       </div>
-    </div>
+
+      <!-- SPEC -->
+      <div class="flow-panel" id="panel-spec">
+        <div class="flow-steps-list">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">PM + Designer converse <span class="flow-badge badge-parallel">free conversation</span></div>
+              <div class="flow-step-sub">PM writes requirements with all personas + journeys. Designer writes API contracts + flows. Both converse freely.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Product BR loop <span class="flow-badge badge-gate">GATE · max 3 rounds</span></div>
+              <div class="flow-step-sub">Web-searches competitor references. Hard gate — engineering cannot start until both PM + Designer approved.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Tech Lead dispatches sub-agents <span class="flow-badge badge-subagent">sub-agents</span> <span class="flow-badge badge-parallel">parallel</span></div>
+              <div class="flow-step-sub">Backend / Frontend / Mobile spawned based on scope. Read real repos. Three-way challenge loop in swe-debate.md.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Staff SWE architecture review</div>
+              <div class="flow-step-sub">Reviews 3 implementation options. Converges with Tech Lead on single recommendation.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">SRE + QA <span class="flow-badge badge-parallel">parallel</span></div>
+              <div class="flow-step-sub">SRE: ops plan + rollback. QA: full test matrix with real test code. Both can ask Tech Lead questions.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">6</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Engineering BR loop <span class="flow-badge badge-gate">max 3 rounds each</span></div>
+              <div class="flow-step-sub">Challenges all 4 artifacts independently. Cross-consistency check. Writes final spec + tasks when all approved.</div>
+            </div>
+          </div>
+        </div>
+        <div class="flow-diagram">
+          <div class="mermaid">
+flowchart TD
+    A(["/brocode &lt;feature&gt;"]):::entry
+
+    subgraph PROD["🎯 Product Track"]
+      PM["🎯 PM"]:::node
+      DS["🎨 Designer"]:::node
+      PM -->|"converse ↔"| DS
+      DS -->|"converse ↔"| PM
+    end
+
+    PBR["🔬 Product BR\nmax 3 rounds — GATE"]:::gate
+
+    subgraph ENG["⚡ Engineering sub-agents — parallel"]
+      BE["⚙️ Backend"]:::subagent
+      FE["🖥️ Frontend"]:::subagent
+      MB["📱 Mobile"]:::subagent
+    end
+
+    TL["🤝 Tech Lead"]:::node
+    STAFF["🏗️ Staff SWE"]:::node
+    SRE["🚨 SRE"]:::node
+    QA["🧪 QA"]:::node
+    EBR["⚖️ Engineering BR\nmax 3 rounds each"]:::gate
+    OUT(["08-final-spec.md\n09-tasks.md"]):::output
+
+    A --> PM & DS
+    PM & DS --> PBR
+    PBR -->|"gate open"| ENG
+    ENG -->|"swe-debate.md"| TL
+    TL <-->|"converge"| STAFF
+    STAFF --> SRE & QA
+    TL & STAFF & SRE & QA --> EBR
+    EBR -->|"challenged → revise"| EBR
+    EBR -->|"all approved"| OUT
+
+    classDef entry fill:#1f6feb,stroke:#388bfd,color:#e6edf3
+    classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
+    classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
+    classDef gate fill:#3d2b00,stroke:#d29922,color:#d29922
+    classDef output fill:#0d3321,stroke:#3fb950,color:#3fb950
+          </div>
+        </div>
+      </div>
+
+      <!-- DEVELOP -->
+      <div class="flow-panel" id="panel-develop">
+        <div class="flow-steps-list">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Read 08-final-spec.md + 09-tasks.md</div>
+              <div class="flow-step-sub">Tasks are already domain-scoped with exact file paths, function signatures, and acceptance criteria.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Isolated worktree per domain</div>
+              <div class="flow-step-sub">superpowers:using-git-worktrees creates a clean branch in each domain's repo (backend / web / mobile).</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Convert tasks to superpowers plan</div>
+              <div class="flow-step-sub">superpowers:writing-plans converts 09-tasks.md into a TDD-driven plan with exact steps and code sketches.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Subagent-driven implementation <span class="flow-badge badge-parallel">per task</span></div>
+              <div class="flow-step-sub">superpowers:subagent-driven-development — fresh implementer sub-agent per task. TDD. Commit. Then spec compliance review + code quality review.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Push + PR per domain</div>
+              <div class="flow-step-sub">superpowers:finishing-a-development-branch — runs full test suite, pushes branch, creates PR with spec link and task summary.</div>
+            </div>
+          </div>
+        </div>
+        <div class="flow-diagram">
+          <div class="mermaid">
+flowchart TD
+    A(["/brocode develop"]):::entry
+    CHECK{"superpowers\ninstalled?"}
+    SPEC["Read 08-final-spec.md\n+ 09-tasks.md"]:::node
+
+    subgraph PER_DOMAIN["Per domain — backend / web / mobile"]
+      WT["superpowers:using-git-worktrees\nisolated branch"]:::node
+      PLAN["superpowers:writing-plans\ntasks → TDD plan"]:::node
+      subgraph LOOP["Per task"]
+        IMPL["Implementer sub-agent\nTDD · commit"]:::subagent
+        SR["Spec compliance\nreview"]:::node
+        QR["Code quality\nreview"]:::node
+      end
+      FINISH["superpowers:finishing-a-development-branch\ntests → push → PR"]:::output
+    end
+
+    A --> CHECK
+    CHECK -->|"yes"| SPEC
+    CHECK -->|"no — install first"| A
+    SPEC --> WT --> PLAN --> IMPL
+    IMPL --> SR -->|"pass"| QR
+    QR -->|"pass"| FINISH
+    SR -->|"fail"| IMPL
+    QR -->|"fail"| IMPL
+
+    classDef entry fill:#1f6feb,stroke:#388bfd,color:#e6edf3
+    classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
+    classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
+    classDef gate fill:#3d2b00,stroke:#d29922,color:#d29922
+    classDef output fill:#0d3321,stroke:#3fb950,color:#3fb950
+          </div>
+        </div>
+      </div>
+
     </div><!-- /.flow-panels-wrap -->
   </div>
 </section>
 
 <hr class="divider" />
 
-<!-- SUBAGENTS -->
-<section>
+<!-- ORG CHART -->
+<section id="org">
   <div class="container">
-    <h2>SWE sub-agents — parallel by design</h2>
-    <p class="section-lead">Backend, Frontend, and Mobile are sub-agents. The SWE Coordinator spawns only the relevant ones, runs them in parallel, then synthesises the debate.</p>
-    <div class="subagent-explainer">
-      <div>
-        <div class="subagent-card">
-          <h3>Scope-based dispatch</h3>
-          <p>Only spawn sub-agents whose domain is touched by the task. No wasted context, no irrelevant opinions.</p>
-          <div class="spawn-example">
-<span class="se-label"># Web + backend feature</span><br>
-<span class="se-spawned">⚙️  Backend   → spawned</span><br>
-<span class="se-spawned">🖥️  Frontend  → spawned</span><br>
-<span class="se-skipped">📱  Mobile    → skipped (no native surface)</span><br>
-<br>
-<span class="se-label"># Mobile-only bug</span><br>
-<span class="se-spawned">📱  Mobile    → spawned</span><br>
-<span class="se-skipped">⚙️  Backend   → skipped (API unchanged)</span><br>
-<span class="se-skipped">🖥️  Frontend  → skipped</span><br>
-<br>
-<span class="se-label"># Full-stack feature</span><br>
-<span class="se-spawned">⚙️  Backend   → spawned  </span><span class="se-arrow">↓ all three</span><br>
-<span class="se-spawned">🖥️  Frontend  → spawned  </span><span class="se-arrow">↓ parallel</span><br>
-<span class="se-spawned">📱  Mobile    → spawned  </span><span class="se-arrow">↓ debate</span>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="subagent-card">
-          <h3>Three-way challenge loop</h3>
-          <p>Sub-agents read real code first, then challenge each other. Better options emerge from the friction.</p>
-          <div class="debate-thread">
-<span class="de-backend">[Backend → Frontend]</span>: your API usage requires<br>
-&nbsp;&nbsp;3 round-trips to render one screen. I can add<br>
-&nbsp;&nbsp;a composite endpoint but it'll break REST purity.<br>
-<br>
-<span class="de-frontend">[Frontend → Backend]</span>: agreed on composite endpoint.<br>
-&nbsp;&nbsp;But also: your error shape doesn't include a<br>
-&nbsp;&nbsp;retry-after header. That's a UX blocker.<br>
-<br>
-<span class="de-mobile">[Mobile → Backend]</span>: response is 340KB on this<br>
-&nbsp;&nbsp;endpoint. Kills battery on 3G polling. Need a<br>
-&nbsp;&nbsp;delta/patch API or push instead of poll.<br>
-<br>
-<span class="de-backend">[Backend → All]</span>: proposing Option 2 — composite<br>
-&nbsp;&nbsp;endpoint + delta endpoint + retry-after header.
-          </div>
-        </div>
+    <h2>The org structure</h2>
+    <p class="section-lead">brocode simulates a real engineering org. TPM orchestrates two tracks. Bar Raisers gate each track. Agents report and challenge within their hierarchy.</p>
+    <div class="org-diagram">
+      <div class="mermaid">
+flowchart TD
+    TPM["📋 TPM\nProgram Orchestrator"]:::tpm
+
+    subgraph PROD["Product Track"]
+      PM["🎯 PM\nSenior PM"]:::prod
+      DS["🎨 Designer\nAPI + UX"]:::prod
+      PBR["🔬 Product Bar Raiser\nPrincipal PM — GATE"]:::gate
+    end
+
+    subgraph ENG["Engineering Track"]
+      TL["🤝 Tech Lead"]:::eng
+      BE["⚙️ Backend\nsub-agent"]:::subagent
+      FE["🖥️ Frontend\nsub-agent"]:::subagent
+      MOB["📱 Mobile\nsub-agent"]:::subagent
+      SRE2["🚨 SRE\nTech Lead's team"]:::eng
+      STAFF["🏗️ Staff SWE\npeer to Tech Lead"]:::eng
+      QA["🧪 QA"]:::eng
+      EBR["⚖️ Engineering BR\nPrincipal Eng — GATE"]:::gate
+    end
+
+    TPM --> PROD & ENG
+    PM --> PBR
+    DS --> PBR
+    TL --> BE & FE & MOB & SRE2
+    TL --> EBR
+    STAFF --> EBR
+    QA --> EBR
+    SRE2 --> EBR
+
+    classDef tpm fill:#0d3321,stroke:#3fb950,color:#3fb950
+    classDef prod fill:#0d2149,stroke:#388bfd,color:#79c0ff
+    classDef gate fill:#3d2b00,stroke:#d29922,color:#d29922
+    classDef eng fill:#21262d,stroke:#484f58,color:#e6edf3
+    classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
       </div>
     </div>
   </div>
@@ -854,11 +824,11 @@ flowchart TD
 
 <hr class="divider" />
 
-<!-- LIVE PROGRESS -->
+<!-- PROGRESS -->
 <section id="progress">
   <div class="container">
     <h2>Live terminal progress</h2>
-    <p class="section-lead">TPM prints a status line at every agent transition. You always know who's working, who's talking to who, and what's blocked.</p>
+    <p class="section-lead">TPM prints a status line at every agent transition. You always know who's working, who's talking, and what's blocked.</p>
     <div class="progress-demo">
       <div class="progress-bar-top">
         <div class="terminal-dot td-red"></div>
@@ -867,23 +837,23 @@ flowchart TD
         <span class="terminal-title">brocode · spec-20260426-oauth · Spec mode</span>
       </div>
       <div class="progress-demo-body">
-        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">📋 TPM</span><span class="pl-sep">→</span><span class="pl-action">kicked off spec-20260426-oauth, tracking 14 stages</span></div>
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">📋 TPM</span><span class="pl-sep">→</span><span class="pl-action">kicked off spec-20260426-oauth, tracking stages</span></div>
         <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎯 PM</span><span class="pl-sep">→</span><span class="pl-action">reading brief, building requirements</span></div>
-        <div><span class="pl-convo">↔️</span>&nbsp; <span class="pl-agent">🎯 PM ↔️ 🎨 Designer</span><span class="pl-sep">→</span><span class="pl-action">PM asked: "what's the empty state for first-time users?"</span></div>
+        <div><span class="pl-convo">↔️</span>&nbsp;&nbsp; <span class="pl-agent">🎯 PM ↔️ 🎨 Designer</span><span class="pl-sep">→</span><span class="pl-action">PM asked: "empty state for first-time users?"</span></div>
         <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎨 Designer</span><span class="pl-sep">→</span><span class="pl-action">writing API contracts and all user flows</span></div>
-        <div><span class="pl-warn">⚠️</span>&nbsp; <span class="pl-agent">🔬 Product BR</span><span class="pl-sep">→</span><span class="pl-action">challenge round 1: ops interface missing, AC-4 untestable</span></div>
+        <div><span class="pl-warn">⚠️</span>&nbsp;&nbsp; <span class="pl-agent">🔬 Product BR</span><span class="pl-sep">→</span><span class="pl-action">challenge round 1: ops interface missing, AC-4 untestable</span></div>
         <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎯 PM</span><span class="pl-sep">→</span><span class="pl-action">revising requirements v2</span></div>
-        <div><span class="pl-ok">✅</span>&nbsp; <span class="pl-agent">🔬 Product BR</span><span class="pl-sep">→</span><span class="pl-action">requirements APPROVED · design APPROVED · product gate OPEN</span></div>
-        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">⚙️ Backend + 🖥️ Frontend + 📱 Mobile</span><span class="pl-sep">→</span><span class="pl-action">spawned in parallel, reading repos</span></div>
-        <div><span class="pl-convo">↔️</span>&nbsp; <span class="pl-agent">⚙️ Backend ↔️ 🖥️ Frontend</span><span class="pl-sep">→</span><span class="pl-action">Backend challenged: "3 round-trips for one screen"</span></div>
-        <div><span class="pl-convo">↔️</span>&nbsp; <span class="pl-agent">📱 Mobile ↔️ ⚙️ Backend</span><span class="pl-sep">→</span><span class="pl-action">Mobile: "340KB payload kills battery on polling"</span></div>
-        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🤝 SWE</span><span class="pl-sep">→</span><span class="pl-action">synthesising debate · 3 options drafted</span></div>
-        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🏗️ Staff SWE</span><span class="pl-sep">→</span><span class="pl-action">architecture review · validating option 2</span></div>
+        <div><span class="pl-ok">✅</span>&nbsp;&nbsp; <span class="pl-agent">🔬 Product BR</span><span class="pl-sep">→</span><span class="pl-action">APPROVED — product gate OPEN</span></div>
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🤝 Tech Lead</span><span class="pl-sep">→</span><span class="pl-action">dispatching Backend + Frontend + Mobile in parallel</span></div>
+        <div><span class="pl-convo">↔️</span>&nbsp;&nbsp; <span class="pl-agent">⚙️ Backend ↔️ 🖥️ Frontend</span><span class="pl-sep">→</span><span class="pl-action">Backend: "3 round-trips to render one screen"</span></div>
+        <div><span class="pl-convo">↔️</span>&nbsp;&nbsp; <span class="pl-agent">📱 Mobile ↔️ ⚙️ Backend</span><span class="pl-sep">→</span><span class="pl-action">Mobile: "340KB payload kills battery on 3G polling"</span></div>
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🤝 Tech Lead</span><span class="pl-sep">→</span><span class="pl-action">synthesising debate — 3 options drafted</span></div>
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🏗️ Staff SWE</span><span class="pl-sep">→</span><span class="pl-action">architecture review — validating option 2</span></div>
         <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🚨 SRE + 🧪 QA</span><span class="pl-sep">→</span><span class="pl-action">running parallel: ops plan + test matrix</span></div>
-        <div><span class="pl-warn">⚠️</span>&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">challenged SWE: "option 3 has N+1 query — explain mitigation"</span></div>
-        <div><span class="pl-warn">⚠️</span>&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">challenged QA: "AC-7 has no test case — add it"</span></div>
-        <div><span class="pl-ok">✅</span>&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">all 4 artifacts APPROVED · writing final spec</span></div>
-        <div><span class="pl-ok">✅</span>&nbsp; <span class="pl-agent">📋 TPM</span><span class="pl-sep">→</span><span class="pl-action">08-final-spec.md written · done</span></div>
+        <div><span class="pl-warn">⚠️</span>&nbsp;&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">challenged Tech Lead: "option 3 N+1 query — mitigation?" (round 1)</span></div>
+        <div><span class="pl-warn">⚠️</span>&nbsp;&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">challenged QA: "AC-7 has no test case" (round 1)</span></div>
+        <div><span class="pl-ok">✅</span>&nbsp;&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">all 4 artifacts APPROVED — writing final spec + tasks</span></div>
+        <div><span class="pl-ok">✅</span>&nbsp;&nbsp; <span class="pl-agent">📋 TPM</span><span class="pl-sep">→</span><span class="pl-action">08-final-spec.md + 09-tasks.md written — done</span></div>
       </div>
     </div>
   </div>
@@ -901,144 +871,108 @@ flowchart TD
       <div class="agent-card track-cross">
         <div class="agent-header">
           <div class="agent-icon" style="background:rgba(57,211,83,.1)">📋</div>
-          <div class="agent-meta">
-            <h3>Technical Program Manager</h3>
-            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
-          </div>
+          <div class="agent-meta"><h3>TPM</h3><div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div></div>
         </div>
-        <div class="agent-desc">Runs first, runs throughout. Owns the master log. Tracks every stage and every BR round. Prints live progress to terminal. Detects stalls and surfaces blockers.</div>
+        <div class="agent-desc">Program orchestrator. Runs start to finish. Logs every transition, every BR round, every blocker. Prints live progress. Detects stalls. Invokes superpowers:using-superpowers at session start.</div>
         <div class="agent-tags"><span class="tag tag-cross">Cross-cutting</span></div>
       </div>
 
       <div class="agent-card track-product">
         <div class="agent-header">
           <div class="agent-icon" style="background:rgba(88,166,255,.1)">🎯</div>
-          <div class="agent-meta">
-            <h3>Product Manager</h3>
-            <div class="agent-model"><span class="model-opus">claude-opus</span></div>
-          </div>
+          <div class="agent-meta"><h3>Product Manager</h3><div class="agent-model"><span class="model-opus">claude-opus</span></div></div>
         </div>
-        <div class="agent-desc">Turns any input into requirements with full user journeys — end user, ops/admin, support team. Closes ambiguity gaps. References competitors. Converses with Designer.</div>
+        <div class="agent-desc">Turns any input into requirements — full user journeys for end users, ops/admin, and support teams. Closes ambiguity gaps. References competitors. Converses with Designer.</div>
         <div class="agent-tags"><span class="tag tag-product">Product</span></div>
       </div>
 
       <div class="agent-card track-product">
         <div class="agent-header">
           <div class="agent-icon" style="background:rgba(88,166,255,.1)">🎨</div>
-          <div class="agent-meta">
-            <h3>Designer</h3>
-            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
-          </div>
+          <div class="agent-meta"><h3>Designer</h3><div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div></div>
         </div>
-        <div class="agent-desc">Designs API contracts, all user flows (happy path, errors, empty, loading), ops interface, and support interface. Converses with PM. Answers SWE questions during engineering track.</div>
+        <div class="agent-desc">Designs API contracts, all user flows (happy, error, empty, loading), ops interface, and support interface. Converses with PM. Answers engineering questions during the engineering track.</div>
         <div class="agent-tags"><span class="tag tag-product">Product</span></div>
       </div>
 
       <div class="agent-card track-gate-product">
         <div class="agent-header">
           <div class="agent-icon" style="background:rgba(188,140,255,.1)">🔬</div>
-          <div class="agent-meta">
-            <h3>Product Bar Raiser</h3>
-            <div class="agent-model"><span class="model-opus">claude-opus</span></div>
-          </div>
+          <div class="agent-meta"><h3>Product Bar Raiser</h3><div class="agent-model"><span class="model-opus">claude-opus</span></div></div>
         </div>
-        <div class="agent-desc">Principal PM. Challenges every AC, every journey, every assumption. Web-searches competitor references to verify claims. Hard gate — engineering is blocked until both PM and Designer are approved.</div>
+        <div class="agent-desc">Principal PM. Challenges every untestable AC, missing persona, and unresolved assumption. Web-searches competitors to verify claims. Hard gate — engineering blocked until both PM + Designer approved.</div>
         <div class="agent-tags"><span class="tag tag-gate-product">Product Gate</span></div>
       </div>
 
       <div class="agent-card track-eng">
         <div class="agent-header">
-          <div class="agent-icon" style="background:rgba(210,153,34,.1)">⚙️</div>
-          <div class="agent-meta">
-            <h3>Backend Engineer</h3>
-            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
-          </div>
+          <div class="agent-icon" style="background:rgba(210,153,34,.1)">🤝</div>
+          <div class="agent-meta"><h3>Tech Lead</h3><div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div></div>
         </div>
-        <div class="agent-desc">Sub-agent. Reads real backend code first — traces request lifecycle, checks DB schema, finds existing patterns. Owns APIs, data models, auth, queues. Debates Frontend and Mobile on contract design.</div>
+        <div class="agent-desc">Owns the engineering team: Backend, Frontend, Mobile, SRE. Scopes which sub-agents to dispatch. Runs the parallel debate. Synthesises 3 implementation options. Bridges product and engineering tracks.</div>
+        <div class="agent-tags"><span class="tag tag-eng">Engineering</span></div>
+      </div>
+
+      <div class="agent-card track-eng">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(210,153,34,.1)">⚙️</div>
+          <div class="agent-meta"><h3>Backend Engineer</h3><div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div></div>
+        </div>
+        <div class="agent-desc">Sub-agent. Reads real backend code — traces request lifecycle, checks DB schema, finds existing patterns. Owns APIs, data models, auth, queues. Uses superpowers:systematic-debugging when stuck.</div>
         <div class="agent-tags"><span class="tag tag-eng">Engineering</span><span class="tag tag-subagent">Sub-agent</span></div>
       </div>
 
       <div class="agent-card track-eng">
         <div class="agent-header">
           <div class="agent-icon" style="background:rgba(210,153,34,.1)">🖥️</div>
-          <div class="agent-meta">
-            <h3>Frontend Engineer</h3>
-            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
-          </div>
+          <div class="agent-meta"><h3>Frontend Engineer</h3><div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div></div>
         </div>
-        <div class="agent-desc">Sub-agent. Reads real frontend code first — components, state, API client patterns. Owns UI, state management, SSR/CSR, browser APIs. Challenges Backend on API usability and round-trip count.</div>
+        <div class="agent-desc">Sub-agent. Reads real frontend code — components, state, API client. Owns UI, state management, SSR/CSR. Challenges Backend on API usability and round-trip count. Uses superpowers:systematic-debugging when stuck.</div>
         <div class="agent-tags"><span class="tag tag-eng">Engineering</span><span class="tag tag-subagent">Sub-agent</span></div>
       </div>
 
       <div class="agent-card track-eng">
         <div class="agent-header">
           <div class="agent-icon" style="background:rgba(210,153,34,.1)">📱</div>
-          <div class="agent-meta">
-            <h3>Mobile Engineer</h3>
-            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
-          </div>
+          <div class="agent-meta"><h3>Mobile Engineer</h3><div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div></div>
         </div>
-        <div class="agent-desc">Sub-agent. Reads real mobile code first — iOS, Android, React Native, Flutter. Challenges Backend on offline behavior, payload size, battery impact. App store compliance awareness.</div>
+        <div class="agent-desc">Sub-agent. Reads real mobile code — iOS, Android, RN, Flutter. Challenges Backend on offline behavior, payload size, battery. App store compliance awareness. Uses superpowers:systematic-debugging when stuck.</div>
         <div class="agent-tags"><span class="tag tag-eng">Engineering</span><span class="tag tag-subagent">Sub-agent</span></div>
       </div>
 
       <div class="agent-card track-eng">
         <div class="agent-header">
-          <div class="agent-icon" style="background:rgba(210,153,34,.1)">🤝</div>
-          <div class="agent-meta">
-            <h3>SWE Coordinator</h3>
-            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
-          </div>
-        </div>
-        <div class="agent-desc">Scopes which sub-agents to spawn. Runs their parallel debate. Synthesises the three-way challenge loop into 3 implementation options. Bridges product and engineering tracks.</div>
-        <div class="agent-tags"><span class="tag tag-eng">Engineering</span></div>
-      </div>
-
-      <div class="agent-card track-eng">
-        <div class="agent-header">
           <div class="agent-icon" style="background:rgba(210,153,34,.1)">🏗️</div>
-          <div class="agent-meta">
-            <h3>Staff SWE</h3>
-            <div class="agent-model"><span class="model-opus">claude-opus</span></div>
-          </div>
+          <div class="agent-meta"><h3>Staff SWE</h3><div class="agent-model"><span class="model-opus">claude-opus</span></div></div>
         </div>
-        <div class="agent-desc">System-level architectural review. Converses with SWE team before forming opinions. Identifies failure modes, hidden coupling, scalability cliffs, migration risks. Joint recommendation with SWE Coordinator.</div>
+        <div class="agent-desc">System-level architectural review. Converses with Tech Lead before forming opinions. Identifies failure modes, hidden coupling, scalability cliffs. Peer — not manager — of Tech Lead. Joint recommendation.</div>
         <div class="agent-tags"><span class="tag tag-eng">Engineering</span></div>
       </div>
 
       <div class="agent-card track-eng">
         <div class="agent-header">
           <div class="agent-icon" style="background:rgba(210,153,34,.1)">🚨</div>
-          <div class="agent-meta">
-            <h3>SRE</h3>
-            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
-          </div>
+          <div class="agent-meta"><h3>SRE</h3><div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div></div>
         </div>
-        <div class="agent-desc">Ops plan — observability, alerts, blast radius assessment, executable rollback steps, runbooks, pre-deploy checklist, SLO impact. Asks SWE about topology before writing. Runs parallel with QA.</div>
+        <div class="agent-desc">Tech Lead's team. Ops plan — observability, alerts, blast radius, executable rollback, runbooks, pre-deploy checklist. Asks SWE about topology first. Runs parallel with QA.</div>
         <div class="agent-tags"><span class="tag tag-eng">Engineering</span></div>
       </div>
 
       <div class="agent-card track-eng">
         <div class="agent-header">
           <div class="agent-icon" style="background:rgba(210,153,34,.1)">🧪</div>
-          <div class="agent-meta">
-            <h3>QA Engineer</h3>
-            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
-          </div>
+          <div class="agent-meta"><h3>QA Engineer</h3><div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div></div>
         </div>
-        <div class="agent-desc">Full test matrix with real test code — unit, integration, E2E, load, security. Every AC covered. No TODOs. Asks SWE about edge cases. Runs parallel with SRE.</div>
+        <div class="agent-desc">Full test matrix with real test code — unit, integration, E2E, load, security. Every AC covered. No TODOs. Asks Tech Lead about edge cases. Runs parallel with SRE.</div>
         <div class="agent-tags"><span class="tag tag-eng">Engineering</span></div>
       </div>
 
       <div class="agent-card track-gate-eng">
         <div class="agent-header">
           <div class="agent-icon" style="background:rgba(248,81,73,.1)">⚖️</div>
-          <div class="agent-meta">
-            <h3>Engineering Bar Raiser</h3>
-            <div class="agent-model"><span class="model-opus">claude-opus</span></div>
-          </div>
+          <div class="agent-meta"><h3>Engineering Bar Raiser</h3><div class="agent-model"><span class="model-opus">claude-opus</span></div></div>
         </div>
-        <div class="agent-desc">Principal Engineer. Reviews all 4 engineering artifacts for cross-artifact consistency. Challenges each independently. Writes the final approved spec when all pass.</div>
+        <div class="agent-desc">Principal Engineer. Challenges all 4 engineering artifacts — cross-artifact consistency check. Fresh sub-agent per review round. Writes 08-final-spec.md + 09-tasks.md when all approved.</div>
         <div class="agent-tags"><span class="tag tag-gate-eng">Engineering Gate</span></div>
       </div>
 
@@ -1052,42 +986,42 @@ flowchart TD
 <section>
   <div class="container">
     <h2>Two Bar Raisers</h2>
-    <p class="section-lead">Adversarial reviewers. Their challenges are blockers, not suggestions. Max 2 rounds per artifact — then they escalate to you with a specific question.</p>
+    <p class="section-lead">Adversarial reviewers. Their challenges are blockers, not suggestions. Fresh sub-agent per round — no context drift. Max 3 rounds, then escalates to you with a specific question.</p>
     <div class="br-grid">
 
       <div class="br-card br-product">
         <div class="br-eyebrow">Product Track</div>
         <h3>Product Bar Raiser</h3>
-        <p class="br-subtitle">Principal PM / Head of Product. Gates the product track — engineering cannot start until PM and Designer are both approved.</p>
+        <p class="br-subtitle">Principal PM / Head of Product. Hard gate — engineering cannot start until PM and Designer are both approved.</p>
         <ul class="br-checks">
           <li>Challenges every AC that is untestable or unmeasurable</li>
-          <li>Verifies all personas are covered: end user, ops/admin, support team</li>
-          <li>Checks every journey step has error states and recovery actions</li>
-          <li>Web-searches competitor references — verifies claims against real product behavior</li>
-          <li>Challenges API contracts for missing error cases or impossible data states</li>
-          <li>Verifies ops team can actually manage this feature after launch</li>
+          <li>Verifies all personas: end user, ops/admin, support team</li>
+          <li>Checks every journey has error states and recovery actions</li>
+          <li>Web-searches competitor references — verifies claims against real behavior</li>
+          <li>Challenges API contracts for missing error cases</li>
+          <li>Verifies ops team can actually manage this feature post-launch</li>
         </ul>
         <div class="br-loop">
           <div class="loop-dot"></div>
-          Challenge → Producer revises → BR re-reviews · max 2 rounds · then escalates to you
+          Fresh BR sub-agent per round → challenged → fresh producer sub-agent revises → max 3 rounds
         </div>
       </div>
 
       <div class="br-card br-eng">
         <div class="br-eyebrow">Engineering Track</div>
         <h3>Engineering Bar Raiser</h3>
-        <p class="br-subtitle">Principal Engineer. Reviews all four engineering artifacts together. Writes the final spec when all approved.</p>
+        <p class="br-subtitle">Principal Engineer. Reviews all 4 engineering artifacts. Writes 08-final-spec.md + 09-tasks.md when all approved.</p>
         <ul class="br-checks">
-          <li>Challenges SWE options for vague tradeoffs or inconsistency with design</li>
-          <li>Challenges Staff SWE concerns that lack codebase evidence</li>
+          <li>Challenges Tech Lead options for vague tradeoffs or inconsistency with design</li>
+          <li>Challenges Staff SWE concerns without codebase evidence</li>
           <li>Challenges SRE rollback plans that are theoretical rather than executable</li>
-          <li>Challenges QA for ACs without tests or TODOs instead of test code</li>
-          <li>Cross-checks all four artifacts for consistency with each other</li>
-          <li>SWE recommendation must match Staff SWE architecture — flags divergence</li>
+          <li>Challenges QA for ACs without tests or TODOs instead of real test code</li>
+          <li>Cross-checks all 4 artifacts for mutual consistency</li>
+          <li>Tech Lead recommendation must match Staff SWE architecture — flags divergence</li>
         </ul>
         <div class="br-loop">
           <div class="loop-dot"></div>
-          Challenge → Producer revises → BR re-reviews · max 2 rounds · then escalates to you
+          Fresh BR sub-agent per round → challenged → fresh producer sub-agent revises → max 3 rounds
         </div>
       </div>
 
@@ -1108,29 +1042,27 @@ flowchart TD
           <div class="repo-step-num">1</div>
           <div class="repo-step-body">
             <h4>Run the setup command</h4>
-            <p>Prompts you for backend, web, and mobile repo paths. Validates each path exists.</p>
+            <p>Prompts for backend, web, and mobile paths. Validates each exists.</p>
           </div>
         </div>
         <div class="repo-step">
           <div class="repo-step-num">2</div>
           <div class="repo-step-body">
-            <h4>Paths saved to <code>.brocode-repos.json</code></h4>
-            <p>File is gitignored — paths are machine-local. Re-run anytime to update.</p>
+            <h4>Saved to <code>.brocode-repos.json</code></h4>
+            <p>Gitignored — machine-local. Re-run anytime to update.</p>
           </div>
         </div>
         <div class="repo-step">
           <div class="repo-step-num">3</div>
           <div class="repo-step-body">
             <h4>Sub-agents read their repo automatically</h4>
-            <p>Backend reads <code>backend</code> path. Frontend reads <code>web</code>. Mobile reads <code>mobile</code>. If a path isn't set, the agent asks before proceeding.</p>
+            <p>Backend reads <code>backend</code>. Frontend reads <code>web</code>. Mobile reads <code>mobile</code>. Missing path → agent asks, never silent failure.</p>
           </div>
         </div>
       </div>
       <div>
         <div class="code-block">
-          <div class="code-block-header">
-            <span>Terminal</span>
-          </div>
+          <div class="code-block-header"><span>Terminal</span></div>
           <div class="code-block-body">
             <span class="cb-cmd">/brocode repos</span><br><br>
             <span class="cb-comment"># Prompts:</span><br>
@@ -1140,7 +1072,7 @@ flowchart TD
             <span class="cb-comment"># Saved to .brocode-repos.json</span>
           </div>
         </div>
-        <div style="margin-top: 1rem">
+        <div style="margin-top:1rem">
           <div class="code-block">
             <div class="code-block-header">
               <span>.brocode-repos.json</span>
@@ -1171,23 +1103,23 @@ flowchart TD
     <p class="section-lead">Every run creates <code>.sdlc/&lt;id&gt;/</code> — small focused files, one per agent. Gitignored. Resume anytime.</p>
     <div class="tree">
 <span class="tr-dir">.sdlc/spec-20260426-oauth/</span><br>
-&nbsp;&nbsp;<span class="tr-tpm">00-tpm-log.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← TPM master log, live throughout</span><br>
-&nbsp;&nbsp;<span class="tr-file">00-brief.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← user input + clarified scope</span><br>
-&nbsp;&nbsp;<span class="tr-file">00-input-raw.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← ingested doc / image</span><br>
-&nbsp;&nbsp;<span class="tr-file">01-requirements.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← PM, versioned</span><br>
-&nbsp;&nbsp;<span class="tr-file">02-design.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← Designer, versioned</span><br>
-&nbsp;&nbsp;<span class="tr-file">03-implementation-options.md</span>&nbsp;<span class="tr-comment">← SWE team debate output</span><br>
-&nbsp;&nbsp;<span class="tr-file">04-architecture.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← Staff SWE, versioned</span><br>
-&nbsp;&nbsp;<span class="tr-file">05-ops.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← SRE, versioned</span><br>
-&nbsp;&nbsp;<span class="tr-file">06-test-cases.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← QA, versioned</span><br>
+&nbsp;&nbsp;<span class="tr-tpm">00-tpm-log.md</span><span class="tr-comment">            ← TPM master log, live throughout</span><br>
+&nbsp;&nbsp;<span class="tr-file">00-brief.md</span><span class="tr-comment">               ← user input + clarified scope</span><br>
+&nbsp;&nbsp;<span class="tr-file">01-requirements.md</span><span class="tr-comment">        ← PM, versioned</span><br>
+&nbsp;&nbsp;<span class="tr-file">02-design.md</span><span class="tr-comment">              ← Designer, versioned</span><br>
+&nbsp;&nbsp;<span class="tr-file">03-implementation-options.md</span><span class="tr-comment"> ← Tech Lead</span><br>
+&nbsp;&nbsp;<span class="tr-file">04-architecture.md</span><span class="tr-comment">        ← Staff SWE, versioned</span><br>
+&nbsp;&nbsp;<span class="tr-file">05-ops.md</span><span class="tr-comment">                 ← SRE, versioned</span><br>
+&nbsp;&nbsp;<span class="tr-file">06-test-cases.md</span><span class="tr-comment">          ← QA, versioned</span><br>
 &nbsp;&nbsp;<span class="tr-dir">threads/</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">product-conversation.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← PM ↔ Designer</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">swe-debate.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← Backend ↔ Frontend ↔ Mobile</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">eng-conversation.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← SWE ↔ Staff SWE ↔ SRE ↔ QA</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">eng-product-conversation.md</span>&nbsp;<span class="tr-comment">← Eng ↔ PM/Designer</span><br>
-&nbsp;&nbsp;<span class="tr-br">07-product-br-reviews/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← challenge rounds + gate approval</span><br>
-&nbsp;&nbsp;<span class="tr-br">07-eng-br-reviews/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← challenge rounds + approvals</span><br>
-&nbsp;&nbsp;<span class="tr-final">08-final-spec.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← approved, ready to implement</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">product-conversation.md</span><span class="tr-comment">    ← PM ↔ Designer</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">swe-debate.md</span><span class="tr-comment">              ← Backend ↔ Frontend ↔ Mobile</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">eng-conversation.md</span><span class="tr-comment">        ← Tech Lead ↔ Staff SWE ↔ SRE ↔ QA</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">eng-product-conversation.md</span><span class="tr-comment"> ← Eng ↔ PM/Designer</span><br>
+&nbsp;&nbsp;<span class="tr-br">07-product-br-reviews/</span><span class="tr-comment">     ← challenge rounds + gate approval</span><br>
+&nbsp;&nbsp;<span class="tr-br">07-eng-br-reviews/</span><span class="tr-comment">         ← challenge rounds + approvals</span><br>
+&nbsp;&nbsp;<span class="tr-final">08-final-spec.md</span><span class="tr-comment">           ← approved, ready to implement</span><br>
+&nbsp;&nbsp;<span class="tr-final">09-tasks.md</span><span class="tr-comment">                ← domain-scoped task list for /brocode develop</span><br>
     </div>
   </div>
 </section>
@@ -1198,12 +1130,12 @@ flowchart TD
 <section>
   <div class="container">
     <h2>Input formats</h2>
-    <p class="section-lead">Paste, attach, or link. brocode handles the rest. Never silently fails — if an MCP is missing, it tells you exactly what to do.</p>
+    <p class="section-lead">Paste, attach, or link. Never silently fails — if an MCP is missing, brocode tells you exactly what to do.</p>
     <div class="inputs-grid">
       <div class="input-card">
         <div class="input-icon">💬</div>
         <h4>Plain text</h4>
-        <p>Describe the bug or feature in plain English — as much or as little detail as you have</p>
+        <p>Describe the bug or feature — as much or as little detail as you have</p>
       </div>
       <div class="input-card">
         <div class="input-icon">🖼️</div>
@@ -1236,34 +1168,40 @@ flowchart TD
 <section id="install">
   <div class="container">
     <h2>Install</h2>
-    <p class="section-lead">Two steps. Then restart Claude Code and you're ready.</p>
+    <p class="section-lead">Three steps. Restart Claude Code and you're ready.</p>
     <div class="install-grid">
       <div class="install-step">
-        <div class="install-step-header">
-          <div class="num">1</div>
-          <h4>Add marketplace &amp; install</h4>
-        </div>
+        <div class="install-step-header"><div class="num">1</div><h4>Install brocode</h4></div>
         <div class="install-body">
-          <span class="comment"># Add local marketplace</span><br>
+          <span class="comment"># Add marketplace</span><br>
           <span class="cmd">claude</span> plugin marketplace add<br>
           &nbsp;&nbsp;<span class="arg">https://github.com/im-adarsh/brocode</span><br><br>
-          <span class="comment"># Install plugin</span><br>
-          <span class="cmd">claude</span> plugin install <span class="arg">sdlc@brocode</span><br>
-          &nbsp;&nbsp;--scope user
+          <span class="comment"># Install</span><br>
+          <span class="cmd">claude</span> plugin install <span class="arg">sdlc@brocode</span> --scope user
         </div>
         <div class="install-note">Restart Claude Code after install</div>
       </div>
       <div class="install-step">
-        <div class="install-step-header">
-          <div class="num">2</div>
-          <h4>Register your repos</h4>
-        </div>
+        <div class="install-step-header"><div class="num">2</div><h4>Install superpowers</h4></div>
         <div class="install-body">
-          <span class="comment"># Tell engineer agents where to find code</span><br>
+          <span class="comment"># Required for /brocode develop</span><br>
+          <span class="cmd">claude</span> plugin install<br>
+          &nbsp;&nbsp;<span class="arg">superpowers@claude-plugins-official</span><br>
+          &nbsp;&nbsp;--scope user
+        </div>
+        <div class="install-note">Enables subagent-driven implementation + TDD</div>
+      </div>
+      <div class="install-step" style="grid-column:1/-1">
+        <div class="install-step-header"><div class="num">3</div><h4>Register repos + start using it</h4></div>
+        <div class="install-body">
+          <span class="comment"># Register repo paths (once per machine)</span><br>
           <span class="cmd">/brocode repos</span><br><br>
-          <span class="comment"># Then start using it</span><br>
+          <span class="comment"># Investigate a bug</span><br>
+          <span class="cmd">/brocode</span> <span class="arg">checkout is throwing 500s after today's deploy</span><br><br>
+          <span class="comment"># Spec a feature</span><br>
           <span class="cmd">/brocode</span> <span class="arg">add SSO login with Google OAuth</span><br><br>
-          <span class="cmd">/brocode</span> <span class="arg">checkout is throwing 500s</span>
+          <span class="comment"># Implement an approved spec</span><br>
+          <span class="cmd">/brocode develop</span>
         </div>
         <div class="install-note">Run <code>/brocode repos</code> once per machine — paths are gitignored</div>
       </div>

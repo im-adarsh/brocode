@@ -1,8 +1,8 @@
 # brocode
 
-Multi-agent SDLC plugin for Claude Code. One command. Full engineering org simulated in your terminal.
+Multi-agent SDLC plugin for Claude Code. One command. Full engineering org in your terminal.
 
-Paste a bug report, feature idea, PRD, doc link, or screenshot. Type `/brocode`. The right agents spin up, converse, challenge each other, and produce a final approved spec or investigation report — no manual orchestration needed.
+Paste a bug report, feature idea, PRD, doc link, or screenshot. Type `/brocode`. The right agents spin up, debate, challenge each other through adversarial review loops, and produce a final approved spec or investigation report — no manual orchestration needed.
 
 ---
 
@@ -12,8 +12,11 @@ Paste a bug report, feature idea, PRD, doc link, or screenshot. Type `/brocode`.
 # Add local marketplace
 claude plugin marketplace add /path/to/brocode
 
-# Install
+# Install brocode
 claude plugin install sdlc@brocode-local --scope user
+
+# Install superpowers (required for /brocode develop)
+claude plugin install superpowers@claude-plugins-official --scope user
 ```
 
 Restart Claude Code after install.
@@ -36,6 +39,7 @@ No flags. No mode selection. brocode reads context and routes automatically.
 /brocode  [attach screenshot of Figma mockup]
 /brocode  [paste Google Doc link with PRD]
 /brocode  why does the payment webhook fail intermittently on retries?
+/brocode  develop
 ```
 
 ### Register your repos
@@ -52,7 +56,7 @@ Prompts for backend / web / mobile paths. Saves to `.brocode-repos.json` (gitign
 
 ## How it works
 
-brocode has two modes. It picks the right one automatically.
+brocode has three modes. It picks the right one automatically.
 
 ---
 
@@ -60,45 +64,39 @@ brocode has two modes. It picks the right one automatically.
 
 Triggered by: bug reports, errors, crashes, test failures, production incidents.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      /brocode <bug>                             │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │
-              ┌────────────┴────────────────────────┐
-              │         SWE sub-agents               │
-              │   spawned in parallel, scope-based   │
-              │                                      │
-         ┌────▼─────┐  ┌──────────▼──┐  ┌──────────▼──┐
-         │ Backend  │  │  Frontend   │  │   Mobile    │
-         │ Engineer │  │  Engineer   │  │  Engineer   │
-         │ (if bug  │  │  (if bug    │  │  (if bug    │
-         │ is BE)   │  │   is FE)    │  │  is mobile) │
-         └────┬─────┘  └──────┬──────┘  └──────┬──────┘
-              │               │                 │
-              └───────────────┼─────────────────┘
-                              │ swe-debate.md
-                              ▼
-                       Tech Lead + SRE
-                    (parallel, independent)
-                              │
-                              ▼
-                        Staff SWE Agent
-               - Validates root cause architecturally
-               - Checks for systemic causes
-                              │
-                              ▼
-              Engineering Bar Raiser (Principal Eng)
-               - Challenges root cause claim
-               - Challenges proposed fix
-               - Adversarial loop (max 2 rounds)
-                              │
-                              ▼
-                      08-final-spec.md
-           (confirmed root cause + fix + test case)
+```mermaid
+flowchart TD
+    A(["/brocode &lt;bug&gt;"])
+
+    subgraph ENG["Engineering Track"]
+        TL["🤝 Tech Lead"]
+        BE["⚙️ Backend Engineer"]
+        FE["🖥️ Frontend Engineer"]
+        MOB["📱 Mobile Engineer"]
+        SRE["🚨 SRE\n(parallel)"]
+        STAFF["🏗️ Staff SWE\nvalidates root cause"]
+    end
+
+    subgraph BR_LOOP["Engineering BR Loop (max 3 rounds)"]
+        EBR["⚖️ Engineering Bar Raiser"]
+        ESCALATE["🚫 Escalate to user"]
+    end
+
+    OUT(["08-final-spec.md + 09-tasks.md"])
+
+    A --> TL
+    TL --> BE & FE & MOB
+    BE & FE & MOB -->|"swe-debate.md"| TL
+    A --> SRE
+    TL --> STAFF
+    STAFF --> EBR
+    SRE --> EBR
+    EBR -->|"approved"| OUT
+    EBR -->|"challenged → producer revises"| EBR
+    EBR -->|"round > 3"| ESCALATE
 ```
 
-**What you get:** Root cause confirmed with evidence, exact code fix, failing test that proves the bug, ops impact assessment, rollback plan.
+**What you get:** Root cause confirmed with evidence, exact code fix, failing test that proves the bug, ops impact, rollback plan, domain-scoped task list.
 
 ---
 
@@ -106,107 +104,170 @@ Triggered by: bug reports, errors, crashes, test failures, production incidents.
 
 Triggered by: feature requests, design tasks, PRDs, doc/image input.
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                  /brocode <feature or doc>                   │
-└─────────────────────────────┬────────────────────────────────┘
-                              │
-                    ┌─────────▼──────────┐
-                    │    Input Ingestion  │
-                    │  text / image /     │
-                    │  Google Doc / wiki  │
-                    └─────────┬──────────┘
-                              │
-               ───── PRODUCT TRACK ──────────────────────────
-                              │
-              ┌───────────────┴──────────────┐
-              ▼                              ▼
-          PM Agent                    Designer Agent
-    - Write requirements         - Design API contracts
-    - Define user personas       - Design all user flows
-    - End user journey           - Error / empty / loading states
-    - Ops/admin journey          - Ops + support interfaces
-    - Support journey            - Data models
-    - Competitor references       ◄──────────────────────
-                                   PM ↔ Designer converse
-              │                              │
-              └──────────────┬───────────────┘
-                             ▼
-              Product Bar Raiser (Principal PM)
-                - Challenges PM requirements
-                - Challenges Designer artifacts
-                - Web searches competitor references
-                - Verifies all personas covered
-                - Adversarial loop (max 2 rounds each)
-                - GATE: engineering blocked until approved
-                             │
-               ──── ENGINEERING TRACK ──────────────────────
-                             │
-              ┌──────────────┴──────────────────────────────┐
-              │    Tech Lead dispatches sub-agents in parallel  │
-              │       based on scope of the feature          │
-              │                                              │
-         ┌────▼─────┐       ┌──────────▼──┐  ┌────────────▼──┐
-         │ Backend  │       │  Frontend   │  │    Mobile     │
-         │ Engineer │       │  Engineer   │  │   Engineer    │
-         │          │       │             │  │               │
-         └────┬─────┘       └──────┬──────┘  └──────┬────────┘
-              └──────────────────┬─┘                │
-                                 │  swe-debate.md   │
-                                 └──────────┬───────┘
-                                            │
-                                       Tech Lead
-                              - Synthesizes 3 impl options
-                                            │
-                              ┌─────────────▼────────────┐
-                              │        Staff SWE          │
-                              │  - Architecture review    │
-                              │  - Joint recommendation   │
-                              └─────────────┬────────────┘
-                                            │
-                              ┌─────────────┴────────────┐
-                              ▼                           ▼
-                         SRE Agent                  QA Agent
-                    (parallel)                  (parallel)
-                    - Ops plan                  - Test matrix
-                    - Rollback                  - Real test code
-                    - Blast radius              - Every AC covered
-                              │                           │
-                              └─────────────┬─────────────┘
-                                            ▼
-                              Engineering Bar Raiser
-                              - Challenges all 4 artifacts
-                              - Cross-artifact consistency
-                              - Adversarial loop (max 2 rounds)
-                                            │
-                                            ▼
-                                    08-final-spec.md
-                               (approved, ready to implement)
+```mermaid
+flowchart TD
+    A(["/brocode &lt;feature or doc&gt;"])
+
+    subgraph PROD["Product Track"]
+        PM["🎯 PM\nrequirements + personas"]
+        DS["🎨 Designer\nAPI contracts + flows"]
+        PBR["🔬 Product Bar Raiser\nPrincipal PM — gates engineering"]
+    end
+
+    subgraph ENG["Engineering Track"]
+        TL["🤝 Tech Lead"]
+        BE["⚙️ Backend"]
+        FE["🖥️ Frontend"]
+        MOB["📱 Mobile"]
+        STAFF["🏗️ Staff SWE"]
+        SRE["🚨 SRE"]
+        QA["🧪 QA"]
+    end
+
+    subgraph EBR_LOOP["Engineering BR Loop (max 3 rounds)"]
+        EBR["⚖️ Engineering Bar Raiser"]
+    end
+
+    GATE{{"Product gate\napproved?"}}
+    OUT(["08-final-spec.md + 09-tasks.md"])
+
+    A --> PM
+    PM <-->|"product-conversation.md"| DS
+    PM --> PBR
+    DS --> PBR
+    PBR -->|"challenged"| PM & DS
+    PBR --> GATE
+    GATE -->|"yes"| TL
+    GATE -->|"no"| PM
+
+    TL --> BE & FE & MOB
+    BE & FE & MOB -->|"swe-debate.md"| TL
+    TL <-->|"eng-conversation.md"| STAFF
+    STAFF --> SRE & QA
+    SRE --> EBR
+    QA --> EBR
+    TL --> EBR
+    STAFF --> EBR
+    EBR -->|"approved"| OUT
+    EBR -->|"challenged → producer revises"| EBR
 ```
 
-**What you get:** Approved requirements, API contracts, 3 impl options with recommendation, architecture review, ops plan with rollback, full test matrix. All challenged and signed off by two bar raisers.
+**What you get:** Approved requirements, API contracts, 3 impl options with recommendation, architecture review, ops plan with rollback, full test matrix. Challenged and signed off by two bar raisers.
 
 ---
 
-## Engineering sub-agents — parallel by design
+### Mode 3: Develop — Implement the spec
 
-Backend, Frontend, and Mobile engineers are sub-agents. The Tech Lead dispatches only the ones relevant to the task, runs them in parallel, and collects their debate before synthesizing.
+Triggered by: `/brocode develop` after a spec is approved.
+
+```mermaid
+flowchart TD
+    A(["/brocode develop"])
+    CHECK{"superpowers\ninstalled?"}
+    INSTALL["Install superpowers\nclaude plugin install superpowers@claude-plugins-official"]
+    TASKS["Read 08-final-spec.md\n+ 09-tasks.md"]
+
+    subgraph DOMAIN["Per domain (backend / web / mobile)"]
+        WT["superpowers:using-git-worktrees\ncreate isolated worktree"]
+        PLAN["superpowers:writing-plans\nconvert tasks → superpowers plan"]
+        subgraph LOOP["Per task loop"]
+            IMPL["Implementer sub-agent\nTDD · commit"]
+            SPEC_R["Spec compliance review"]
+            QUAL_R["Code quality review"]
+        end
+        FINISH["superpowers:finishing-a-development-branch\ntests → push → PR"]
+    end
+
+    A --> CHECK
+    CHECK -->|"no"| INSTALL
+    CHECK -->|"yes"| TASKS
+    TASKS --> WT --> PLAN --> IMPL
+    IMPL --> SPEC_R -->|"pass"| QUAL_R
+    QUAL_R -->|"pass"| FINISH
+    SPEC_R -->|"fail"| IMPL
+    QUAL_R -->|"fail"| IMPL
+```
+
+**What you get:** One PR per domain, all tasks implemented with TDD, two-stage review per task (spec compliance + code quality), tests passing.
+
+---
+
+## The org
+
+```mermaid
+flowchart TD
+    TPM["📋 TPM\nProgram Orchestrator"]
+
+    subgraph PROD["Product Track"]
+        PM["🎯 PM"]
+        DS["🎨 Designer"]
+        PBR["🔬 Product Bar Raiser\nPrincipal PM"]
+    end
+
+    subgraph ENG["Engineering Track"]
+        TL["🤝 Tech Lead"]
+        BE["⚙️ Backend"]
+        FE["🖥️ Frontend"]
+        MOB["📱 Mobile"]
+        SRE["🚨 SRE"]
+        STAFF["🏗️ Staff SWE"]
+        QA["🧪 QA"]
+        EBR["⚖️ Engineering Bar Raiser\nPrincipal Eng"]
+    end
+
+    TPM --> PROD & ENG
+    PM --> PBR
+    DS --> PBR
+    TL --> BE & FE & MOB & SRE
+    TL --> EBR
+    STAFF --> EBR
+    QA --> EBR
+    SRE --> EBR
+```
+
+| Agent | Role | Produces |
+|-------|------|---------|
+| **TPM** | Program orchestrator, logs all transitions, prints live progress | `00-tpm-log.md` |
+| **PM** | Senior Product Manager | `01-requirements.md` |
+| **Designer** | Senior Designer (API + UX) | `02-design.md` |
+| **Product Bar Raiser** | Principal PM — challenges PM + Designer, gates engineering | Challenge files + gate approval |
+| **Tech Lead** | Owns engineering team, dispatches sub-agents, synthesizes debate | `03-investigation.md` or `03-implementation-options.md` |
+| → **Backend Engineer** *(sub-agent)* | APIs, DB, services, queues | Debate in `swe-debate.md` |
+| → **Frontend Engineer** *(sub-agent)* | Web UI, state, browser, SSR/CSR | Debate in `swe-debate.md` |
+| → **Mobile Engineer** *(sub-agent)* | iOS, Android, RN, Flutter, offline | Debate in `swe-debate.md` |
+| → **SRE** *(Tech Lead's team)* | Ops plan, blast radius, rollback | `05-ops.md` |
+| **Staff SWE** | Architecture review, peer to Tech Lead | `04-architecture.md` |
+| **QA** | Full test matrix with actual test code | `06-test-cases.md` |
+| **Engineering Bar Raiser** | Principal Eng — challenges all 4 artifacts, writes final spec | `08-final-spec.md` + `09-tasks.md` |
+
+---
+
+## Bar Raiser loops
+
+Bar Raisers run adversarial review loops. Challenges are blockers, not suggestions.
 
 ```
-Feature touches web + backend only:
-  → Backend + Frontend spawned in parallel
-  → Mobile skipped
-
-Mobile-only bug:
-  → Mobile spawned
-  → Backend/Frontend skipped unless API is involved
-
-Full-stack feature:
-  → All three spawned in parallel
-  → Three-way debate in swe-debate.md
+round = 1
+loop:
+  BR reviews artifact (fresh sub-agent)
+  → approved: continue
+  → challenged: producer revises (fresh sub-agent) → round += 1
+  → round > 3: escalate to user with exact question
 ```
 
-Each sub-agent reads its own repo (registered via `/brocode repos`). They challenge each other — Backend on API contracts, Frontend on round-trip count, Mobile on payload size and offline behavior. The debate produces better options than any one alone.
+**Product Bar Raiser** (Principal PM):
+- Challenges requirements: missing personas, untestable ACs, unresolved assumptions
+- Challenges design: missing error states, undefined API contracts, missing ops/support interfaces
+- Uses web search to verify competitor claims
+- Hard gate: engineering cannot start until both PM + Designer approved
+
+**Engineering Bar Raiser** (Principal Engineer):
+- Challenges Tech Lead options: vague tradeoffs, inconsistency with design
+- Challenges Staff SWE: concerns without codebase evidence
+- Challenges SRE: theoretical rollback plans, missing observability
+- Challenges QA: ACs without tests, TODOs instead of test code
+- Cross-checks all four artifacts for consistency
+- Writes `08-final-spec.md` + `09-tasks.md` after all approved
 
 ---
 
@@ -222,79 +283,69 @@ TPM prints a live status line at every agent transition:
 🔬  Product BR    →  challenging PM requirements (round 1)
 ⚠️  Product BR    →  found gap: ops interface missing — routing back to PM
 ✅  Product BR    →  requirements APPROVED — product gate OPEN
-⚙️  Backend  ↔️  🖥️  Frontend   →  Backend challenged: "3 round-trips for one screen"
-⚠️  Eng BR       →  challenged Tech Lead: "option 3 has N+1 query — explain mitigation"
+🤝  Tech Lead     →  dispatching Backend + Frontend in parallel
+⚙️  Backend  ↔️  🖥️  Frontend   →  Backend: "3 round-trips for one screen"
+⚠️  Eng BR       →  challenged Tech Lead: "option 3 has N+1 query" (round 1)
 ✅  Eng BR       →  all artifacts APPROVED
-📋  TPM          →  writing final spec
+📋  TPM          →  final spec + tasks written — done
 ```
 
 Prefixes: `⚠️` BR challenge · `✅` approved · `🚫` blocked waiting on you
 
 ---
 
-## Agents
-
-| Agent | Role | Produces |
-|-------|------|---------|
-| **TPM** | Coordinates all agents, owns run log, prints live progress | `00-tpm-log.md` |
-| **PM** | Senior Product Manager | `01-requirements.md` — personas, journeys, ACs, competitor refs |
-| **Designer** | Senior Designer (API + UX) | `02-design.md` — API contracts, all flows, ops/support interfaces |
-| **Product Bar Raiser** | Principal PM / Head of Product | Challenges PM + Designer. Web searches competitors. Gates engineering. |
-| **Tech Lead** | Owns engineering team, orchestrates sub-agent debate, synthesizes final output | `03-investigation.md` or `03-implementation-options.md` |
-| → **Backend Engineer** *(sub-agent)* | APIs, DB, services, queues — reads real backend code | Debate in `swe-debate.md` |
-| → **Frontend Engineer** *(sub-agent)* | Web UI, state, browser, SSR/CSR — reads real frontend code | Debate in `swe-debate.md` |
-| → **Mobile Engineer** *(sub-agent)* | iOS, Android, RN, Flutter, offline — reads real mobile code | Debate in `swe-debate.md` |
-| **Staff SWE** | Staff Software Engineer | `04-architecture.md` — system context, failure modes, joint recommendation |
-| **SRE** | Site Reliability Engineer | `05-ops.md` — observability, rollback, blast radius, runbooks |
-| **QA** | QA Engineer | `06-test-cases.md` — full test matrix with actual test code |
-| **Engineering Bar Raiser** | Principal Engineer | Challenges all 4 eng artifacts. Writes `08-final-spec.md`. |
-
----
-
-## Bar Raisers
-
-Bar Raisers are adversarial reviewers. Their challenges are blockers, not suggestions.
-
-**Product Bar Raiser** (Principal PM):
-- Challenges requirements for missing personas, untestable ACs, unresolved assumptions
-- Challenges design for missing error states, undefined API contracts, missing ops/support interfaces
-- Uses web search when competitors are referenced — verifies claims against real behavior
-- Hard gate: engineering track cannot start until both PM and Designer artifacts are approved
-
-**Engineering Bar Raiser** (Principal Engineer):
-- Challenges SWE options for vague tradeoffs, options inconsistent with design
-- Challenges Staff SWE for concerns without codebase evidence
-- Challenges SRE for theoretical rollback plans, missing observability
-- Challenges QA for ACs without tests, TODOs instead of test code
-- Cross-checks all four artifacts for consistency with each other
-- Writes the final spec after all four approved
-
-**Loop protocol:**
-```
-BR challenges → producer revises → BR re-reviews
-Max 2 rounds per artifact. After 2: escalates to you with a specific question.
-```
-
----
-
 ## Agent conversations
 
-Agents aren't isolated — they talk to each other. All exchanges logged in thread files.
+Agents talk to each other. All exchanges logged in thread files.
 
 | Thread | Who talks |
 |--------|-----------|
 | `threads/product-conversation.md` | PM ↔ Designer |
-| `threads/swe-debate.md` | Backend ↔ Frontend ↔ Mobile — cross-domain challenge loop |
-| `threads/eng-conversation.md` | SWE team ↔ Staff SWE ↔ SRE ↔ QA |
-| `threads/eng-product-conversation.md` | SWE/Staff SWE ↔ PM/Designer |
+| `threads/swe-debate.md` | Backend ↔ Frontend ↔ Mobile |
+| `threads/eng-conversation.md` | Tech Lead ↔ Staff SWE ↔ SRE ↔ QA |
+| `threads/eng-product-conversation.md` | Tech Lead / Staff SWE ↔ PM / Designer |
 
-Engineers can ask PM "what does AC-3 mean in the context of a retry?" PM can ask Designer "does this error state need a recovery action?". All answers logged.
+---
+
+## Context directory
+
+Every `/brocode` run creates `.sdlc/<id>/`:
+
+```
+.sdlc/spec-20260426-oauth/
+  00-tpm-log.md
+  00-brief.md
+  01-requirements.md
+  02-design.md
+  03-implementation-options.md   # spec mode
+  03-investigation.md            # investigate mode
+  04-architecture.md
+  05-ops.md
+  06-test-cases.md
+  threads/
+    product-conversation.md
+    swe-debate.md
+    eng-conversation.md
+    eng-product-conversation.md
+  07-product-br-reviews/
+    01-pm-challenge-round1.md
+    01-pm-approved.md
+    02-design-approved.md
+    gate-approved.md
+  07-eng-br-reviews/
+    01-techlead-approved.md
+    02-staff-swe-approved.md
+    03-sre-approved.md
+    04-qa-approved.md
+  08-final-spec.md
+  09-tasks.md
+```
+
+`.sdlc/` is gitignored.
 
 ---
 
 ## Repo config
-
-Engineer sub-agents read real code. Register your repos once:
 
 ```
 /brocode repos
@@ -307,57 +358,11 @@ Prompts for paths, validates they exist, writes `.brocode-repos.json` (gitignore
   "backend": "/absolute/path/to/backend",
   "web": "/absolute/path/to/web",
   "mobile": "/absolute/path/to/mobile",
-  "other": ["/path/to/shared-lib"]
+  "other": []
 }
 ```
 
-Each engineer reads its own path:
-- `swe-backend.md` → `backend`
-- `swe-frontend.md` → `web`
-- `swe-mobile.md` → `mobile`
-
-If a path isn't set, that agent asks before proceeding. No silent failures.
-
----
-
-## Context directory
-
-Every `/brocode` run creates `.sdlc/<id>/`:
-
-```
-.sdlc/spec-20260426-oauth/
-  00-tpm-log.md                  # TPM master log — live throughout
-  00-brief.md                    # User input + clarified scope
-  00-input-raw.md                # External doc/image content (if ingested)
-  01-requirements.md             # PM output — versioned
-  02-design.md                   # Designer output — versioned
-  03-implementation-options.md   # SWE output (spec mode)
-  03-investigation.md            # SWE output (investigate mode)
-  04-architecture.md             # Staff SWE output — versioned
-  05-ops.md                      # SRE output — versioned
-  06-test-cases.md               # QA output — versioned
-  threads/
-    product-conversation.md      # PM ↔ Designer exchanges
-    swe-debate.md                # Backend ↔ Frontend ↔ Mobile debate
-    eng-conversation.md          # Engineering team exchanges
-    eng-product-conversation.md  # Eng ↔ Product exchanges
-  07-product-br-reviews/
-    01-pm-challenge-round1.md
-    01-pm-approved.md
-    02-design-challenge-round1.md
-    02-design-approved.md
-    gate-approved.md             # Product track cleared
-  07-eng-br-reviews/
-    01-swe-challenge-round1.md
-    01-swe-approved.md
-    02-staff-swe-approved.md
-    03-sre-challenge-round1.md
-    03-sre-approved.md
-    04-qa-approved.md
-  08-final-spec.md               # Final approved output
-```
-
-`.sdlc/` is gitignored.
+If a path isn't set, that engineer agent notes it and skips code reading. No silent failures.
 
 ---
 
@@ -366,18 +371,10 @@ Every `/brocode` run creates `.sdlc/<id>/`:
 | Input | How brocode handles it |
 |-------|----------------------|
 | Plain text | Used directly by PM |
-| Attached image / screenshot / mockup | PM and Designer analyze via vision |
+| Attached image / screenshot | PM and Designer analyze via vision |
 | Google Doc URL | Fetched via Google Drive MCP (if connected) |
-| Notion / Confluence URL | Ask user to paste — no MCP by default |
-| Figma URL | Ask user to export PNG — no Figma MCP by default |
-
-If a required MCP isn't connected, brocode tells you exactly what to install or what to paste. Never silently fails.
-
----
-
-## Resume
-
-If `.sdlc/` exists with prior work, `/brocode` resumes from last approved stage. Run `/brocode` with no args in a project that has prior investigations — it will list them and ask which to resume.
+| Notion / Confluence URL | Ask user to paste |
+| Figma URL | Ask user to export PNG |
 
 ---
 
@@ -386,14 +383,14 @@ If `.sdlc/` exists with prior work, `/brocode` resumes from last approved stage.
 ```
 brocode/
   .claude-plugin/
-    plugin.json              # Plugin manifest
-    marketplace.json         # Local marketplace definition
+    plugin.json              # Plugin manifest (v0.2.0)
+    marketplace.json
   agents/
-    tpm.md                   # TPM — coordination + progress display
+    tpm.md                   # TPM
     pm.md
     designer.md
     product-bar-raiser.md
-    tech-lead.md             # Tech Lead (engineering team owner)
+    tech-lead.md             # Tech Lead (owns engineering team)
     swe-backend.md           # Backend sub-agent
     swe-frontend.md          # Frontend sub-agent
     swe-mobile.md            # Mobile sub-agent
@@ -402,19 +399,13 @@ brocode/
     qa.md
     engineering-bar-raiser.md
   skills/
-    using-sdlc/SKILL.md      # Orientation
-    investigate/SKILL.md     # Investigate mode orchestration
-    spec/SKILL.md            # Spec mode orchestration
-    input-ingestion/SKILL.md # External input handling
-    bar-raiser-loop/SKILL.md # Adversarial loop protocol
     setup-repos/SKILL.md     # Register local repo paths
   commands/
-    brocode.toml             # /brocode slash command
+    brocode.toml             # /brocode — full orchestration
   docs/
     index.html               # GitHub Pages site
-  CLAUDE.md                  # Working instructions for agents
-  README.md                  # This file
-  .brocode-repos.json        # Machine-local repo paths (gitignored)
+  CLAUDE.md
+  README.md
 ```
 
 ---
@@ -423,19 +414,14 @@ brocode/
 
 ### Add a new agent role
 
-1. Create `agents/<role>.md` following existing agent format
-2. Add to the relevant skill dispatch sequence (`investigate/SKILL.md` or `spec/SKILL.md`)
+1. Create `agents/<role>.md`
+2. Add to `commands/brocode.toml` at the right phase
 3. Update `CLAUDE.md` roster table
-4. Update `skills/using-sdlc/SKILL.md` flow diagram
 
 ### Modify Bar Raiser challenge standards
 
-- Product BR: `agents/product-bar-raiser.md` → "Challenge Standards" section
-- Engineering BR: `agents/engineering-bar-raiser.md` → "What You Look For" section
-
-### Add a new input format
-
-`skills/input-ingestion/SKILL.md` → add new input type detection and handling
+- Product BR: `agents/product-bar-raiser.md` → "What You Look For"
+- Engineering BR: `agents/engineering-bar-raiser.md` → "What You Look For"
 
 ---
 
