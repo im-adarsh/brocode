@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>brocode — Multi-Agent SDLC for Claude Code</title>
+  <meta name="description" content="One command. Full engineering org. Multi-agent SDLC plugin for Claude Code — investigates bugs and produces engineering specs with PM, Designer, Backend, Frontend, Mobile, Staff SWE, SRE, QA, and two Bar Raisers." />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --bg3: #21262d;
+      --border: #30363d;
+      --border-hover: #484f58;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent2: #bc8cff;
+      --green: #3fb950;
+      --orange: #d29922;
+      --red: #f85149;
+      --teal: #39d353;
+      --yellow: #e3b341;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,17,23,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .nav-brand {
+      font-weight: 800; font-size: 1.15rem; color: var(--text);
+      text-decoration: none; letter-spacing: -.02em;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .nav-brand .slash { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.75rem; align-items: center; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .9rem; transition: color .15s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent); color: #0d1117;
+      padding: .4rem 1rem; border-radius: 6px;
+      font-size: .85rem; font-weight: 700; text-decoration: none;
+      transition: opacity .15s; white-space: nowrap;
+    }
+    .nav-cta:hover { opacity: .85; }
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 900px; margin: 0 auto;
+      padding: 6rem 2rem 4rem;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(88,166,255,.1); color: var(--accent);
+      border: 1px solid rgba(88,166,255,.2);
+      padding: .3rem .85rem; border-radius: 100px;
+      font-size: .78rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; margin-bottom: 2rem;
+    }
+    .hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    h1 {
+      font-size: clamp(2.4rem, 6vw, 3.8rem);
+      font-weight: 800; letter-spacing: -.03em;
+      line-height: 1.1; margin-bottom: 1.25rem;
+    }
+    h1 .accent { color: var(--accent); }
+    h1 .dim { color: var(--muted); }
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--muted); max-width: 660px;
+      margin: 0 auto 2.5rem; line-height: 1.7;
+    }
+    .hero-sub strong { color: var(--text); }
+    .hero-terminal {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      max-width: 680px; margin: 0 auto 2.5rem;
+      text-align: left;
+    }
+    .terminal-bar {
+      background: var(--bg3); padding: .6rem 1rem;
+      display: flex; align-items: center; gap: .5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .terminal-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .td-red { background: #ff5f56; }
+    .td-yellow { background: #ffbd2e; }
+    .td-green { background: #27c93f; }
+    .terminal-title { color: var(--muted); font-size: .78rem; margin-left: .5rem; font-family: var(--font-mono); }
+    .terminal-body {
+      padding: 1.25rem 1.5rem;
+      font-family: var(--font-mono); font-size: .88rem;
+      line-height: 2;
+    }
+    .t-prompt { color: var(--green); }
+    .t-cmd { color: var(--accent); font-weight: 600; }
+    .t-arg { color: var(--text); }
+    .t-out { color: var(--muted); }
+    .t-agent { color: var(--teal); font-weight: 600; }
+    .t-approved { color: var(--green); }
+    .t-warn { color: var(--orange); }
+    .t-blocked { color: var(--red); }
+    .t-arrow { color: var(--muted); }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      padding: .65rem 1.5rem; border-radius: 6px;
+      font-size: .95rem; font-weight: 700; text-decoration: none;
+      transition: all .15s; display: inline-flex; align-items: center; gap: .5rem;
+    }
+    .btn-primary { background: var(--accent); color: #0d1117; }
+    .btn-primary:hover { background: #79c0ff; }
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--border-hover); background: var(--bg3); }
+
+    /* ── SECTIONS ── */
+    section { padding: 5rem 2rem; }
+    .container { max-width: 1040px; margin: 0 auto; }
+    h2 {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 800; letter-spacing: -.02em;
+      margin-bottom: .4rem;
+    }
+    .section-lead { color: var(--muted); margin-bottom: 3rem; font-size: 1rem; }
+    hr.divider { border: none; border-top: 1px solid var(--border); }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+    }
+    .stats-inner {
+      max-width: 1040px; margin: 0 auto;
+      display: flex; gap: 0; flex-wrap: wrap;
+    }
+    .stat {
+      flex: 1; min-width: 140px; padding: .5rem 2rem;
+      border-right: 1px solid var(--border); text-align: center;
+    }
+    .stat:first-child { padding-left: 0; }
+    .stat:last-child { border-right: none; }
+    .stat-num {
+      font-size: 2rem; font-weight: 800;
+      letter-spacing: -.04em; color: var(--accent);
+    }
+    .stat-label { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: .1rem; }
+
+    /* ── FLOW SECTION ── */
+    .flow-tabs {
+      display: flex; gap: 0; border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+    .flow-tab {
+      padding: .7rem 1.5rem; font-size: .88rem; font-weight: 600;
+      color: var(--muted); border-bottom: 2px solid transparent;
+      cursor: pointer; transition: color .15s; user-select: none;
+    }
+    .flow-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+    .flow-panel { display: none; }
+    .flow-panel.active { display: grid; grid-template-columns: 1fr 1.4fr; gap: 2rem; align-items: start; }
+    @media (max-width: 720px) { .flow-panel.active { grid-template-columns: 1fr; } }
+    .flow-steps-list { display: flex; flex-direction: column; gap: .5rem; }
+    .flow-step {
+      display: flex; gap: 1rem; align-items: flex-start;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: .9rem 1rem;
+      transition: border-color .15s;
+    }
+    .flow-step:hover { border-color: var(--border-hover); }
+    .flow-step-num {
+      min-width: 24px; height: 24px;
+      background: rgba(88,166,255,.12); border-radius: 50%;
+      font-size: .75rem; font-weight: 700; color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .flow-step-body { flex: 1; }
+    .flow-step-title { font-size: .9rem; font-weight: 600; margin-bottom: .15rem; }
+    .flow-step-sub { font-size: .8rem; color: var(--muted); }
+    .flow-badge {
+      display: inline-block; font-size: .68rem; font-weight: 700;
+      padding: .15rem .5rem; border-radius: 4px;
+      text-transform: uppercase; letter-spacing: .04em; margin-left: .4rem;
+    }
+    .badge-parallel { background: rgba(57,211,83,.12); color: var(--teal); }
+    .badge-gate { background: rgba(210,153,34,.12); color: var(--orange); }
+    .badge-subagent { background: rgba(88,166,255,.12); color: var(--accent); }
+    .flow-diagram {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.5rem;
+      font-family: var(--font-mono); font-size: .78rem;
+      line-height: 1.85; overflow-x: auto; color: var(--muted);
+    }
+    .fd-title { color: var(--accent); font-weight: 700; }
+    .fd-node { color: var(--text); }
+    .fd-subagent { color: var(--teal); }
+    .fd-gate { color: var(--orange); }
+    .fd-output { color: var(--green); }
+    .fd-parallel { color: var(--accent2); font-size: .72rem; }
+
+    /* ── SUBAGENT SECTION ── */
+    .subagent-explainer {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+    }
+    @media (max-width: 720px) { .subagent-explainer { grid-template-columns: 1fr; } }
+    .subagent-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.5rem;
+    }
+    .subagent-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .4rem; }
+    .subagent-card p { font-size: .85rem; color: var(--muted); margin-bottom: 1rem; }
+    .spawn-example {
+      background: var(--bg3); border-radius: var(--radius);
+      padding: .9rem 1rem; font-family: var(--font-mono); font-size: .78rem;
+      line-height: 1.9; border: 1px solid var(--border);
+    }
+    .se-label { color: var(--muted); }
+    .se-spawned { color: var(--teal); }
+    .se-skipped { color: var(--border-hover); }
+    .se-arrow { color: var(--accent); }
+    .debate-thread {
+      margin-top: 1rem;
+      background: var(--bg3); border-radius: var(--radius);
+      padding: .9rem 1rem; font-family: var(--font-mono); font-size: .78rem;
+      line-height: 1.9; border: 1px solid var(--border);
+    }
+    .de-backend { color: var(--orange); }
+    .de-frontend { color: var(--accent); }
+    .de-mobile { color: var(--accent2); }
+
+    /* ── AGENTS GRID ── */
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    .agent-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.25rem;
+      transition: border-color .15s, transform .15s;
+      position: relative; overflow: hidden;
+    }
+    .agent-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; opacity: 0; transition: opacity .2s;
+    }
+    .agent-card.track-cross::before { background: var(--teal); }
+    .agent-card.track-product::before { background: var(--accent); }
+    .agent-card.track-gate-product::before { background: var(--accent2); }
+    .agent-card.track-eng::before { background: var(--orange); }
+    .agent-card.track-gate-eng::before { background: var(--red); }
+    .agent-card:hover { border-color: var(--border-hover); transform: translateY(-1px); }
+    .agent-card:hover::before { opacity: 1; }
+    .agent-header { display: flex; align-items: center; gap: .85rem; margin-bottom: .75rem; }
+    .agent-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .agent-meta { flex: 1; }
+    .agent-meta h3 { font-size: .95rem; font-weight: 700; line-height: 1.3; }
+    .agent-model {
+      font-family: var(--font-mono); font-size: .7rem;
+      color: var(--muted); margin-top: .1rem;
+    }
+    .model-opus { color: var(--accent2); font-weight: 600; }
+    .model-sonnet { color: var(--accent); font-weight: 600; }
+    .agent-desc { font-size: .83rem; color: var(--muted); line-height: 1.55; }
+    .agent-tags { display: flex; gap: .4rem; margin-top: .75rem; flex-wrap: wrap; }
+    .tag {
+      display: inline-block; font-size: .65rem; font-weight: 700;
+      padding: .15rem .5rem; border-radius: 4px;
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+    .tag-cross { background: rgba(57,211,83,.1); color: var(--teal); }
+    .tag-product { background: rgba(88,166,255,.1); color: var(--accent); }
+    .tag-gate-product { background: rgba(188,140,255,.1); color: var(--accent2); }
+    .tag-eng { background: rgba(210,153,34,.1); color: var(--orange); }
+    .tag-gate-eng { background: rgba(248,81,73,.1); color: var(--red); }
+    .tag-subagent { background: rgba(57,211,83,.08); color: var(--teal); border: 1px solid rgba(57,211,83,.2); }
+
+    /* ── PROGRESS DISPLAY ── */
+    .progress-demo {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .progress-bar-top {
+      background: var(--bg3); padding: .6rem 1rem;
+      display: flex; align-items: center; gap: .5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .progress-demo-body {
+      padding: 1.25rem 1.5rem;
+      font-family: var(--font-mono); font-size: .83rem; line-height: 2.1;
+    }
+    .pl-working { color: var(--teal); }
+    .pl-convo { color: var(--accent2); }
+    .pl-warn { color: var(--orange); }
+    .pl-ok { color: var(--green); }
+    .pl-blocked { color: var(--red); }
+    .pl-agent { color: var(--text); font-weight: 600; }
+    .pl-action { color: var(--muted); }
+    .pl-sep { color: var(--border-hover); margin: 0 .3rem; }
+
+    /* ── BAR RAISERS ── */
+    .br-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 720px) { .br-grid { grid-template-columns: 1fr; } }
+    .br-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.75rem; position: relative;
+    }
+    .br-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .br-product::before { background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+    .br-eng::before { background: linear-gradient(90deg, var(--red), var(--orange)); }
+    .br-eyebrow {
+      font-size: .72rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; margin-bottom: .5rem;
+    }
+    .br-product .br-eyebrow { color: var(--accent2); }
+    .br-eng .br-eyebrow { color: var(--orange); }
+    .br-card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: .3rem; }
+    .br-subtitle { font-size: .85rem; color: var(--muted); margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .br-checks { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+    .br-checks li {
+      display: flex; gap: .6rem; align-items: flex-start;
+      font-size: .85rem; color: var(--muted);
+    }
+    .br-checks li::before {
+      content: '›'; font-weight: 700; flex-shrink: 0;
+      margin-top: .05rem;
+    }
+    .br-product .br-checks li::before { color: var(--accent2); }
+    .br-eng .br-checks li::before { color: var(--orange); }
+    .br-loop {
+      margin-top: 1.25rem; padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: .6rem;
+      font-size: .8rem; color: var(--muted);
+    }
+    .loop-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0; animation: pulse 1.8s ease-in-out infinite;
+    }
+    .br-product .loop-dot { background: var(--accent2); }
+    .br-eng .loop-dot { background: var(--orange); }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+
+    /* ── REPO CONFIG ── */
+    .repo-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; align-items: start; }
+    @media (max-width: 720px) { .repo-layout { grid-template-columns: 1fr; } }
+    .repo-steps { display: flex; flex-direction: column; gap: 1rem; }
+    .repo-step {
+      display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .repo-step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(88,166,255,.12); color: var(--accent);
+      font-size: .78rem; font-weight: 700; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .repo-step-body h4 { font-size: .92rem; font-weight: 700; margin-bottom: .2rem; }
+    .repo-step-body p { font-size: .83rem; color: var(--muted); }
+    .code-block {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .code-block-header {
+      background: var(--bg3); padding: .5rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono); font-size: .75rem;
+      color: var(--muted); display: flex; align-items: center; justify-content: space-between;
+    }
+    .code-block-body {
+      padding: 1.1rem 1.25rem;
+      font-family: var(--font-mono); font-size: .82rem;
+      line-height: 1.9; overflow-x: auto;
+    }
+    .cb-key { color: var(--accent2); }
+    .cb-val { color: var(--orange); }
+    .cb-comment { color: var(--muted); }
+    .cb-cmd { color: var(--green); font-weight: 600; }
+    .cb-flag { color: var(--accent); }
+
+    /* ── CONTEXT TREE ── */
+    .tree {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.5rem;
+      font-family: var(--font-mono); font-size: .82rem;
+      line-height: 2; overflow-x: auto;
+    }
+    .tr-dir { color: var(--accent); font-weight: 600; }
+    .tr-file { color: var(--text); }
+    .tr-tpm { color: var(--teal); }
+    .tr-thread { color: var(--accent2); }
+    .tr-br { color: var(--orange); }
+    .tr-final { color: var(--green); font-weight: 600; }
+    .tr-comment { color: var(--muted); }
+
+    /* ── INSTALL ── */
+    .install-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    @media (max-width: 720px) { .install-grid { grid-template-columns: 1fr; } }
+    .install-step {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .install-step-header {
+      padding: .85rem 1.25rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .install-step-header .num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: rgba(88,166,255,.12); color: var(--accent);
+      font-size: .75rem; font-weight: 700; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .install-step-header h4 { font-size: .9rem; font-weight: 700; }
+    .install-body {
+      padding: 1rem 1.25rem;
+      font-family: var(--font-mono); font-size: .82rem;
+      line-height: 2; color: var(--text);
+    }
+    .install-body .comment { color: var(--muted); }
+    .install-body .cmd { color: var(--green); font-weight: 600; }
+    .install-body .arg { color: var(--orange); }
+    .install-note {
+      padding: .75rem 1.25rem;
+      border-top: 1px solid var(--border);
+      font-size: .78rem; color: var(--muted);
+    }
+    .install-full-grid {
+      grid-column: 1 / -1;
+    }
+
+    /* ── INPUT FORMATS ── */
+    .inputs-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 1rem;
+    }
+    .input-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.25rem;
+      transition: border-color .15s;
+    }
+    .input-card:hover { border-color: var(--border-hover); }
+    .input-icon { font-size: 1.75rem; margin-bottom: .65rem; }
+    .input-card h4 { font-size: .9rem; font-weight: 700; margin-bottom: .3rem; }
+    .input-card p { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+    .input-req { font-size: .72rem; color: var(--orange); margin-top: .4rem; font-weight: 600; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+    }
+    .footer-inner {
+      max-width: 1040px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-brand {
+      font-weight: 800; font-size: 1.05rem; letter-spacing: -.02em;
+    }
+    .footer-brand .slash { color: var(--accent); }
+    .footer-sub { font-size: .82rem; color: var(--muted); margin-top: .2rem; }
+    .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: .85rem; transition: color .15s; }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-mit {
+      font-size: .78rem; color: var(--muted);
+      background: var(--bg3); border: 1px solid var(--border);
+      padding: .25rem .65rem; border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#"><span class="slash">/</span>brocode</a>
+  <div class="nav-links">
+    <a href="#how-it-works">How it works</a>
+    <a href="#agents">Agents</a>
+    <a href="#progress">Live progress</a>
+    <a href="#repos">Repo config</a>
+    <a href="#install">Install</a>
+    <a href="https://github.com/im-adarsh/brocode">GitHub</a>
+  </div>
+  <a class="nav-cta" href="#install">Get started →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge"><div class="dot"></div>Claude Code Plugin · Open Source · MIT</div>
+  <h1>One command.<br><span class="accent">Full engineering org.</span></h1>
+  <p class="hero-sub">
+    brocode spins up <strong>12 specialised agents</strong> — PM, Designer, Backend, Frontend, Mobile, Staff SWE, SRE, QA, and two adversarial Bar Raisers — to investigate bugs and produce engineering specs right in your terminal.
+  </p>
+
+  <div class="hero-terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot td-red"></div>
+      <div class="terminal-dot td-yellow"></div>
+      <div class="terminal-dot td-green"></div>
+      <span class="terminal-title">claude — brocode</span>
+    </div>
+    <div class="terminal-body">
+      <div><span class="t-prompt">$</span> <span class="t-cmd">/brocode</span> <span class="t-arg">users getting 500s on checkout after the 3pm deploy</span></div>
+      <div><span class="t-out">→ INVESTIGATE mode · inv-20260426-checkout-500</span></div>
+      <div>&nbsp;</div>
+      <div><span class="t-agent">📋 TPM</span><span class="t-arrow"> → </span><span class="t-action">kicked off investigation, logging all stages</span></div>
+      <div><span class="t-agent">⚙️  Backend</span><span class="t-arrow"> → </span><span class="t-action">reading /api/checkout handler, tracing request flow</span></div>
+      <div><span class="t-agent">🚨 SRE</span><span class="t-arrow"> → </span><span class="t-action">assessing blast radius — parallel with Backend</span></div>
+      <div><span class="t-agent">⚙️  Backend ↔️  🚨 SRE</span><span class="t-arrow"> → </span><span class="t-action">SRE asked: affecting all regions or just eu-west?</span></div>
+      <div><span class="t-agent">🏗️  Staff SWE</span><span class="t-arrow"> → </span><span class="t-action">validating root cause: race condition in token refresh middleware</span></div>
+      <div><span class="t-warn">⚠️  Eng BR</span><span class="t-arrow"> → </span><span class="t-action">challenged: race condition — show log trace, not hypothesis</span></div>
+      <div><span class="t-agent">⚙️  Backend</span><span class="t-arrow"> → </span><span class="t-action">providing APM trace + reproducer test (v2)</span></div>
+      <div><span class="t-approved">✅ Eng BR</span><span class="t-arrow"> → </span><span class="t-action">root cause + fix APPROVED · writing final spec</span></div>
+    </div>
+  </div>
+
+  <div class="hero-btns">
+    <a class="btn btn-primary" href="#install">Install plugin</a>
+    <a class="btn btn-secondary" href="https://github.com/im-adarsh/brocode">View on GitHub ↗</a>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat">
+      <div class="stat-num">12</div>
+      <div class="stat-label">Specialised Agents</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2</div>
+      <div class="stat-label">Bar Raisers</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3</div>
+      <div class="stat-label">SWE Sub-agents</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2</div>
+      <div class="stat-label">Modes</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">1</div>
+      <div class="stat-label">Command</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider" />
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="container">
+    <h2>How it works</h2>
+    <p class="section-lead">Paste a bug, feature idea, PRD, or screenshot. brocode picks the mode and orchestrates the right agents automatically.</p>
+
+    <div class="flow-tabs">
+      <div class="flow-tab active" onclick="switchTab('investigate', this)">🔴 Investigate — Bug / Incident</div>
+      <div class="flow-tab" onclick="switchTab('spec', this)">🔵 Spec — Feature / Design</div>
+    </div>
+
+    <div class="flow-panel active" id="panel-investigate">
+      <div class="flow-steps-list">
+        <div class="flow-step">
+          <div class="flow-step-num">1</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">TPM initialises run log</div>
+            <div class="flow-step-sub">Creates investigation ID, logs all stages throughout execution</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">2</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">SWE sub-agents read real codebase <span class="flow-badge badge-subagent">sub-agents</span> <span class="flow-badge badge-parallel">parallel</span></div>
+            <div class="flow-step-sub">Backend / Frontend / Mobile spawned based on which layer the bug is in. Read repos registered via <code>/brocode repos</code>. Debate in swe-debate.md thread.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">3</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">SRE assesses blast radius <span class="flow-badge badge-parallel">parallel</span></div>
+            <div class="flow-step-sub">Runs in parallel with SWE sub-agents. Asks SWE questions about topology and deploy mechanism.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">4</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">SWE Coordinator synthesises findings</div>
+            <div class="flow-step-sub">Collects debate output, confirms root cause with evidence from real code.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">5</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Staff SWE validates architecturally</div>
+            <div class="flow-step-sub">Checks for systemic causes beyond this instance. Converses with SWE team.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">6</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Engineering Bar Raiser challenges all findings <span class="flow-badge badge-gate">max 2 rounds</span></div>
+            <div class="flow-step-sub">Adversarial loop. Challenges root cause and fix. Escalates to you after 2 rounds.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">7</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Final spec written</div>
+            <div class="flow-step-sub">Confirmed root cause + exact fix diff + failing test + ops impact + rollback.</div>
+          </div>
+        </div>
+      </div>
+      <div class="flow-diagram">
+<span class="fd-title">/brocode &lt;bug&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;<span class="fd-parallel">▼ SWE sub-agents spawned in parallel</span><br>
+<span class="fd-subagent">┌──────────────┐  ┌──────────────┐  ┌──────────────┐</span><br>
+<span class="fd-subagent">│   Backend    │  │   Frontend   │  │    Mobile    │</span><br>
+<span class="fd-subagent">│  (if BE bug) │  │  (if FE bug) │  │  (if mobile) │</span><br>
+<span class="fd-subagent">└──────┬───────┘  └──────┬───────┘  └──────┬───────┘</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─────────────────┼──────────────────┘<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-parallel">swe-debate.md</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;┌────────────┴──────────┐<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│ <span class="fd-node">SWE Coordinator</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;<span class="fd-parallel">← SRE parallel</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└────────────┬──────────┘<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;┌───────▼────────┐<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│ <span class="fd-node">Staff SWE</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└───────┬────────┘<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-gate">Engineering BR ⟳</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-output">08-final-spec.md</span>
+      </div>
+    </div>
+
+    <div class="flow-panel" id="panel-spec">
+      <div class="flow-steps-list">
+        <div class="flow-step">
+          <div class="flow-step-num">1</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Input ingestion</div>
+            <div class="flow-step-sub">Text, image, Google Doc, wiki — ingested and written to 00-input-raw.md</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">2</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">PM + Designer produce requirements &amp; contracts <span class="flow-badge badge-parallel">converse freely</span></div>
+            <div class="flow-step-sub">PM covers all personas, journeys, ACs. Designer defines API contracts and all flows.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">3</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Product Bar Raiser challenges both <span class="flow-badge badge-gate">GATE · max 2 rounds</span></div>
+            <div class="flow-step-sub">Web-searches competitors. Hard gate — engineering cannot start until approved.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">4</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">SWE sub-agents debate from real code <span class="flow-badge badge-subagent">sub-agents</span> <span class="flow-badge badge-parallel">parallel</span></div>
+            <div class="flow-step-sub">Backend / Frontend / Mobile spawned based on scope. Three-way challenge loop in swe-debate.md.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">5</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Staff SWE architecture review</div>
+            <div class="flow-step-sub">Reviews 3 implementation options for failure modes, scale, coupling. Joint recommendation.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">6</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">SRE + QA <span class="flow-badge badge-parallel">parallel</span></div>
+            <div class="flow-step-sub">SRE writes ops plan + rollback. QA writes full test matrix with real test code. Both can ask SWE questions.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">7</div>
+          <div class="flow-step-body">
+            <div class="flow-step-title">Engineering Bar Raiser reviews all 4 artifacts <span class="flow-badge badge-gate">max 2 rounds</span></div>
+            <div class="flow-step-sub">Cross-artifact consistency check. Writes final spec when all approved.</div>
+          </div>
+        </div>
+      </div>
+      <div class="flow-diagram">
+<span class="fd-title">/brocode &lt;feature&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-parallel">─── PRODUCT TRACK ──────</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+<span class="fd-node">┌──────────┐&nbsp;&nbsp;┌───────────┐</span><br>
+<span class="fd-node">│    PM    │↔️│  Designer │</span><br>
+<span class="fd-node">└──────────┘&nbsp;&nbsp;└───────────┘</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;<span class="fd-gate">Product BR ⟳ GATE</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-parallel">─── ENGINEERING TRACK ──</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+<span class="fd-parallel">▼ SWE sub-agents — parallel</span><br>
+<span class="fd-subagent">┌─────────┐ ┌──────────┐ ┌────────┐</span><br>
+<span class="fd-subagent">│ Backend │ │ Frontend │ │ Mobile │</span><br>
+<span class="fd-subagent">└────┬────┘ └────┬─────┘ └───┬────┘</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──────────┼──────────────┘<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-node">SWE Coordinator</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-node">Staff SWE</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-parallel">SRE ↔ QA (parallel)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-gate">Engineering BR ⟳</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-output">08-final-spec.md</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- SUBAGENTS -->
+<section>
+  <div class="container">
+    <h2>SWE sub-agents — parallel by design</h2>
+    <p class="section-lead">Backend, Frontend, and Mobile are sub-agents. The SWE Coordinator spawns only the relevant ones, runs them in parallel, then synthesises the debate.</p>
+    <div class="subagent-explainer">
+      <div>
+        <div class="subagent-card">
+          <h3>Scope-based dispatch</h3>
+          <p>Only spawn sub-agents whose domain is touched by the task. No wasted context, no irrelevant opinions.</p>
+          <div class="spawn-example">
+<span class="se-label"># Web + backend feature</span><br>
+<span class="se-spawned">⚙️  Backend   → spawned</span><br>
+<span class="se-spawned">🖥️  Frontend  → spawned</span><br>
+<span class="se-skipped">📱  Mobile    → skipped (no native surface)</span><br>
+<br>
+<span class="se-label"># Mobile-only bug</span><br>
+<span class="se-spawned">📱  Mobile    → spawned</span><br>
+<span class="se-skipped">⚙️  Backend   → skipped (API unchanged)</span><br>
+<span class="se-skipped">🖥️  Frontend  → skipped</span><br>
+<br>
+<span class="se-label"># Full-stack feature</span><br>
+<span class="se-spawned">⚙️  Backend   → spawned  </span><span class="se-arrow">↓ all three</span><br>
+<span class="se-spawned">🖥️  Frontend  → spawned  </span><span class="se-arrow">↓ parallel</span><br>
+<span class="se-spawned">📱  Mobile    → spawned  </span><span class="se-arrow">↓ debate</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="subagent-card">
+          <h3>Three-way challenge loop</h3>
+          <p>Sub-agents read real code first, then challenge each other. Better options emerge from the friction.</p>
+          <div class="debate-thread">
+<span class="de-backend">[Backend → Frontend]</span>: your API usage requires<br>
+&nbsp;&nbsp;3 round-trips to render one screen. I can add<br>
+&nbsp;&nbsp;a composite endpoint but it'll break REST purity.<br>
+<br>
+<span class="de-frontend">[Frontend → Backend]</span>: agreed on composite endpoint.<br>
+&nbsp;&nbsp;But also: your error shape doesn't include a<br>
+&nbsp;&nbsp;retry-after header. That's a UX blocker.<br>
+<br>
+<span class="de-mobile">[Mobile → Backend]</span>: response is 340KB on this<br>
+&nbsp;&nbsp;endpoint. Kills battery on 3G polling. Need a<br>
+&nbsp;&nbsp;delta/patch API or push instead of poll.<br>
+<br>
+<span class="de-backend">[Backend → All]</span>: proposing Option 2 — composite<br>
+&nbsp;&nbsp;endpoint + delta endpoint + retry-after header.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- LIVE PROGRESS -->
+<section id="progress">
+  <div class="container">
+    <h2>Live terminal progress</h2>
+    <p class="section-lead">TPM prints a status line at every agent transition. You always know who's working, who's talking to who, and what's blocked.</p>
+    <div class="progress-demo">
+      <div class="progress-bar-top">
+        <div class="terminal-dot td-red"></div>
+        <div class="terminal-dot td-yellow"></div>
+        <div class="terminal-dot td-green"></div>
+        <span class="terminal-title">brocode · spec-20260426-oauth · Spec mode</span>
+      </div>
+      <div class="progress-demo-body">
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">📋 TPM</span><span class="pl-sep">→</span><span class="pl-action">kicked off spec-20260426-oauth, tracking 14 stages</span></div>
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎯 PM</span><span class="pl-sep">→</span><span class="pl-action">reading brief, building requirements</span></div>
+        <div><span class="pl-convo">↔️</span>&nbsp; <span class="pl-agent">🎯 PM ↔️ 🎨 Designer</span><span class="pl-sep">→</span><span class="pl-action">PM asked: "what's the empty state for first-time users?"</span></div>
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎨 Designer</span><span class="pl-sep">→</span><span class="pl-action">writing API contracts and all user flows</span></div>
+        <div><span class="pl-warn">⚠️</span>&nbsp; <span class="pl-agent">🔬 Product BR</span><span class="pl-sep">→</span><span class="pl-action">challenge round 1: ops interface missing, AC-4 untestable</span></div>
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎯 PM</span><span class="pl-sep">→</span><span class="pl-action">revising requirements v2</span></div>
+        <div><span class="pl-ok">✅</span>&nbsp; <span class="pl-agent">🔬 Product BR</span><span class="pl-sep">→</span><span class="pl-action">requirements APPROVED · design APPROVED · product gate OPEN</span></div>
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">⚙️ Backend + 🖥️ Frontend + 📱 Mobile</span><span class="pl-sep">→</span><span class="pl-action">spawned in parallel, reading repos</span></div>
+        <div><span class="pl-convo">↔️</span>&nbsp; <span class="pl-agent">⚙️ Backend ↔️ 🖥️ Frontend</span><span class="pl-sep">→</span><span class="pl-action">Backend challenged: "3 round-trips for one screen"</span></div>
+        <div><span class="pl-convo">↔️</span>&nbsp; <span class="pl-agent">📱 Mobile ↔️ ⚙️ Backend</span><span class="pl-sep">→</span><span class="pl-action">Mobile: "340KB payload kills battery on polling"</span></div>
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🤝 SWE</span><span class="pl-sep">→</span><span class="pl-action">synthesising debate · 3 options drafted</span></div>
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🏗️ Staff SWE</span><span class="pl-sep">→</span><span class="pl-action">architecture review · validating option 2</span></div>
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🚨 SRE + 🧪 QA</span><span class="pl-sep">→</span><span class="pl-action">running parallel: ops plan + test matrix</span></div>
+        <div><span class="pl-warn">⚠️</span>&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">challenged SWE: "option 3 has N+1 query — explain mitigation"</span></div>
+        <div><span class="pl-warn">⚠️</span>&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">challenged QA: "AC-7 has no test case — add it"</span></div>
+        <div><span class="pl-ok">✅</span>&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">all 4 artifacts APPROVED · writing final spec</span></div>
+        <div><span class="pl-ok">✅</span>&nbsp; <span class="pl-agent">📋 TPM</span><span class="pl-sep">→</span><span class="pl-action">08-final-spec.md written · done</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- AGENTS -->
+<section id="agents">
+  <div class="container">
+    <h2>The team</h2>
+    <p class="section-lead">12 agents. Each owns a specific domain. Each reads real code. Each challenges the others.</p>
+    <div class="agents-grid">
+
+      <div class="agent-card track-cross">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(57,211,83,.1)">📋</div>
+          <div class="agent-meta">
+            <h3>Technical Program Manager</h3>
+            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
+          </div>
+        </div>
+        <div class="agent-desc">Runs first, runs throughout. Owns the master log. Tracks every stage and every BR round. Prints live progress to terminal. Detects stalls and surfaces blockers.</div>
+        <div class="agent-tags"><span class="tag tag-cross">Cross-cutting</span></div>
+      </div>
+
+      <div class="agent-card track-product">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(88,166,255,.1)">🎯</div>
+          <div class="agent-meta">
+            <h3>Product Manager</h3>
+            <div class="agent-model"><span class="model-opus">claude-opus</span></div>
+          </div>
+        </div>
+        <div class="agent-desc">Turns any input into requirements with full user journeys — end user, ops/admin, support team. Closes ambiguity gaps. References competitors. Converses with Designer.</div>
+        <div class="agent-tags"><span class="tag tag-product">Product</span></div>
+      </div>
+
+      <div class="agent-card track-product">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(88,166,255,.1)">🎨</div>
+          <div class="agent-meta">
+            <h3>Designer</h3>
+            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
+          </div>
+        </div>
+        <div class="agent-desc">Designs API contracts, all user flows (happy path, errors, empty, loading), ops interface, and support interface. Converses with PM. Answers SWE questions during engineering track.</div>
+        <div class="agent-tags"><span class="tag tag-product">Product</span></div>
+      </div>
+
+      <div class="agent-card track-gate-product">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(188,140,255,.1)">🔬</div>
+          <div class="agent-meta">
+            <h3>Product Bar Raiser</h3>
+            <div class="agent-model"><span class="model-opus">claude-opus</span></div>
+          </div>
+        </div>
+        <div class="agent-desc">Principal PM. Challenges every AC, every journey, every assumption. Web-searches competitor references to verify claims. Hard gate — engineering is blocked until both PM and Designer are approved.</div>
+        <div class="agent-tags"><span class="tag tag-gate-product">Product Gate</span></div>
+      </div>
+
+      <div class="agent-card track-eng">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(210,153,34,.1)">⚙️</div>
+          <div class="agent-meta">
+            <h3>Backend Engineer</h3>
+            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
+          </div>
+        </div>
+        <div class="agent-desc">Sub-agent. Reads real backend code first — traces request lifecycle, checks DB schema, finds existing patterns. Owns APIs, data models, auth, queues. Debates Frontend and Mobile on contract design.</div>
+        <div class="agent-tags"><span class="tag tag-eng">Engineering</span><span class="tag tag-subagent">Sub-agent</span></div>
+      </div>
+
+      <div class="agent-card track-eng">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(210,153,34,.1)">🖥️</div>
+          <div class="agent-meta">
+            <h3>Frontend Engineer</h3>
+            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
+          </div>
+        </div>
+        <div class="agent-desc">Sub-agent. Reads real frontend code first — components, state, API client patterns. Owns UI, state management, SSR/CSR, browser APIs. Challenges Backend on API usability and round-trip count.</div>
+        <div class="agent-tags"><span class="tag tag-eng">Engineering</span><span class="tag tag-subagent">Sub-agent</span></div>
+      </div>
+
+      <div class="agent-card track-eng">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(210,153,34,.1)">📱</div>
+          <div class="agent-meta">
+            <h3>Mobile Engineer</h3>
+            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
+          </div>
+        </div>
+        <div class="agent-desc">Sub-agent. Reads real mobile code first — iOS, Android, React Native, Flutter. Challenges Backend on offline behavior, payload size, battery impact. App store compliance awareness.</div>
+        <div class="agent-tags"><span class="tag tag-eng">Engineering</span><span class="tag tag-subagent">Sub-agent</span></div>
+      </div>
+
+      <div class="agent-card track-eng">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(210,153,34,.1)">🤝</div>
+          <div class="agent-meta">
+            <h3>SWE Coordinator</h3>
+            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
+          </div>
+        </div>
+        <div class="agent-desc">Scopes which sub-agents to spawn. Runs their parallel debate. Synthesises the three-way challenge loop into 3 implementation options. Bridges product and engineering tracks.</div>
+        <div class="agent-tags"><span class="tag tag-eng">Engineering</span></div>
+      </div>
+
+      <div class="agent-card track-eng">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(210,153,34,.1)">🏗️</div>
+          <div class="agent-meta">
+            <h3>Staff SWE</h3>
+            <div class="agent-model"><span class="model-opus">claude-opus</span></div>
+          </div>
+        </div>
+        <div class="agent-desc">System-level architectural review. Converses with SWE team before forming opinions. Identifies failure modes, hidden coupling, scalability cliffs, migration risks. Joint recommendation with SWE Coordinator.</div>
+        <div class="agent-tags"><span class="tag tag-eng">Engineering</span></div>
+      </div>
+
+      <div class="agent-card track-eng">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(210,153,34,.1)">🚨</div>
+          <div class="agent-meta">
+            <h3>SRE</h3>
+            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
+          </div>
+        </div>
+        <div class="agent-desc">Ops plan — observability, alerts, blast radius assessment, executable rollback steps, runbooks, pre-deploy checklist, SLO impact. Asks SWE about topology before writing. Runs parallel with QA.</div>
+        <div class="agent-tags"><span class="tag tag-eng">Engineering</span></div>
+      </div>
+
+      <div class="agent-card track-eng">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(210,153,34,.1)">🧪</div>
+          <div class="agent-meta">
+            <h3>QA Engineer</h3>
+            <div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div>
+          </div>
+        </div>
+        <div class="agent-desc">Full test matrix with real test code — unit, integration, E2E, load, security. Every AC covered. No TODOs. Asks SWE about edge cases. Runs parallel with SRE.</div>
+        <div class="agent-tags"><span class="tag tag-eng">Engineering</span></div>
+      </div>
+
+      <div class="agent-card track-gate-eng">
+        <div class="agent-header">
+          <div class="agent-icon" style="background:rgba(248,81,73,.1)">⚖️</div>
+          <div class="agent-meta">
+            <h3>Engineering Bar Raiser</h3>
+            <div class="agent-model"><span class="model-opus">claude-opus</span></div>
+          </div>
+        </div>
+        <div class="agent-desc">Principal Engineer. Reviews all 4 engineering artifacts for cross-artifact consistency. Challenges each independently. Writes the final approved spec when all pass.</div>
+        <div class="agent-tags"><span class="tag tag-gate-eng">Engineering Gate</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- BAR RAISERS -->
+<section>
+  <div class="container">
+    <h2>Two Bar Raisers</h2>
+    <p class="section-lead">Adversarial reviewers. Their challenges are blockers, not suggestions. Max 2 rounds per artifact — then they escalate to you with a specific question.</p>
+    <div class="br-grid">
+
+      <div class="br-card br-product">
+        <div class="br-eyebrow">Product Track</div>
+        <h3>Product Bar Raiser</h3>
+        <p class="br-subtitle">Principal PM / Head of Product. Gates the product track — engineering cannot start until PM and Designer are both approved.</p>
+        <ul class="br-checks">
+          <li>Challenges every AC that is untestable or unmeasurable</li>
+          <li>Verifies all personas are covered: end user, ops/admin, support team</li>
+          <li>Checks every journey step has error states and recovery actions</li>
+          <li>Web-searches competitor references — verifies claims against real product behavior</li>
+          <li>Challenges API contracts for missing error cases or impossible data states</li>
+          <li>Verifies ops team can actually manage this feature after launch</li>
+        </ul>
+        <div class="br-loop">
+          <div class="loop-dot"></div>
+          Challenge → Producer revises → BR re-reviews · max 2 rounds · then escalates to you
+        </div>
+      </div>
+
+      <div class="br-card br-eng">
+        <div class="br-eyebrow">Engineering Track</div>
+        <h3>Engineering Bar Raiser</h3>
+        <p class="br-subtitle">Principal Engineer. Reviews all four engineering artifacts together. Writes the final spec when all approved.</p>
+        <ul class="br-checks">
+          <li>Challenges SWE options for vague tradeoffs or inconsistency with design</li>
+          <li>Challenges Staff SWE concerns that lack codebase evidence</li>
+          <li>Challenges SRE rollback plans that are theoretical rather than executable</li>
+          <li>Challenges QA for ACs without tests or TODOs instead of test code</li>
+          <li>Cross-checks all four artifacts for consistency with each other</li>
+          <li>SWE recommendation must match Staff SWE architecture — flags divergence</li>
+        </ul>
+        <div class="br-loop">
+          <div class="loop-dot"></div>
+          Challenge → Producer revises → BR re-reviews · max 2 rounds · then escalates to you
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- REPO CONFIG -->
+<section id="repos">
+  <div class="container">
+    <h2>Register your repos</h2>
+    <p class="section-lead">Engineer sub-agents read real code before proposing anything. Tell them where your repos live — once per machine.</p>
+    <div class="repo-layout">
+      <div class="repo-steps">
+        <div class="repo-step">
+          <div class="repo-step-num">1</div>
+          <div class="repo-step-body">
+            <h4>Run the setup command</h4>
+            <p>Prompts you for backend, web, and mobile repo paths. Validates each path exists.</p>
+          </div>
+        </div>
+        <div class="repo-step">
+          <div class="repo-step-num">2</div>
+          <div class="repo-step-body">
+            <h4>Paths saved to <code>.brocode-repos.json</code></h4>
+            <p>File is gitignored — paths are machine-local. Re-run anytime to update.</p>
+          </div>
+        </div>
+        <div class="repo-step">
+          <div class="repo-step-num">3</div>
+          <div class="repo-step-body">
+            <h4>Sub-agents read their repo automatically</h4>
+            <p>Backend reads <code>backend</code> path. Frontend reads <code>web</code>. Mobile reads <code>mobile</code>. If a path isn't set, the agent asks before proceeding.</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span>Terminal</span>
+          </div>
+          <div class="code-block-body">
+            <span class="cb-cmd">/brocode repos</span><br><br>
+            <span class="cb-comment"># Prompts:</span><br>
+            &nbsp; Backend repo path&nbsp;&nbsp;: <span class="cb-val">/home/me/work/api</span><br>
+            &nbsp; Web/Frontend path&nbsp;: <span class="cb-val">/home/me/work/web</span><br>
+            &nbsp; Mobile repo path&nbsp;&nbsp;: <span class="cb-val">/home/me/work/mobile</span><br><br>
+            <span class="cb-comment"># Saved to .brocode-repos.json</span>
+          </div>
+        </div>
+        <div style="margin-top: 1rem">
+          <div class="code-block">
+            <div class="code-block-header">
+              <span>.brocode-repos.json</span>
+              <span style="color:var(--teal);font-size:.7rem">gitignored</span>
+            </div>
+            <div class="code-block-body">
+{<br>
+&nbsp;&nbsp;<span class="cb-key">"backend"</span>: <span class="cb-val">"/home/me/work/api"</span>,<br>
+&nbsp;&nbsp;<span class="cb-key">"web"</span>: <span class="cb-val">"/home/me/work/web"</span>,<br>
+&nbsp;&nbsp;<span class="cb-key">"mobile"</span>: <span class="cb-val">"/home/me/work/mobile"</span>,<br>
+&nbsp;&nbsp;<span class="cb-key">"other"</span>: [],<br>
+&nbsp;&nbsp;<span class="cb-key">"updated_at"</span>: <span class="cb-val">"2026-04-26"</span><br>
+}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- CONTEXT FILES -->
+<section>
+  <div class="container">
+    <h2>Context files</h2>
+    <p class="section-lead">Every run creates <code>.sdlc/&lt;id&gt;/</code> — small focused files, one per agent. Gitignored. Resume anytime.</p>
+    <div class="tree">
+<span class="tr-dir">.sdlc/spec-20260426-oauth/</span><br>
+&nbsp;&nbsp;<span class="tr-tpm">00-tpm-log.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← TPM master log, live throughout</span><br>
+&nbsp;&nbsp;<span class="tr-file">00-brief.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← user input + clarified scope</span><br>
+&nbsp;&nbsp;<span class="tr-file">00-input-raw.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← ingested doc / image</span><br>
+&nbsp;&nbsp;<span class="tr-file">01-requirements.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← PM, versioned</span><br>
+&nbsp;&nbsp;<span class="tr-file">02-design.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← Designer, versioned</span><br>
+&nbsp;&nbsp;<span class="tr-file">03-implementation-options.md</span>&nbsp;<span class="tr-comment">← SWE team debate output</span><br>
+&nbsp;&nbsp;<span class="tr-file">04-architecture.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← Staff SWE, versioned</span><br>
+&nbsp;&nbsp;<span class="tr-file">05-ops.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← SRE, versioned</span><br>
+&nbsp;&nbsp;<span class="tr-file">06-test-cases.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← QA, versioned</span><br>
+&nbsp;&nbsp;<span class="tr-dir">threads/</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">product-conversation.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← PM ↔ Designer</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">swe-debate.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← Backend ↔ Frontend ↔ Mobile</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">eng-conversation.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← SWE ↔ Staff SWE ↔ SRE ↔ QA</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">eng-product-conversation.md</span>&nbsp;<span class="tr-comment">← Eng ↔ PM/Designer</span><br>
+&nbsp;&nbsp;<span class="tr-br">07-product-br-reviews/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← challenge rounds + gate approval</span><br>
+&nbsp;&nbsp;<span class="tr-br">07-eng-br-reviews/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← challenge rounds + approvals</span><br>
+&nbsp;&nbsp;<span class="tr-final">08-final-spec.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-comment">← approved, ready to implement</span><br>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- INPUT FORMATS -->
+<section>
+  <div class="container">
+    <h2>Input formats</h2>
+    <p class="section-lead">Paste, attach, or link. brocode handles the rest. Never silently fails — if an MCP is missing, it tells you exactly what to do.</p>
+    <div class="inputs-grid">
+      <div class="input-card">
+        <div class="input-icon">💬</div>
+        <h4>Plain text</h4>
+        <p>Describe the bug or feature in plain English — as much or as little detail as you have</p>
+      </div>
+      <div class="input-card">
+        <div class="input-icon">🖼️</div>
+        <h4>Image / Screenshot</h4>
+        <p>Attach Figma exports, error screens, or mockups — PM and Designer analyze via vision</p>
+      </div>
+      <div class="input-card">
+        <div class="input-icon">📄</div>
+        <h4>Google Doc</h4>
+        <p>Paste a link — fetched automatically via Google Drive MCP</p>
+        <div class="input-req">Requires Google Drive MCP</div>
+      </div>
+      <div class="input-card">
+        <div class="input-icon">📝</div>
+        <h4>Notion / Wiki</h4>
+        <p>No MCP by default — brocode asks you to paste the content directly</p>
+      </div>
+      <div class="input-card">
+        <div class="input-icon">🎨</div>
+        <h4>Figma</h4>
+        <p>No Figma MCP by default — brocode asks you to export as PNG and attach</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- INSTALL -->
+<section id="install">
+  <div class="container">
+    <h2>Install</h2>
+    <p class="section-lead">Two steps. Then restart Claude Code and you're ready.</p>
+    <div class="install-grid">
+      <div class="install-step">
+        <div class="install-step-header">
+          <div class="num">1</div>
+          <h4>Add marketplace &amp; install</h4>
+        </div>
+        <div class="install-body">
+          <span class="comment"># Add local marketplace</span><br>
+          <span class="cmd">claude</span> plugin marketplace add<br>
+          &nbsp;&nbsp;<span class="arg">https://github.com/im-adarsh/brocode</span><br><br>
+          <span class="comment"># Install plugin</span><br>
+          <span class="cmd">claude</span> plugin install <span class="arg">sdlc@brocode</span><br>
+          &nbsp;&nbsp;--scope user
+        </div>
+        <div class="install-note">Restart Claude Code after install</div>
+      </div>
+      <div class="install-step">
+        <div class="install-step-header">
+          <div class="num">2</div>
+          <h4>Register your repos</h4>
+        </div>
+        <div class="install-body">
+          <span class="comment"># Tell engineer agents where to find code</span><br>
+          <span class="cmd">/brocode repos</span><br><br>
+          <span class="comment"># Then start using it</span><br>
+          <span class="cmd">/brocode</span> <span class="arg">add SSO login with Google OAuth</span><br><br>
+          <span class="cmd">/brocode</span> <span class="arg">checkout is throwing 500s</span>
+        </div>
+        <div class="install-note">Run <code>/brocode repos</code> once per machine — paths are gitignored</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand"><span class="slash">/</span>brocode</div>
+      <div class="footer-sub">Multi-agent SDLC for Claude Code · Built by Adarsh Kumar</div>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/im-adarsh/brocode">GitHub</a>
+      <a href="https://github.com/im-adarsh/brocode/issues">Issues</a>
+      <a href="https://github.com/im-adarsh/brocode/blob/main/LICENSE">License</a>
+    </div>
+    <div class="footer-mit">MIT License</div>
+  </div>
+</footer>
+
+<script>
+  function switchTab(mode, el) {
+    document.querySelectorAll('.flow-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.flow-panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('panel-' + mode).classList.add('active');
+  }
+</script>
+
+</body>
+</html>

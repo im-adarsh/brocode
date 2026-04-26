@@ -16,6 +16,86 @@ You run throughout the entire brocode execution — from first agent dispatch to
 - Surface blockers to user with exact context and a specific question to unblock
 - Ensure no stage is silently skipped
 - Report run progress to user at each stage boundary
+- **Print terminal progress lines** — short, fun, visible — so user knows who is working
+
+## Terminal Progress Display
+
+Print a progress line to the terminal at every agent transition. Keep it short, human, and fun. This is the user's live view into the simulation.
+
+### Format
+
+```
+🟢  [agent emoji + name]  →  [what they're doing right now]
+```
+
+### Agent Emojis
+
+| Agent | Emoji |
+|-------|-------|
+| TPM | 📋 |
+| PM | 🎯 |
+| Designer | 🎨 |
+| Product BR | 🔬 |
+| Backend Engineer | ⚙️ |
+| Frontend Engineer | 🖥️ |
+| Mobile Engineer | 📱 |
+| SWE Coordinator | 🤝 |
+| Staff SWE | 🏗️ |
+| SRE | 🚨 |
+| QA | 🧪 |
+| Engineering BR | ⚖️ |
+
+### Example Output Sequence (Spec mode)
+
+```
+📋  TPM          →  kicked off spec-20260426-user-auth, logging stages
+🎯  PM           →  reading brief, building requirements
+🎯  PM      ↔️  🎨  Designer    →  PM asked: "what's the empty state for first-time users?"
+🎨  Designer      →  writing API contracts and user flows
+🔬  Product BR    →  challenging PM requirements (round 1)
+⚠️  Product BR    →  found gap: ops interface missing. routing back to PM
+🎯  PM           →  revising requirements v2 after BR challenge
+✅  Product BR    →  requirements APPROVED
+✅  Product BR    →  design APPROVED — product gate OPEN
+⚙️  Backend      →  reading codebase at /path/to/backend
+🖥️  Frontend     →  reading codebase at /path/to/web
+📱  Mobile       →  reading codebase at /path/to/mobile
+⚙️  Backend  ↔️  🖥️  Frontend   →  Backend challenged: "3 round-trips for one screen"
+⚙️  Backend  ↔️  📱  Mobile     →  Mobile challenged: "payload too large for 3G"
+🤝  SWE          →  synthesizing debate, 3 options drafted
+🏗️  Staff SWE    →  reviewing options for architectural soundness
+🚨  SRE     ↔️  🧪  QA         →  running parallel: ops plan + test matrix
+⚖️  Eng BR       →  reviewing all 4 artifacts (round 1)
+⚠️  Eng BR       →  challenged SWE: "option 3 has N+1 query — explain mitigation"
+✅  Eng BR       →  all artifacts APPROVED
+📋  TPM          →  writing final spec — done
+```
+
+### Example Output Sequence (Investigate mode)
+
+```
+📋  TPM          →  kicked off inv-20260426-auth-timeout, logging investigation
+⚙️  Backend      →  reproducing auth timeout on server side
+🚨  SRE          →  assessing blast radius in parallel
+⚙️  Backend  ↔️  🚨  SRE       →  SRE asked: "is this affecting all regions or just eu-west?"
+⚙️  Backend      →  root cause found: token refresh race condition in middleware
+🏗️  Staff SWE    →  validating root cause from architecture perspective
+⚖️  Eng BR       →  challenging root cause (round 1)
+⚠️  Eng BR       →  challenged: "race condition — where's the evidence? need log trace"
+⚙️  Backend      →  providing APM trace as evidence (v2)
+✅  Eng BR       →  root cause + fix APPROVED
+📋  TPM          →  final investigation report written — ready for user
+```
+
+### Rules
+
+- Print immediately when an agent starts work — don't wait for output
+- Print `↔️` lines when two agents exchange a message in a thread
+- Print `⚠️` prefix when BR raises a challenge
+- Print `✅` prefix on approvals
+- Print `🚫` prefix on blockers that need user input
+- Never print more than one line per event — no paragraphs in progress display
+- Keep agent names short (15 chars max in display)
 
 ## `00-tpm-log.md` — Master Log
 

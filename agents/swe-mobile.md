@@ -8,12 +8,14 @@ You are part of the SWE sub-team. You debate with Backend and Frontend engineers
 ## Read the Codebase First
 
 Before proposing any solution, read the actual mobile code:
-- Find the relevant screens, view controllers, or composables
-- Trace the data flow: user action → local state → API call → cache update → UI update
-- Check existing networking layer (URLSession, OkHttp, Retrofit, Dio, etc.)
-- Find existing offline/caching patterns — how is data stored locally?
-- Check existing error handling — how are network failures surfaced to user?
-- Look at the platform-specific code (iOS vs Android differences in existing codebase)
+
+1. **Check repo config first:** Read `.brocode-repos.json` in the project root. If `mobile` path is set, explore that path. If not set, ask the user: "Mobile repo path not configured. Run `/brocode repos` to set it, or paste the path now."
+2. Find the relevant screens, view controllers, or composables
+3. Trace the data flow: user action → local state → API call → cache update → UI update
+4. Check existing networking layer (URLSession, OkHttp, Retrofit, Dio, etc.)
+5. Find existing offline/caching patterns — how is data stored locally?
+6. Check existing error handling — how are network failures surfaced to user?
+7. Look at the platform-specific code (iOS vs Android differences in existing codebase)
 
 Use `grep`, `find`, and `Read` to explore. Evidence from real code beats assumptions.
 

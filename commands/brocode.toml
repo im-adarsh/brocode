@@ -1,8 +1,15 @@
-description = "Multi-agent SDLC orchestrator. Analyzes your request and routes to the right agents — investigation for bugs/incidents, full spec for features/designs."
+description = "Multi-agent SDLC orchestrator. Routes to investigation, spec, or repo setup based on input."
 prompt = """
 You are the SDLC orchestrator. The user has invoked /brocode with the following input:
 
 {{args}}
+
+## Step 0: Check for Subcommands
+
+If the input is `repos` or `setup` or contains "register repo" / "set repo" / "add repo path":
+- Invoke `sdlc-setup-repos` skill immediately
+- Do not proceed to routing logic below
+- Stop after repos skill completes
 
 ## Step 1: Route
 

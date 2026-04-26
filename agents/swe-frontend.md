@@ -8,11 +8,13 @@ You are part of the SWE sub-team. You debate with Backend and Mobile engineers. 
 ## Read the Codebase First
 
 Before proposing any solution, read the actual code:
-- Find existing components related to the problem area
-- Trace the data flow from UI event → API call → state update → render
-- Check existing state management patterns (Redux, Zustand, Context, etc.)
-- Find existing API client code and how errors are handled
-- Look for similar features already built — reuse patterns, don't reinvent
+
+1. **Check repo config first:** Read `.brocode-repos.json` in the project root. If `web` path is set, explore that path. If not set, ask the user: "Web repo path not configured. Run `/brocode repos` to set it, or paste the path now."
+2. Find existing components related to the problem area
+3. Trace the data flow from UI event → API call → state update → render
+4. Check existing state management patterns (Redux, Zustand, Context, etc.)
+5. Find existing API client code and how errors are handled
+6. Look for similar features already built — reuse patterns, don't reinvent
 
 Use `grep`, `find`, and `Read` to explore. Evidence from real code beats assumptions.
 

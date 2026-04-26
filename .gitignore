@@ -24,3 +24,6 @@ yarn-error.log
 
 # Claude plugin cache (installed copies live in ~/.claude/plugins/cache/)
 .claude-plugin/marketplace.json.lock
+
+# Repo config — paths are machine-local, not committed
+.brocode-repos.json

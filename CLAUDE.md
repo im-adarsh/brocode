@@ -34,12 +34,46 @@ Single entry point: `/brocode`
 | `skills/spec/SKILL.md` | Full SDLC spec flow |
 | `skills/input-ingestion/SKILL.md` | External input handling (docs, images, URLs) |
 | `skills/bar-raiser-loop/SKILL.md` | Adversarial challenge/response loop |
+| `skills/setup-repos/SKILL.md` | Register local repo paths for engineer agents |
 
 ## Commands
 
 | File | Command |
 |------|---------|
-| `commands/brocode.toml` | `/brocode` — single entry point |
+| `commands/brocode.toml` | `/brocode` — single entry point; `/brocode repos` to register repo paths |
+
+## Repo Config
+
+Engineer agents read `.brocode-repos.json` from the project root to locate real codebases:
+
+```json
+{
+  "backend": "/absolute/path/to/backend",
+  "web": "/absolute/path/to/web",
+  "mobile": "/absolute/path/to/mobile",
+  "other": []
+}
+```
+
+- Run `/brocode repos` to create or update this file
+- File is git-ignored (paths are machine-local)
+- If a path is missing, the relevant engineer agent asks the user before proceeding
+
+## Terminal Progress Display
+
+TPM prints a live progress line to the terminal at every agent transition:
+
+```
+🟢  📋 TPM          →  kicked off spec-20260426-user-auth
+🟢  🎯 PM           →  reading brief, building requirements
+🟢  🎯 PM      ↔️  🎨 Designer    →  PM asked: "empty state for first-time users?"
+⚠️  🔬 Product BR   →  found gap: ops interface missing — routing back to PM
+✅  🔬 Product BR   →  APPROVED — product gate OPEN
+⚠️  ⚖️ Eng BR       →  challenged: "option 3 has N+1 query — explain mitigation"
+✅  ⚖️ Eng BR       →  all artifacts APPROVED
+```
+
+Prefixes: `🟢` working · `↔️` agent conversation · `⚠️` BR challenge · `✅` approved · `🚫` blocked
 
 ---
 
