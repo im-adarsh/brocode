@@ -183,9 +183,17 @@
       cursor: pointer; transition: color .15s; user-select: none;
     }
     .flow-tab.active { color: var(--text); border-bottom-color: var(--accent); }
-    .flow-panel { display: none; }
-    .flow-panel.active { display: grid; grid-template-columns: 1fr 1.4fr; gap: 2rem; align-items: start; }
-    @media (max-width: 720px) { .flow-panel.active { grid-template-columns: 1fr; } }
+    .flow-panels-wrap { position: relative; }
+    .flow-panel {
+      display: grid; grid-template-columns: 1fr 1.4fr; gap: 2rem; align-items: start;
+      position: absolute; top: 0; left: 0; right: 0;
+      visibility: hidden; pointer-events: none;
+    }
+    .flow-panel.active {
+      position: relative;
+      visibility: visible; pointer-events: auto;
+    }
+    @media (max-width: 720px) { .flow-panel { grid-template-columns: 1fr; } }
     .flow-steps-list { display: flex; flex-direction: column; gap: .5rem; }
     .flow-step {
       display: flex; gap: 1rem; align-items: flex-start;
@@ -592,6 +600,7 @@
       <div class="flow-tab" onclick="switchTab('spec', this)">🔵 Spec — Feature / Design</div>
     </div>
 
+    <div class="flow-panels-wrap">
     <div class="flow-panel active" id="panel-investigate">
       <div class="flow-steps-list">
         <div class="flow-step">
@@ -783,6 +792,7 @@ flowchart TD
         </div>
       </div>
     </div>
+    </div><!-- /.flow-panels-wrap -->
   </div>
 </section>
 
@@ -1301,19 +1311,11 @@ flowchart TD
 </script>
 
 <script>
-  let _mermaid;
-  import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs').then(m => { _mermaid = m.default; });
-
   function switchTab(mode, el) {
     document.querySelectorAll('.flow-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.flow-panel').forEach(p => p.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('panel-' + mode).classList.add('active');
-    if (_mermaid) {
-      const panel = document.getElementById('panel-' + mode);
-      const unrendered = panel.querySelectorAll('.mermaid:not([data-processed])');
-      if (unrendered.length) _mermaid.run({ nodes: unrendered });
-    }
   }
 </script>
 
