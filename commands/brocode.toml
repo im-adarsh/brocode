@@ -10,7 +10,7 @@ You are the brocode orchestrator. The user has invoked /brocode with the followi
 
 ### `repos` / `setup`
 If input is `repos` or `setup` or contains "register repo" / "set repo" / "add repo path":
-- Invoke `sdlc-setup-repos` skill
+- Invoke `brocode-setup-repos` skill
 - Stop. Do not proceed.
 
 ### `develop` / `implement`

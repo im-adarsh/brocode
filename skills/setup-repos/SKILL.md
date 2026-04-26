@@ -1,5 +1,5 @@
 ---
-name: sdlc-setup-repos
+name: brocode-setup-repos
 description: Use when user wants to register local repo paths for backend, mobile, or web — saves to .brocode-repos.json for engineer agents to read
 ---
 
