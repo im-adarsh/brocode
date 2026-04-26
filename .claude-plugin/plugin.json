@@ -1,27 +1,28 @@
 {
-  "name": "sdlc",
-  "description": "Staff-level SDLC simulation: systematic bug investigation and full engineering spec with autonomous role-based agents (PM, Designer, SWE, Staff Eng, SRE, QA, Bar Raiser). Includes end-to-end implementation via superpowers subagent-driven-development.",
+  "name": "brocode",
+  "description": "Multi-agent SDLC plugin for Claude Code. One command. Full engineering org in your terminal — investigates bugs, produces engineering specs, and implements features with PM, Designer, Tech Lead, Backend, Frontend, Mobile, Staff SWE, SRE, QA, and two Bar Raisers.",
   "version": "0.2.0",
   "author": {
     "name": "Adarsh Kumar"
   },
-  "repository": "https://github.com/adarshkumar/sdlc-plugin",
+  "repository": "https://github.com/im-adarsh/brocode",
   "license": "MIT",
   "keywords": [
+    "sdlc",
+    "agents",
     "debugging",
     "investigation",
     "spec",
-    "sdlc",
-    "agents",
     "oncall",
     "implementation",
-    "subagent"
+    "subagent",
+    "code-review"
   ],
   "recommendations": [
     {
       "plugin": "superpowers",
       "marketplace": "claude-plugins-official",
-      "reason": "Required for /brocode develop — subagent-driven implementation, systematic debugging, plan execution, and PR creation",
+      "reason": "Required for /brocode develop and /brocode review — subagent-driven implementation, systematic debugging, plan execution, git worktrees, and PR creation",
       "installHint": "claude plugin install superpowers@claude-plugins-official --scope user"
     }
   ]

@@ -16,7 +16,7 @@ git clone https://github.com/im-adarsh/brocode.git ~/brocode
 claude plugin marketplace add ~/brocode
 
 # 3. Install brocode
-claude plugin install sdlc@brocode-local --scope user
+claude plugin install brocode@brocode-local --scope user
 
 # 4. Install superpowers (required for /brocode develop and /brocode review)
 claude plugin install superpowers@claude-plugins-official --scope user
