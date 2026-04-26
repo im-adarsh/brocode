@@ -9,17 +9,22 @@ Paste a bug report, feature idea, PRD, doc link, or screenshot. Type `/brocode`.
 ## Install
 
 ```bash
-# Add local marketplace
-claude plugin marketplace add /path/to/brocode
+# 1. Clone brocode
+git clone https://github.com/im-adarsh/brocode.git ~/brocode
 
-# Install brocode
+# 2. Register with Claude Code
+claude plugin marketplace add ~/brocode
+
+# 3. Install brocode
 claude plugin install sdlc@brocode-local --scope user
 
-# Install superpowers (required for /brocode develop)
+# 4. Install superpowers (required for /brocode develop and /brocode review)
 claude plugin install superpowers@claude-plugins-official --scope user
 ```
 
 Restart Claude Code after install.
+
+> **Updating:** `cd ~/brocode && git pull` — no reinstall needed.
 
 ---
 

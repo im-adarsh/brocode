@@ -1256,40 +1256,48 @@ flowchart TD
 <section id="install">
   <div class="container">
     <h2>Install</h2>
-    <p class="section-lead">Three steps. Restart Claude Code and you're ready.</p>
+    <p class="section-lead">Four commands. Copy, paste, run. Restart Claude Code and you're ready.</p>
     <div class="install-grid">
       <div class="install-step">
-        <div class="install-step-header"><div class="num">1</div><h4>Install brocode</h4></div>
+        <div class="install-step-header"><div class="num">1</div><h4>Clone brocode</h4></div>
         <div class="install-body">
-          <span class="comment"># Add marketplace</span><br>
-          <span class="cmd">claude</span> plugin marketplace add<br>
-          &nbsp;&nbsp;<span class="arg">https://github.com/im-adarsh/brocode</span><br><br>
-          <span class="comment"># Install</span><br>
-          <span class="cmd">claude</span> plugin install <span class="arg">sdlc@brocode</span> --scope user
+          <span class="cmd">git</span> clone<br>
+          &nbsp;&nbsp;<span class="arg">https://github.com/im-adarsh/brocode.git</span><br>
+          &nbsp;&nbsp;<span class="arg">~/brocode</span>
         </div>
-        <div class="install-note">Restart Claude Code after install</div>
+        <div class="install-note">Clone once. Update anytime with <code>cd ~/brocode &amp;&amp; git pull</code></div>
       </div>
       <div class="install-step">
-        <div class="install-step-header"><div class="num">2</div><h4>Install superpowers</h4></div>
+        <div class="install-step-header"><div class="num">2</div><h4>Register with Claude Code</h4></div>
         <div class="install-body">
-          <span class="comment"># Required for /brocode develop</span><br>
+          <span class="cmd">claude</span> plugin marketplace add<br>
+          &nbsp;&nbsp;<span class="arg">~/brocode</span>
+        </div>
+        <div class="install-note">Points Claude Code at your local clone</div>
+      </div>
+      <div class="install-step">
+        <div class="install-step-header"><div class="num">3</div><h4>Install brocode + superpowers</h4></div>
+        <div class="install-body">
+          <span class="cmd">claude</span> plugin install <span class="arg">sdlc@brocode-local</span> --scope user<br><br>
           <span class="cmd">claude</span> plugin install<br>
           &nbsp;&nbsp;<span class="arg">superpowers@claude-plugins-official</span><br>
           &nbsp;&nbsp;--scope user
         </div>
-        <div class="install-note">Enables subagent-driven implementation + TDD</div>
+        <div class="install-note">superpowers required for /brocode develop and /brocode review</div>
       </div>
       <div class="install-step" style="grid-column:1/-1">
-        <div class="install-step-header"><div class="num">3</div><h4>Register repos + start using it</h4></div>
+        <div class="install-step-header"><div class="num">4</div><h4>Restart Claude Code → start using it</h4></div>
         <div class="install-body">
-          <span class="comment"># Register repo paths (once per machine)</span><br>
+          <span class="comment"># Register your repo paths (once per machine)</span><br>
           <span class="cmd">/brocode repos</span><br><br>
           <span class="comment"># Investigate a bug</span><br>
           <span class="cmd">/brocode</span> <span class="arg">checkout is throwing 500s after today's deploy</span><br><br>
           <span class="comment"># Spec a feature</span><br>
           <span class="cmd">/brocode</span> <span class="arg">add SSO login with Google OAuth</span><br><br>
           <span class="comment"># Implement an approved spec</span><br>
-          <span class="cmd">/brocode develop</span>
+          <span class="cmd">/brocode develop</span><br><br>
+          <span class="comment"># Review a PR or MR</span><br>
+          <span class="cmd">/brocode review</span> <span class="arg">https://github.com/org/repo/pull/42</span>
         </div>
         <div class="install-note">Run <code>/brocode repos</code> once per machine — paths are gitignored</div>
       </div>
