@@ -35,6 +35,7 @@ Single entry point: `/brocode`
 | `skills/input-ingestion/SKILL.md` | External input handling (docs, images, URLs) |
 | `skills/bar-raiser-loop/SKILL.md` | Adversarial challenge/response loop |
 | `skills/setup-repos/SKILL.md` | Register local repo paths for engineer agents |
+| `skills/deep-debug/SKILL.md` | Hypothesis-driven sub-sub-agent debug protocol for SWE agents |
 
 ## Commands
 

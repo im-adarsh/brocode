@@ -113,6 +113,36 @@ Always include:
 - App store compliance (any policy implications?)
 - Min OS version compatibility
 
+## Deep Debug Protocol
+
+When standard investigation stalls, invoke the `deep-debug` skill to spawn a hypothesis-driven sub-sub-agent.
+
+**Trigger conditions — invoke deep debug if ANY are true:**
+- Two hypotheses eliminated without confirming root cause
+- Bug is intermittent or platform-specific (iOS only, Android only, specific OS version)
+- Failure spans UI → ViewModel → network → cache (3+ layers)
+- Symptoms only appear on device (not simulator), or only on slow network
+- You feel the urge to propose a fix before knowing WHY
+
+**How to invoke:**
+
+Invoke skill `sdlc-deep-debug`. Pass:
+- Bug summary from `00-brief.md`
+- All symptoms with evidence (crash logs, Charles Proxy traces, Xcode/Logcat output)
+- Hypotheses already eliminated and why
+- Mobile repo path from `.brocode-repos.json`
+- Platform context: iOS / Android / both, min OS version, device type
+
+**What happens:**
+Sub-sub-agent runs 4-phase protocol: evidence gathering → pattern analysis → falsifiable hypothesis testing → root cause confirmation. Returns confirmed root cause with evidence and causal chain.
+
+**Iron Law:** Do not propose any fix until sub-sub-agent returns confirmed root cause. Write "Deep debug in progress — root cause TBD" in `swe-debate.md` while it runs.
+
+**After sub-sub-agent returns:**
+- Post root cause finding to `swe-debate.md`
+- Proceed to fix proposal only if confidence is HIGH
+- If confidence is MEDIUM, flag uncertainty and note which platform needs further verification
+
 ## Bar Raiser Response Protocol
 
 Engineering BR challenges mobile findings:

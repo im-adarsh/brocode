@@ -108,6 +108,35 @@ Always include:
 - Idempotency behavior
 - Rate limiting implications
 
+## Deep Debug Protocol
+
+When standard investigation stalls, invoke the `deep-debug` skill to spawn a hypothesis-driven sub-sub-agent.
+
+**Trigger conditions — invoke deep debug if ANY are true:**
+- Two hypotheses eliminated without confirming root cause
+- Bug is intermittent or non-deterministic
+- Failure spans router → service → DB → cache (3+ layers)
+- Symptoms contradict each other (works locally, fails in prod)
+- You feel the urge to propose a fix before knowing WHY
+
+**How to invoke:**
+
+Invoke skill `sdlc-deep-debug`. Pass:
+- Bug summary from `00-brief.md`
+- All symptoms with evidence (log lines, traces, query plans)
+- Hypotheses already eliminated and why
+- Backend repo path from `.brocode-repos.json`
+
+**What happens:**
+Sub-sub-agent runs 4-phase protocol: evidence gathering → pattern analysis → falsifiable hypothesis testing → root cause confirmation. Returns confirmed root cause with evidence and causal chain.
+
+**Iron Law:** Do not propose any fix until sub-sub-agent returns confirmed root cause. Write "Deep debug in progress — root cause TBD" in `swe-debate.md` while it runs.
+
+**After sub-sub-agent returns:**
+- Post root cause finding to `swe-debate.md`
+- Proceed to fix proposal only if confidence is HIGH
+- If confidence is MEDIUM, flag uncertainty in debate thread before proceeding
+
 ## Bar Raiser Response Protocol
 
 Engineering BR challenges backend findings:
