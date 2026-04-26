@@ -735,7 +735,8 @@ flowchart TD
     subgraph PRODUCT["🎯 Product Track"]
       PM["🎯 PM"]:::node
       DS["🎨 Designer"]:::node
-      PM <-->|"converse"| DS
+      PM -->|"converse ↔"| DS
+      DS -->|"converse ↔"| PM
     end
 
     PBR["🔬 Product BR ⟳ GATE\nmax 2 rounds · blocks engineering"]:::gate
@@ -749,7 +750,7 @@ flowchart TD
     SWE["🤝 SWE Coordinator"]:::node
     STAFF["🏗️ Staff SWE"]:::node
 
-    subgraph OPS["Parallel"]
+    subgraph OPS["⚡ Parallel"]
       SRE["🚨 SRE"]:::node
       QA["🧪 QA"]:::node
     end
@@ -757,15 +758,19 @@ flowchart TD
     EBR["⚖️ Engineering BR ⟳\nmax 2 rounds"]:::gate
     OUT(["📄 08-final-spec.md"]):::output
 
-    A --> PRODUCT
+    A --> PM
+    A --> DS
     PM --> PBR
     DS --> PBR
-    PBR --> ENG
+    PBR --> BE
+    PBR --> FE
+    PBR --> MB
     BE --> SWE
     FE --> SWE
     MB --> SWE
     SWE --> STAFF
-    STAFF --> OPS
+    STAFF --> SRE
+    STAFF --> QA
     SRE --> EBR
     QA --> EBR
     EBR --> OUT
@@ -1296,11 +1301,19 @@ flowchart TD
 </script>
 
 <script>
+  let _mermaid;
+  import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs').then(m => { _mermaid = m.default; });
+
   function switchTab(mode, el) {
     document.querySelectorAll('.flow-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.flow-panel').forEach(p => p.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('panel-' + mode).classList.add('active');
+    if (_mermaid) {
+      const panel = document.getElementById('panel-' + mode);
+      const unrendered = panel.querySelectorAll('.mermaid:not([data-processed])');
+      if (unrendered.length) _mermaid.run({ nodes: unrendered });
+    }
   }
 </script>
 
