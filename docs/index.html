@@ -519,6 +519,7 @@
       <div class="flow-tab active" onclick="switchTab('investigate', this)">🔴 Investigate — Bug / Incident</div>
       <div class="flow-tab" onclick="switchTab('spec', this)">🔵 Spec — Feature / Design</div>
       <div class="flow-tab" onclick="switchTab('develop', this)">🟢 Develop — Implement</div>
+      <div class="flow-tab" onclick="switchTab('review', this)">🟣 Review — PR / MR</div>
     </div>
 
     <div class="flow-panels-wrap">
@@ -733,6 +734,13 @@ flowchart TD
               <div class="flow-step-sub">superpowers:finishing-a-development-branch — runs full test suite, pushes branch, creates PR with spec link and task summary.</div>
             </div>
           </div>
+          <div class="flow-step">
+            <div class="flow-step-num">6</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Worktree cleanup</div>
+              <div class="flow-step-sub">After PR is raised, <code>git worktree remove --force</code> deletes the isolated worktree. Repo stays clean.</div>
+            </div>
+          </div>
         </div>
         <div class="flow-diagram">
           <div class="mermaid">
@@ -741,15 +749,16 @@ flowchart TD
     CHECK{"superpowers\ninstalled?"}
     SPEC["Read 08-final-spec.md\n+ 09-tasks.md"]:::node
 
-    subgraph PER_DOMAIN["Per domain — backend / web / mobile"]
+    subgraph PER_DOMAIN["Per domain — backend / web / mobile (parallel)"]
       WT["superpowers:using-git-worktrees\nisolated branch"]:::node
       PLAN["superpowers:writing-plans\ntasks → TDD plan"]:::node
       subgraph LOOP["Per task"]
-        IMPL["Implementer sub-agent\nTDD · commit"]:::subagent
+        IMPL["superpowers:subagent-driven-development\nTDD · commit"]:::subagent
         SR["Spec compliance\nreview"]:::node
         QR["Code quality\nreview"]:::node
       end
       FINISH["superpowers:finishing-a-development-branch\ntests → push → PR"]:::output
+      CLEAN["git worktree remove\ncleanup"]:::node
     end
 
     A --> CHECK
@@ -758,6 +767,7 @@ flowchart TD
     SPEC --> WT --> PLAN --> IMPL
     IMPL --> SR -->|"pass"| QR
     QR -->|"pass"| FINISH
+    FINISH --> CLEAN
     SR -->|"fail"| IMPL
     QR -->|"fail"| IMPL
 
@@ -766,6 +776,74 @@ flowchart TD
     classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
     classDef gate fill:#3d2b00,stroke:#d29922,color:#d29922
     classDef output fill:#0d3321,stroke:#3fb950,color:#3fb950
+          </div>
+        </div>
+      </div>
+
+      <!-- REVIEW -->
+      <div class="flow-panel" id="panel-review">
+        <div class="flow-steps-list">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Paste PR or MR URL</div>
+              <div class="flow-step-sub"><code>/brocode review https://github.com/org/repo/pull/42</code> — works with GitHub PRs and GitLab MRs.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Tech Lead scopes the diff</div>
+              <div class="flow-step-sub">Reads the diff, identifies which domains are touched (backend / frontend / mobile), dispatches the right sub-agents in parallel.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Domain engineers review in parallel <span class="flow-badge badge-parallel">parallel</span></div>
+              <div class="flow-step-sub">Each sub-agent reviews their layer: bugs, security, perf, design violations, missing tests. Uses superpowers:code-review.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Inline comments posted</div>
+              <div class="flow-step-sub">Every finding posted as an inline comment at the exact file + line via <code>gh api</code> (GitHub) or <code>glab api</code> (GitLab).</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">Summary comment + verdict</div>
+              <div class="flow-step-sub">Top-level comment with APPROVE / REQUEST_CHANGES verdict, domain breakdown, and critical vs non-critical counts.</div>
+            </div>
+          </div>
+        </div>
+        <div class="flow-diagram">
+          <div class="mermaid">
+flowchart TD
+    A(["/brocode review &lt;url&gt;"]):::entry
+    TL["🤝 Tech Lead\nscopes diff by domain"]:::node
+
+    subgraph PAR["Domain review — parallel"]
+      BE["⚙️ Backend\nAPIs · DB · security · perf"]:::subagent
+      FE["🖥️ Frontend\nUI · state · bundle · a11y"]:::subagent
+      MOB["📱 Mobile\noffline · perf · native APIs"]:::subagent
+    end
+
+    SYNTH["🤝 Tech Lead\nsynthesizes findings"]:::node
+    INLINE["Inline comments\ngh / glab API · file + line"]:::output
+    SUMMARY["Summary comment\nverdict · domain breakdown"]:::output
+
+    A --> TL
+    TL --> BE & FE & MOB
+    BE & FE & MOB --> SYNTH
+    SYNTH --> INLINE & SUMMARY
+
+    classDef entry fill:#1f6feb,stroke:#388bfd,color:#e6edf3
+    classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
+    classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
+    classDef output fill:#3d1a78,stroke:#bc8cff,color:#bc8cff
           </div>
         </div>
       </div>

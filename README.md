@@ -40,6 +40,7 @@ No flags. No mode selection. brocode reads context and routes automatically.
 /brocode  [paste Google Doc link with PRD]
 /brocode  why does the payment webhook fail intermittently on retries?
 /brocode  develop
+/brocode  review https://github.com/org/repo/pull/42
 ```
 
 ### Register your repos
@@ -167,15 +168,16 @@ flowchart TD
     INSTALL["Install superpowers\nclaude plugin install superpowers@claude-plugins-official"]
     TASKS["Read 08-final-spec.md\n+ 09-tasks.md"]
 
-    subgraph DOMAIN["Per domain (backend / web / mobile)"]
+    subgraph DOMAIN["Per domain (backend / web / mobile) — runs in parallel"]
         WT["superpowers:using-git-worktrees\ncreate isolated worktree"]
         PLAN["superpowers:writing-plans\nconvert tasks → superpowers plan"]
         subgraph LOOP["Per task loop"]
-            IMPL["Implementer sub-agent\nTDD · commit"]
+            IMPL["superpowers:subagent-driven-development\nTDD · commit"]
             SPEC_R["Spec compliance review"]
             QUAL_R["Code quality review"]
         end
         FINISH["superpowers:finishing-a-development-branch\ntests → push → PR"]
+        CLEAN["git worktree remove\ncleanup worktree"]
     end
 
     A --> CHECK
@@ -184,11 +186,42 @@ flowchart TD
     TASKS --> WT --> PLAN --> IMPL
     IMPL --> SPEC_R -->|"pass"| QUAL_R
     QUAL_R -->|"pass"| FINISH
+    FINISH --> CLEAN
     SPEC_R -->|"fail"| IMPL
     QUAL_R -->|"fail"| IMPL
 ```
 
-**What you get:** One PR per domain, all tasks implemented with TDD, two-stage review per task (spec compliance + code quality), tests passing.
+**What you get:** One PR per domain, all tasks implemented with TDD, two-stage review per task (spec compliance + code quality), tests passing, worktree cleaned up after each PR.
+
+---
+
+### Mode 4: Review — Code review a PR or MR
+
+Triggered by: `/brocode review <github-or-gitlab-url>`
+
+```mermaid
+flowchart TD
+    A(["/brocode review &lt;url&gt;"])
+    TL["🤝 Tech Lead\nreads diff, scopes domains"]
+
+    subgraph PARALLEL["Domain review — parallel"]
+        BE["⚙️ Backend Engineer\nAPIs · DB · security · perf"]
+        FE["🖥️ Frontend Engineer\nUI · state · bundle · a11y"]
+        MOB["📱 Mobile Engineer\noffline · perf · native APIs"]
+    end
+
+    SYNTH["🤝 Tech Lead\nsynthesizes findings"]
+    INLINE["Inline comments\nfile + line via gh / glab API"]
+    SUMMARY["Top-level summary comment\nverdict · domain breakdown"]
+
+    A --> TL
+    TL --> BE & FE & MOB
+    BE & FE & MOB --> SYNTH
+    SYNTH --> INLINE
+    SYNTH --> SUMMARY
+```
+
+**What you get:** Inline comments on every finding at the exact file+line, posted directly to the GitHub PR or GitLab MR. Top-level summary with APPROVE / REQUEST_CHANGES verdict and domain breakdown.
 
 ---
 

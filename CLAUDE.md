@@ -37,6 +37,7 @@ All orchestration lives in `commands/brocode.toml`. Agents use superpowers skill
 |------|-------|
 | TPM session start | `superpowers:using-superpowers` |
 | Investigation stalls / bug encountered | `superpowers:systematic-debugging` |
+| Code review on PR/MR | `superpowers:code-review` |
 | Convert 09-tasks.md to plan | `superpowers:writing-plans` |
 | Execute plan task by task | `superpowers:subagent-driven-development` |
 | Finish domain branch + PR | `superpowers:finishing-a-development-branch` |
@@ -46,7 +47,7 @@ All orchestration lives in `commands/brocode.toml`. Agents use superpowers skill
 
 | File | Triggers |
 |------|---------|
-| `commands/brocode.toml` | `/brocode <bug or feature>` · `/brocode repos` · `/brocode develop` |
+| `commands/brocode.toml` | `/brocode <bug or feature>` · `/brocode repos` · `/brocode develop` · `/brocode review <url>` |
 
 ## Repo Config
 
@@ -96,12 +97,23 @@ Tech Lead + Staff SWE converge
 ```
 Requires: superpowers installed
 Reads: 08-final-spec.md + 09-tasks.md
-Per domain (backend / web / mobile):
-    → superpowers:using-git-worktrees
+Per domain (backend / web / mobile) — parallel:
+    → superpowers:using-git-worktrees  (isolated worktree)
     → superpowers:writing-plans
     → superpowers:subagent-driven-development (per task: implement → spec review → quality review)
         ↕ superpowers:systematic-debugging if blocked
     → superpowers:finishing-a-development-branch → PR
+    → git worktree remove --force  (cleanup after PR)
+```
+
+### Review mode
+```
+Requires: superpowers installed + PR/MR URL
+Tech Lead dispatches Backend / Frontend / Mobile sub-agents (parallel) to review each domain
+Tech Lead synthesizes findings
+→ superpowers:code-review
+→ inline comments posted via GitHub API (gh) or GitLab API (glab) on exact file+line
+→ top-level summary comment: verdict + domain breakdown
 ```
 
 ---

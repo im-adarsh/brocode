@@ -26,10 +26,39 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
 - Scan `.sdlc/` for dirs with `08-final-spec.md` + `09-tasks.md`. If multiple, list and ask which.
 - Read `.brocode-repos.json` for repo paths.
 - For each domain with tasks (backend / web / mobile):
-  1. Invoke `superpowers:using-git-worktrees` — create worktree in that domain's repo
-  2. Invoke `superpowers:writing-plans` — convert domain tasks from `09-tasks.md` into a superpowers plan at `docs/superpowers/plans/<spec-id>-<domain>.md`
-  3. Invoke `superpowers:subagent-driven-development` — execute plan task by task with 2-stage review
+  1. Invoke `superpowers:using-git-worktrees` — create isolated worktree in that domain's repo for branch `brocode/<spec-id>-<domain>`
+  2. Invoke `superpowers:writing-plans` — convert domain tasks from `09-tasks.md` into a superpowers plan at `docs/superpowers/plans/<spec-id>-<domain>.md` inside the worktree
+  3. Invoke `superpowers:subagent-driven-development` — execute plan task by task inside the worktree with 2-stage review (spec compliance + code quality) per task
   4. Invoke `superpowers:finishing-a-development-branch` — run tests, push branch, create PR
+  5. Delete the worktree after PR is created: `git worktree remove --force <worktree-path>`
+  6. Print: `📋 TPM → <domain> PR raised, worktree cleaned up`
+- Run domains in parallel where possible (independent repos).
+- Stop.
+
+### `review` / `code-review`
+If input is `review` or `code-review` or contains "review this PR" / "review this MR" / "review the PR" / "review MR" or includes a GitHub/GitLab PR/MR URL:
+
+- Extract the PR/MR URL from input. If none found, ask: "Paste the PR or MR URL to review."
+- Check superpowers installed: `claude plugin list | grep superpowers`
+- If NOT installed: output exactly —
+  ```
+  superpowers required for /brocode review.
+  Install: claude plugin install superpowers@claude-plugins-official --scope user
+  Then restart Claude Code.
+  ```
+  Stop.
+- Print: `🤝 Tech Lead → starting code review on <url>`
+- Dispatch **Tech Lead** sub-agent (reads `agents/tech-lead.md`):
+  - Invoke `superpowers:code-review` skill with the PR/MR URL
+  - Tech Lead reviews across all domains present in the diff: backend, frontend, mobile
+  - For each domain in the diff, Tech Lead dispatches the relevant sub-agent (Backend / Frontend / Mobile) to review their layer in parallel
+  - Sub-agents each produce domain-scoped review findings: bugs, security issues, perf concerns, design violations, missing tests
+  - Tech Lead synthesizes all findings into a single review
+  - For each finding, post an **inline comment** on the exact file+line in the PR/MR via the GitHub or GitLab API:
+    - GitHub PR: `gh api repos/{owner}/{repo}/pulls/{pr}/comments` with `path`, `line`, `body`
+    - GitLab MR: `glab api projects/{id}/merge_requests/{iid}/discussions` with `position.new_path`, `position.new_line`, `body`
+  - Post a top-level summary comment on the PR/MR with: overall verdict (APPROVE / REQUEST_CHANGES), domain breakdown, critical vs non-critical count
+- Print: `✅ Tech Lead → review posted — <N> inline comments on <url>`
 - Stop.
 
 ---
