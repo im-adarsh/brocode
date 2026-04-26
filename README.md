@@ -22,9 +22,11 @@ claude plugin install brocode@brocode-local --scope user
 claude plugin install superpowers@claude-plugins-official --scope user
 ```
 
-Restart Claude Code after install.
+Restart Claude Code after install. Then `/brocode` is available directly — no prefix needed.
 
 > **Updating:** `cd ~/brocode && git pull` — no reinstall needed.
+>
+> **Migrating from old `sdlc` install:** `claude plugin uninstall sdlc@brocode-local` then reinstall as above.
 
 ---
 
