@@ -509,6 +509,54 @@
 
 <hr class="divider" />
 
+<!-- ORG CHART — shown before flows so structure is always visible -->
+<section id="org">
+  <div class="container">
+    <h2>The org</h2>
+    <p class="section-lead">TPM orchestrates two tracks. Bar Raisers gate each track. Tech Lead owns Backend, Frontend, Mobile, and SRE. Same hierarchy across every mode.</p>
+    <div class="org-diagram">
+      <div class="mermaid">
+flowchart TD
+    TPM["📋 TPM\nProgram Orchestrator"]:::tpm
+
+    subgraph PROD["Product Track"]
+      PM["🎯 PM\nSenior PM"]:::prod
+      DS["🎨 Designer\nAPI + UX"]:::prod
+      PBR["🔬 Product Bar Raiser\nPrincipal PM — GATE"]:::gate
+    end
+
+    subgraph ENG["Engineering Track"]
+      TL["🤝 Tech Lead"]:::eng
+      BE["⚙️ Backend\nsub-agent"]:::subagent
+      FE["🖥️ Frontend\nsub-agent"]:::subagent
+      MOB["📱 Mobile\nsub-agent"]:::subagent
+      SRE2["🚨 SRE\nTech Lead's team"]:::eng
+      STAFF["🏗️ Staff SWE\npeer to Tech Lead"]:::eng
+      QA["🧪 QA"]:::eng
+      EBR["⚖️ Engineering BR\nPrincipal Eng — GATE"]:::gate
+    end
+
+    TPM --> PROD & ENG
+    PM --> PBR
+    DS --> PBR
+    TL --> BE & FE & MOB & SRE2
+    TL --> EBR
+    STAFF --> EBR
+    QA --> EBR
+    SRE2 --> EBR
+
+    classDef tpm fill:#0d3321,stroke:#3fb950,color:#3fb950
+    classDef prod fill:#0d2149,stroke:#388bfd,color:#79c0ff
+    classDef gate fill:#3d2b00,stroke:#d29922,color:#d29922
+    classDef eng fill:#21262d,stroke:#484f58,color:#e6edf3
+    classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
 <!-- HOW IT WORKS -->
 <section id="how-it-works">
   <div class="container">
@@ -859,54 +907,6 @@ flowchart TD
       </div>
 
     </div><!-- /.flow-panels-wrap -->
-  </div>
-</section>
-
-<hr class="divider" />
-
-<!-- ORG CHART -->
-<section id="org">
-  <div class="container">
-    <h2>The org structure</h2>
-    <p class="section-lead">brocode simulates a real engineering org. TPM orchestrates two tracks. Bar Raisers gate each track. Agents report and challenge within their hierarchy.</p>
-    <div class="org-diagram">
-      <div class="mermaid">
-flowchart TD
-    TPM["📋 TPM\nProgram Orchestrator"]:::tpm
-
-    subgraph PROD["Product Track"]
-      PM["🎯 PM\nSenior PM"]:::prod
-      DS["🎨 Designer\nAPI + UX"]:::prod
-      PBR["🔬 Product Bar Raiser\nPrincipal PM — GATE"]:::gate
-    end
-
-    subgraph ENG["Engineering Track"]
-      TL["🤝 Tech Lead"]:::eng
-      BE["⚙️ Backend\nsub-agent"]:::subagent
-      FE["🖥️ Frontend\nsub-agent"]:::subagent
-      MOB["📱 Mobile\nsub-agent"]:::subagent
-      SRE2["🚨 SRE\nTech Lead's team"]:::eng
-      STAFF["🏗️ Staff SWE\npeer to Tech Lead"]:::eng
-      QA["🧪 QA"]:::eng
-      EBR["⚖️ Engineering BR\nPrincipal Eng — GATE"]:::gate
-    end
-
-    TPM --> PROD & ENG
-    PM --> PBR
-    DS --> PBR
-    TL --> BE & FE & MOB & SRE2
-    TL --> EBR
-    STAFF --> EBR
-    QA --> EBR
-    SRE2 --> EBR
-
-    classDef tpm fill:#0d3321,stroke:#3fb950,color:#3fb950
-    classDef prod fill:#0d2149,stroke:#388bfd,color:#79c0ff
-    classDef gate fill:#3d2b00,stroke:#d29922,color:#d29922
-    classDef eng fill:#21262d,stroke:#484f58,color:#e6edf3
-    classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
-      </div>
-    </div>
   </div>
 </section>
 
