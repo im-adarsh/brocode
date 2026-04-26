@@ -574,27 +574,29 @@
           <div class="mermaid">
 flowchart TD
     A(["/brocode &lt;bug&gt;"]):::entry
+    TPM["📋 TPM\norchestrator"]:::tpm
     TL["🤝 Tech Lead"]:::node
-    subgraph SUBS["⚡ Sub-agents — parallel, scope-based"]
+
+    subgraph TL_TEAM["Tech Lead's team — parallel, scope-based"]
       BE["⚙️ Backend"]:::subagent
       FE["🖥️ Frontend"]:::subagent
       MOB["📱 Mobile"]:::subagent
+      SRE["🚨 SRE\nblast radius"]:::subagent
     end
-    SRE["🚨 SRE\nblast radius"]:::node
+
     STAFF["🏗️ Staff SWE\nroot cause validation"]:::node
     EBR["⚖️ Engineering BR\nmax 3 rounds"]:::gate
     OUT(["08-final-spec.md\n09-tasks.md"]):::output
 
-    A --> TL
-    TL --> SUBS
-    SUBS -->|"swe-debate.md"| TL
-    A --> SRE
+    A --> TPM --> TL
+    TL --> TL_TEAM
+    TL_TEAM -->|"swe-debate.md"| TL
     TL --> STAFF
-    SRE --> EBR
-    STAFF --> EBR
+    TL & STAFF --> EBR
     EBR -->|"challenged → producer revises"| EBR
     EBR -->|"approved"| OUT
 
+    classDef tpm fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
     classDef entry fill:#1f6feb,stroke:#388bfd,color:#e6edf3
     classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
     classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
@@ -654,39 +656,42 @@ flowchart TD
           <div class="mermaid">
 flowchart TD
     A(["/brocode &lt;feature&gt;"]):::entry
+    TPM["📋 TPM\norchestrator"]:::tpm
 
-    subgraph PROD["🎯 Product Track"]
+    subgraph PROD["Product Track"]
       PM["🎯 PM"]:::node
       DS["🎨 Designer"]:::node
-      PM -->|"converse ↔"| DS
-      DS -->|"converse ↔"| PM
+      PM <-->|"converse"| DS
     end
 
     PBR["🔬 Product BR\nmax 3 rounds — GATE"]:::gate
+    TL["🤝 Tech Lead"]:::node
 
-    subgraph ENG["⚡ Engineering sub-agents — parallel"]
+    subgraph TL_TEAM["Tech Lead's team — parallel"]
       BE["⚙️ Backend"]:::subagent
       FE["🖥️ Frontend"]:::subagent
       MB["📱 Mobile"]:::subagent
+      SRE["🚨 SRE"]:::subagent
     end
 
-    TL["🤝 Tech Lead"]:::node
     STAFF["🏗️ Staff SWE"]:::node
-    SRE["🚨 SRE"]:::node
     QA["🧪 QA"]:::node
     EBR["⚖️ Engineering BR\nmax 3 rounds each"]:::gate
     OUT(["08-final-spec.md\n09-tasks.md"]):::output
 
-    A --> PM & DS
+    A --> TPM
+    TPM --> PM & DS
     PM & DS --> PBR
-    PBR -->|"gate open"| ENG
-    ENG -->|"swe-debate.md"| TL
+    PBR -->|"gate open"| TL
+    TL --> TL_TEAM
+    TL_TEAM -->|"swe-debate.md"| TL
     TL <-->|"converge"| STAFF
-    STAFF --> SRE & QA
-    TL & STAFF & SRE & QA --> EBR
+    STAFF --> QA
+    TL & STAFF & QA --> EBR
     EBR -->|"challenged → revise"| EBR
     EBR -->|"all approved"| OUT
 
+    classDef tpm fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
     classDef entry fill:#1f6feb,stroke:#388bfd,color:#e6edf3
     classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
     classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
@@ -746,11 +751,13 @@ flowchart TD
           <div class="mermaid">
 flowchart TD
     A(["/brocode develop"]):::entry
+    TPM["📋 TPM\norchestrator"]:::tpm
     CHECK{"superpowers\ninstalled?"}
     SPEC["Read 08-final-spec.md\n+ 09-tasks.md"]:::node
+    TL["🤝 Tech Lead\nper domain"]:::node
 
-    subgraph PER_DOMAIN["Per domain — backend / web / mobile (parallel)"]
-      WT["superpowers:using-git-worktrees\nisolated branch"]:::node
+    subgraph PER_DOMAIN["Per domain — parallel (backend / web / mobile)"]
+      WT["superpowers:using-git-worktrees\nisolated worktree"]:::node
       PLAN["superpowers:writing-plans\ntasks → TDD plan"]:::node
       subgraph LOOP["Per task"]
         IMPL["superpowers:subagent-driven-development\nTDD · commit"]:::subagent
@@ -758,19 +765,20 @@ flowchart TD
         QR["Code quality\nreview"]:::node
       end
       FINISH["superpowers:finishing-a-development-branch\ntests → push → PR"]:::output
-      CLEAN["git worktree remove\ncleanup"]:::node
+      CLEAN["git worktree remove --force\ncleanup"]:::node
     end
 
-    A --> CHECK
+    A --> TPM --> CHECK
     CHECK -->|"yes"| SPEC
     CHECK -->|"no — install first"| A
-    SPEC --> WT --> PLAN --> IMPL
+    SPEC --> TL --> WT --> PLAN --> IMPL
     IMPL --> SR -->|"pass"| QR
     QR -->|"pass"| FINISH
     FINISH --> CLEAN
     SR -->|"fail"| IMPL
     QR -->|"fail"| IMPL
 
+    classDef tpm fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
     classDef entry fill:#1f6feb,stroke:#388bfd,color:#e6edf3
     classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
     classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
@@ -823,9 +831,10 @@ flowchart TD
           <div class="mermaid">
 flowchart TD
     A(["/brocode review &lt;url&gt;"]):::entry
+    TPM["📋 TPM\norchestrator"]:::tpm
     TL["🤝 Tech Lead\nscopes diff by domain"]:::node
 
-    subgraph PAR["Domain review — parallel"]
+    subgraph TL_TEAM["Tech Lead's team — parallel, scope-based"]
       BE["⚙️ Backend\nAPIs · DB · security · perf"]:::subagent
       FE["🖥️ Frontend\nUI · state · bundle · a11y"]:::subagent
       MOB["📱 Mobile\noffline · perf · native APIs"]:::subagent
@@ -835,11 +844,12 @@ flowchart TD
     INLINE["Inline comments\ngh / glab API · file + line"]:::output
     SUMMARY["Summary comment\nverdict · domain breakdown"]:::output
 
-    A --> TL
-    TL --> BE & FE & MOB
-    BE & FE & MOB --> SYNTH
+    A --> TPM --> TL
+    TL --> TL_TEAM
+    TL_TEAM --> SYNTH
     SYNTH --> INLINE & SUMMARY
 
+    classDef tpm fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
     classDef entry fill:#1f6feb,stroke:#388bfd,color:#e6edf3
     classDef subagent fill:#0d4429,stroke:#3fb950,color:#3fb950
     classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
