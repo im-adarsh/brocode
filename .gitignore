@@ -1,0 +1,26 @@
+# Investigation and spec output — generated at runtime, not committed
+.sdlc/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (if any scripts added later)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Claude plugin cache (installed copies live in ~/.claude/plugins/cache/)
+.claude-plugin/marketplace.json.lock

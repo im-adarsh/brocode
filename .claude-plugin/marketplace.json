@@ -1,0 +1,18 @@
+{
+  "name": "brocode-local",
+  "description": "Local development marketplace for brocode",
+  "owner": {
+    "name": "Adarsh Kumar"
+  },
+  "plugins": [
+    {
+      "name": "sdlc",
+      "description": "Staff-level multi-agent SDLC: systematic bug investigation and full engineering spec with PM, Designer, SWE, Staff SWE, SRE, QA, and two Bar Raisers",
+      "version": "0.1.0",
+      "source": "./",
+      "author": {
+        "name": "Adarsh Kumar"
+      }
+    }
+  ]
+}
