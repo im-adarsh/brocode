@@ -218,6 +218,9 @@
       font-family: var(--font-mono); font-size: .78rem;
       line-height: 1.85; overflow-x: auto; color: var(--muted);
     }
+    .flow-diagram pre {
+      margin: 0; font: inherit; white-space: pre; line-height: inherit;
+    }
     .fd-title { color: var(--accent); font-weight: 700; }
     .fd-node { color: var(--text); }
     .fd-subagent { color: var(--teal); }
@@ -645,29 +648,33 @@
           </div>
         </div>
       </div>
-      <div class="flow-diagram">
-<span class="fd-title">/brocode &lt;bug&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;<span class="fd-parallel">▼ SWE sub-agents spawned in parallel</span><br>
-<span class="fd-subagent">┌──────────────┐  ┌──────────────┐  ┌──────────────┐</span><br>
-<span class="fd-subagent">│   Backend    │  │   Frontend   │  │    Mobile    │</span><br>
-<span class="fd-subagent">│  (if BE bug) │  │  (if FE bug) │  │  (if mobile) │</span><br>
-<span class="fd-subagent">└──────┬───────┘  └──────┬───────┘  └──────┬───────┘</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─────────────────┼──────────────────┘<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-parallel">swe-debate.md</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;┌────────────┴──────────┐<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│ <span class="fd-node">SWE Coordinator</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;<span class="fd-parallel">← SRE parallel</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└────────────┬──────────┘<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;┌───────▼────────┐<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│ <span class="fd-node">Staff SWE</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└───────┬────────┘<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-gate">Engineering BR ⟳</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-output">08-final-spec.md</span>
-      </div>
+      <div class="flow-diagram"><pre>
+<span class="fd-title">/brocode &lt;bug&gt;</span>
+        │
+        │  <span class="fd-parallel">▼ SWE sub-agents — spawned in parallel, scope-based</span>
+        │
+<span class="fd-subagent">┌──────────────┐   ┌──────────────┐   ┌──────────────┐</span>
+<span class="fd-subagent">│   Backend    │   │   Frontend   │   │    Mobile    │</span>
+<span class="fd-subagent">│  (if BE bug) │   │  (if FE bug) │   │ (if mobile)  │</span>
+<span class="fd-subagent">└──────┬───────┘   └──────┬───────┘   └──────┬───────┘</span>
+       │                  │                  │
+       └──────────────────┼──────────────────┘
+                          │  <span class="fd-parallel">← debate in swe-debate.md</span>
+                          │
+              ┌───────────┴────────────┐
+              │    <span class="fd-node">SWE Coordinator</span>    │  <span class="fd-parallel">← SRE runs in parallel</span>
+              └───────────┬────────────┘
+                          │
+              ┌───────────┴────────────┐
+              │       <span class="fd-node">Staff SWE</span>       │
+              └───────────┬────────────┘
+                          │
+              ┌───────────┴────────────┐
+              │   <span class="fd-gate">Engineering BR  ⟳</span>   │  <span class="fd-parallel">← max 2 rounds</span>
+              └───────────┬────────────┘
+                          │
+                 <span class="fd-output">08-final-spec.md</span>
+</pre></div>
     </div>
 
     <div class="flow-panel" id="panel-spec">
@@ -722,34 +729,50 @@
           </div>
         </div>
       </div>
-      <div class="flow-diagram">
-<span class="fd-title">/brocode &lt;feature&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-parallel">─── PRODUCT TRACK ──────</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-<span class="fd-node">┌──────────┐&nbsp;&nbsp;┌───────────┐</span><br>
-<span class="fd-node">│    PM    │↔️│  Designer │</span><br>
-<span class="fd-node">└──────────┘&nbsp;&nbsp;└───────────┘</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;<span class="fd-gate">Product BR ⟳ GATE</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-parallel">─── ENGINEERING TRACK ──</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-<span class="fd-parallel">▼ SWE sub-agents — parallel</span><br>
-<span class="fd-subagent">┌─────────┐ ┌──────────┐ ┌────────┐</span><br>
-<span class="fd-subagent">│ Backend │ │ Frontend │ │ Mobile │</span><br>
-<span class="fd-subagent">└────┬────┘ └────┬─────┘ └───┬────┘</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──────────┼──────────────┘<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-node">SWE Coordinator</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-node">Staff SWE</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-parallel">SRE ↔ QA (parallel)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-gate">Engineering BR ⟳</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fd-output">08-final-spec.md</span>
-      </div>
+      <div class="flow-diagram"><pre>
+<span class="fd-title">/brocode &lt;feature&gt;</span>
+        │
+        │  <span class="fd-parallel">── PRODUCT TRACK ─────────────────────────────────</span>
+        │
+  ┌─────┴──────┐         ┌──────────────┐
+  │    <span class="fd-node">PM</span>      │ <span class="fd-parallel">↔ converse</span> │   <span class="fd-node">Designer</span>    │
+  └─────┬──────┘         └──────┬───────┘
+        └───────────┬───────────┘
+                    │
+        ┌───────────┴────────────┐
+        │   <span class="fd-gate">Product BR  ⟳  GATE</span>  │  <span class="fd-parallel">← max 2 rounds · blocks eng</span>
+        └───────────┬────────────┘
+                    │
+        │  <span class="fd-parallel">── ENGINEERING TRACK ──────────────────────────────</span>
+        │
+        │  <span class="fd-parallel">▼ SWE sub-agents — spawned in parallel, scope-based</span>
+        │
+<span class="fd-subagent">┌──────────────┐   ┌──────────────┐   ┌──────────────┐</span>
+<span class="fd-subagent">│   Backend    │   │   Frontend   │   │    Mobile    │</span>
+<span class="fd-subagent">└──────┬───────┘   └──────┬───────┘   └──────┬───────┘</span>
+       │                  │                  │
+       └──────────────────┼──────────────────┘
+                          │  <span class="fd-parallel">← debate in swe-debate.md</span>
+                          │
+              ┌───────────┴────────────┐
+              │    <span class="fd-node">SWE Coordinator</span>    │
+              └───────────┬────────────┘
+                          │
+              ┌───────────┴────────────┐
+              │       <span class="fd-node">Staff SWE</span>       │
+              └─────┬─────────────┬────┘
+                    │             │
+             ┌──────┴──┐     ┌────┴─────┐
+             │   <span class="fd-node">SRE</span>   │     │    <span class="fd-node">QA</span>    │  <span class="fd-parallel">← parallel</span>
+             └──────┬──┘     └────┬─────┘
+                    └──────┬──────┘
+                           │
+              ┌────────────┴───────────┐
+              │   <span class="fd-gate">Engineering BR  ⟳</span>   │  <span class="fd-parallel">← max 2 rounds</span>
+              └────────────┬───────────┘
+                           │
+                  <span class="fd-output">08-final-spec.md</span>
+</pre></div>
     </div>
   </div>
 </section>
