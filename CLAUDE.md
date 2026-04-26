@@ -29,13 +29,15 @@ Single entry point: `/brocode`
 
 | File | Purpose |
 |------|---------|
-| `skills/using-sdlc/SKILL.md` | Orientation — loaded at session start |
-| `skills/investigate/SKILL.md` | Oncall-style bug investigation flow |
-| `skills/spec/SKILL.md` | Full SDLC spec flow |
-| `skills/input-ingestion/SKILL.md` | External input handling (docs, images, URLs) |
-| `skills/bar-raiser-loop/SKILL.md` | Adversarial challenge/response loop |
-| `skills/setup-repos/SKILL.md` | Register local repo paths for engineer agents |
-| `skills/develop/SKILL.md` | End-to-end implementation using superpowers subagent-driven-development |
+| `skills/setup-repos/SKILL.md` | Register local repo paths for engineer agents (user-level, persisted) |
+
+All orchestration logic lives in `commands/brocode.toml`. Agent roles use superpowers skills directly:
+- Debugging: `superpowers:systematic-debugging`
+- Planning: `superpowers:writing-plans`
+- Implementation: `superpowers:subagent-driven-development`
+- Branch completion: `superpowers:finishing-a-development-branch`
+- Worktrees: `superpowers:using-git-worktrees`
+- TPM orientation: `superpowers:using-superpowers`
 
 ## Commands
 
