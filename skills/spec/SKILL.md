@@ -50,20 +50,22 @@ PM and Designer may converse freely. Both artifacts must be stable before Produc
 
 ## Phase 2 — Engineering Track (starts after Product BR approval)
 
-### Step 2a: SWE (reads `agents/swe.md`) — parallel with Step 2b start
+### Step 2a: Tech Lead (reads `agents/tech-lead.md`) — parallel with Step 2b start
 - Reads `01-requirements.md` + `02-design.md`
+- Dispatches Backend / Frontend / Mobile sub-agents based on scope (parallel)
+- Runs cross-domain debate in `threads/swe-debate.md`
 - Asks PM/Designer questions via `threads/eng-product-conversation.md` if needed
 - Converses with Staff SWE via `threads/eng-conversation.md`
 - Proposes 3 implementation options with real code sketches
 - Produces `03-implementation-options.md`
 
-### Step 2b: Staff SWE (reads `agents/staff-eng.md`) — converges with SWE
+### Step 2b: Staff SWE (reads `agents/staff-eng.md`) — converges with Tech Lead
 - Reads `02-design.md` + `03-implementation-options.md`
-- Converses with SWE via `threads/eng-conversation.md`
+- Converses with Tech Lead via `threads/eng-conversation.md`
 - Reviews options for architectural soundness
 - Joint recommendation produced in `04-architecture.md`
 
-SWE and Staff SWE must converge on a single recommendation before Phase 2c.
+Tech Lead and Staff SWE must converge on a single recommendation before Phase 2c.
 
 ### Step 2c: SRE + QA (reads `agents/sre.md` + `agents/qa.md`) — parallel
 - Both read approved product artifacts + `03-implementation-options.md` + `04-architecture.md`
@@ -88,7 +90,7 @@ SWE and Staff SWE must converge on a single recommendation before Phase 2c.
   00-input-raw.md           ← if external input ingested
   01-requirements.md        ← PM
   02-design.md              ← Designer
-  03-implementation-options.md  ← SWE
+  03-implementation-options.md  ← Tech Lead
   04-architecture.md        ← Staff SWE
   05-ops.md                 ← SRE
   06-test-cases.md          ← QA
@@ -130,7 +132,7 @@ SWE and Staff SWE must converge on a single recommendation before Phase 2c.
 ## Iron Laws
 
 1. Product BR must approve before engineering starts
-2. SWE + Staff SWE must converge before SRE/QA start
+2. Tech Lead + Staff SWE must converge before SRE/QA start
 3. Engineering BR must approve all 4 artifacts before final spec
 4. Max 2 BR challenge rounds per artifact — then escalate to user
 5. No agent edits another agent's artifact

@@ -110,34 +110,19 @@ Always include:
 - Browser compatibility constraints
 - Accessibility considerations
 
-## Deep Debug Protocol
+## Debugging Protocol
 
-When standard investigation stalls, invoke the `deep-debug` skill to spawn a hypothesis-driven sub-sub-agent.
+When investigation stalls or before proposing any fix, invoke `superpowers:systematic-debugging`.
 
-**Trigger conditions — invoke deep debug if ANY are true:**
-- Two hypotheses eliminated without confirming root cause
-- Bug is intermittent (works sometimes, fails others)
+**Always invoke when:**
+- Tempted to propose a fix before knowing root cause
+- Two hypotheses already eliminated
+- Bug intermittent or browser/session-specific
 - Failure spans UI → state → API → render (3+ layers)
-- Symptoms differ across browsers, screen sizes, or user sessions
-- You feel the urge to propose a fix before knowing WHY
 
-**How to invoke:**
+**How to invoke:** Invoke skill `superpowers:systematic-debugging`. Pass exact console errors, DevTools network traces, state snapshots, and what's already been ruled out.
 
-Invoke skill `sdlc-deep-debug`. Pass:
-- Bug summary from `00-brief.md`
-- All symptoms with evidence (DevTools screenshots, network traces, console errors, state snapshots)
-- Hypotheses already eliminated and why
-- Web repo path from `.brocode-repos.json`
-
-**What happens:**
-Sub-sub-agent runs 4-phase protocol: evidence gathering → pattern analysis → falsifiable hypothesis testing → root cause confirmation. Returns confirmed root cause with evidence and causal chain.
-
-**Iron Law:** Do not propose any fix until sub-sub-agent returns confirmed root cause. Write "Deep debug in progress — root cause TBD" in `swe-debate.md` while it runs.
-
-**After sub-sub-agent returns:**
-- Post root cause finding to `swe-debate.md`
-- Proceed to fix proposal only if confidence is HIGH
-- If confidence is MEDIUM, flag uncertainty in debate thread before proceeding
+**Iron Law:** No fix without completed Phase 1 (root cause confirmed). Write "Debugging in progress — root cause TBD" in `swe-debate.md` while running. Post confirmed root cause to thread before writing fix proposal.
 
 ## Bar Raiser Response Protocol
 

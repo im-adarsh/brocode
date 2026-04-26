@@ -79,7 +79,7 @@ Triggered by: bug reports, errors, crashes, test failures, production incidents.
               └───────────────┼─────────────────┘
                               │ swe-debate.md
                               ▼
-                     SWE Coordinator + SRE
+                       Tech Lead + SRE
                     (parallel, independent)
                               │
                               ▼
@@ -143,7 +143,7 @@ Triggered by: feature requests, design tasks, PRDs, doc/image input.
                ──── ENGINEERING TRACK ──────────────────────
                              │
               ┌──────────────┴──────────────────────────────┐
-              │       SWE sub-agents — spawned in parallel   │
+              │    Tech Lead dispatches sub-agents in parallel  │
               │       based on scope of the feature          │
               │                                              │
          ┌────▼─────┐       ┌──────────▼──┐  ┌────────────▼──┐
@@ -155,7 +155,7 @@ Triggered by: feature requests, design tasks, PRDs, doc/image input.
                                  │  swe-debate.md   │
                                  └──────────┬───────┘
                                             │
-                                   SWE Coordinator
+                                       Tech Lead
                               - Synthesizes 3 impl options
                                             │
                               ┌─────────────▼────────────┐
@@ -188,9 +188,9 @@ Triggered by: feature requests, design tasks, PRDs, doc/image input.
 
 ---
 
-## SWE sub-agents — parallel by design
+## Engineering sub-agents — parallel by design
 
-Backend, Frontend, and Mobile engineers are sub-agents. The SWE Coordinator spawns only the ones relevant to the task, runs them in parallel, and collects their debate before synthesizing.
+Backend, Frontend, and Mobile engineers are sub-agents. The Tech Lead dispatches only the ones relevant to the task, runs them in parallel, and collects their debate before synthesizing.
 
 ```
 Feature touches web + backend only:
@@ -223,7 +223,7 @@ TPM prints a live status line at every agent transition:
 ⚠️  Product BR    →  found gap: ops interface missing — routing back to PM
 ✅  Product BR    →  requirements APPROVED — product gate OPEN
 ⚙️  Backend  ↔️  🖥️  Frontend   →  Backend challenged: "3 round-trips for one screen"
-⚠️  Eng BR       →  challenged SWE: "option 3 has N+1 query — explain mitigation"
+⚠️  Eng BR       →  challenged Tech Lead: "option 3 has N+1 query — explain mitigation"
 ✅  Eng BR       →  all artifacts APPROVED
 📋  TPM          →  writing final spec
 ```
@@ -240,7 +240,7 @@ Prefixes: `⚠️` BR challenge · `✅` approved · `🚫` blocked waiting on y
 | **PM** | Senior Product Manager | `01-requirements.md` — personas, journeys, ACs, competitor refs |
 | **Designer** | Senior Designer (API + UX) | `02-design.md` — API contracts, all flows, ops/support interfaces |
 | **Product Bar Raiser** | Principal PM / Head of Product | Challenges PM + Designer. Web searches competitors. Gates engineering. |
-| **SWE Coordinator** | Orchestrates sub-agent debate, synthesizes final output | `03-investigation.md` or `03-implementation-options.md` |
+| **Tech Lead** | Owns engineering team, orchestrates sub-agent debate, synthesizes final output | `03-investigation.md` or `03-implementation-options.md` |
 | → **Backend Engineer** *(sub-agent)* | APIs, DB, services, queues — reads real backend code | Debate in `swe-debate.md` |
 | → **Frontend Engineer** *(sub-agent)* | Web UI, state, browser, SSR/CSR — reads real frontend code | Debate in `swe-debate.md` |
 | → **Mobile Engineer** *(sub-agent)* | iOS, Android, RN, Flutter, offline — reads real mobile code | Debate in `swe-debate.md` |
@@ -393,7 +393,7 @@ brocode/
     pm.md
     designer.md
     product-bar-raiser.md
-    swe.md                   # SWE Coordinator
+    tech-lead.md             # Tech Lead (engineering team owner)
     swe-backend.md           # Backend sub-agent
     swe-frontend.md          # Frontend sub-agent
     swe-mobile.md            # Mobile sub-agent

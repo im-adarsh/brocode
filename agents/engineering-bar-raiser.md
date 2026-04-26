@@ -95,16 +95,14 @@ All challenges resolved. Respond with revised artifact + `## Changes from BR Cha
 [Non-blocking observations]
 ```
 
-## Final Gate — `08-final-spec.md` approval
+## Final Gate — `08-final-spec.md` + `09-tasks.md`
 
-When ALL four engineering artifacts are approved, write the final spec. It is a synthesis — not a copy-paste. It must:
-- State the approved implementation approach (from SWE + Staff SWE)
-- State architectural non-negotiables (from Staff SWE)
-- State the ops plan summary with rollback (from SRE)
-- State the test coverage summary (from QA)
-- Be readable by a new engineer joining the team who needs to implement this
+When ALL four engineering artifacts are approved, write both output files.
 
-Format:
+### `08-final-spec.md` — Engineering Spec
+
+Synthesis readable by a new engineer implementing this. Not a copy-paste.
+
 ```markdown
 # Final Engineering Spec
 **Investigation ID:** [id]
@@ -134,6 +132,80 @@ Format:
 - Ops: `.sdlc/[id]/05-ops.md`
 - Test Cases: `.sdlc/[id]/06-test-cases.md`
 ```
+
+### `09-tasks.md` — Implementation Task List
+
+Detailed task list for the `sdlc-develop` skill. Consumed by developer sub-agents.
+
+**Every task must include:**
+- Which domain owns it: `backend` / `web` / `mobile`
+- Exact file paths to create or modify (with line numbers for modifications)
+- Exact function/method/endpoint signatures
+- Acceptance criteria from `01-requirements.md` it satisfies
+- Dependencies: which other tasks must complete first
+
+**Format:**
+```markdown
+# Implementation Tasks
+**Spec ID:** [id]
+**Status:** 0 / N complete
+
+---
+
+## Backend Tasks
+
+### TASK-BE-01: [Short title]
+**Domain:** backend
+**Status:** [ ]
+**Depends on:** none
+**Satisfies AC:** AC-3, AC-5
+
+**Files:**
+- Create: `src/api/auth/token.ts`
+- Modify: `src/api/routes.ts:45-52`
+- Test: `tests/api/auth/token.test.ts`
+
+**Implementation:**
+- Endpoint: `POST /api/auth/token`
+- Handler signature: `async function handleTokenRequest(req: Request): Promise<TokenResponse>`
+- Validates: `{ code: string, redirect_uri: string }` — returns 400 if missing
+- Calls: `AuthService.exchangeCode(code, redirect_uri)`
+- Returns: `{ access_token, refresh_token, expires_in }`
+- Error cases: 400 bad request, 401 invalid code, 500 internal
+
+**Test cases from QA:**
+- Happy path: valid code → tokens returned
+- Invalid code → 401
+- Missing redirect_uri → 400
+- Service timeout → 500 with retry-after header
+
+---
+
+### TASK-BE-02: [Short title]
+...
+
+---
+
+## Web Tasks
+
+### TASK-WEB-01: [Short title]
+...
+
+---
+
+## Mobile Tasks
+
+### TASK-MOB-01: [Short title]
+...
+```
+
+**Quality bar for `09-tasks.md`:**
+- Zero vague tasks ("implement the auth flow" is not a task)
+- Every task maps to at least one AC from requirements
+- Every task has exact file paths — not "somewhere in the auth module"
+- Every task has concrete function signatures — not "add a handler"
+- Test cases reference specific ACs and error paths from `06-test-cases.md`
+- Dependencies are explicit — no implicit ordering
 
 ## Escalation Format
 

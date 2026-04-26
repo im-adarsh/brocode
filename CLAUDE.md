@@ -16,7 +16,7 @@ Single entry point: `/brocode`
 | `agents/pm.md` | Product Manager | Product |
 | `agents/designer.md` | Designer (API + UX) | Product |
 | `agents/product-bar-raiser.md` | Principal PM / Head of Product | Product gate |
-| `agents/swe.md` | SWE Team Coordinator (orchestrates sub-team debate) | Engineering |
+| `agents/tech-lead.md` | Tech Lead — owns engineering team (Backend, Frontend, Mobile, SRE) | Engineering |
 | `agents/swe-backend.md` | Backend Engineer — APIs, DB, services, queues | Engineering |
 | `agents/swe-frontend.md` | Frontend/Fullstack Engineer — web UI, state, browser | Engineering |
 | `agents/swe-mobile.md` | Mobile Engineer — iOS, Android, React Native, Flutter | Engineering |
@@ -35,7 +35,7 @@ Single entry point: `/brocode`
 | `skills/input-ingestion/SKILL.md` | External input handling (docs, images, URLs) |
 | `skills/bar-raiser-loop/SKILL.md` | Adversarial challenge/response loop |
 | `skills/setup-repos/SKILL.md` | Register local repo paths for engineer agents |
-| `skills/deep-debug/SKILL.md` | Hypothesis-driven sub-sub-agent debug protocol for SWE agents |
+| `skills/develop/SKILL.md` | End-to-end implementation using superpowers subagent-driven-development |
 
 ## Commands
 
@@ -82,25 +82,36 @@ Prefixes: `🟢` working · `↔️` agent conversation · `⚠️` BR challenge
 
 ### Investigate mode
 ```
-Backend + Frontend + Mobile (scoped subset, parallel) — read real codebase
+Tech Lead dispatches → Backend + Frontend + Mobile (scoped subset, parallel)
     ↕ debate in swe-debate.md thread
-SWE Coordinator synthesizes + SRE (parallel)
-    → Staff SWE
+Tech Lead synthesizes + SRE (parallel)
+    → Staff SWE (validates root cause)
     → Engineering BR (adversarial loop, max 2 rounds)
-    → 08-final-spec.md
+    → 08-final-spec.md + 09-tasks.md
 ```
 
 ### Spec mode
 ```
-PM → Designer (with conversation)
+PM ↔ Designer (conversation, both report to Product BR)
     → Product BR (adversarial loop, web search on competitors)
     → [GATE] engineering starts only after product approved
-Backend + Frontend + Mobile (scoped subset) — read real codebase
+Tech Lead dispatches → Backend + Frontend + Mobile (scoped subset, parallel)
     ↕ debate in swe-debate.md thread
-SWE Coordinator synthesizes → Staff SWE (converge)
-    → SRE + QA (parallel, can ask SWE questions)
+Tech Lead synthesizes → Staff SWE (converge on recommendation)
+    → SRE (Tech Lead's team) + QA (parallel)
     → Engineering BR (adversarial loop, cross-artifact consistency)
-    → 08-final-spec.md
+    → 08-final-spec.md + 09-tasks.md
+```
+
+### Develop mode (`/brocode develop`)
+```
+Requires: superpowers plugin installed
+Reads: 08-final-spec.md + 09-tasks.md
+    → superpowers:using-git-worktrees (one worktree per domain)
+    → superpowers:writing-plans (convert 09-tasks.md to superpowers plan per domain)
+    → superpowers:subagent-driven-development (implementer + spec review + quality review per task)
+        ↕ superpowers:systematic-debugging when blocked
+    → superpowers:finishing-a-development-branch (tests → PR per domain)
 ```
 
 ---

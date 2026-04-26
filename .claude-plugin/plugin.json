@@ -1,7 +1,7 @@
 {
   "name": "sdlc",
-  "description": "Staff-level SDLC simulation: systematic bug investigation and full engineering spec with autonomous role-based agents (PM, Designer, SWE, Staff Eng, SRE, QA, Bar Raiser)",
-  "version": "0.1.0",
+  "description": "Staff-level SDLC simulation: systematic bug investigation and full engineering spec with autonomous role-based agents (PM, Designer, SWE, Staff Eng, SRE, QA, Bar Raiser). Includes end-to-end implementation via superpowers subagent-driven-development.",
+  "version": "0.2.0",
   "author": {
     "name": "Adarsh Kumar"
   },
@@ -13,6 +13,16 @@
     "spec",
     "sdlc",
     "agents",
-    "oncall"
+    "oncall",
+    "implementation",
+    "subagent"
+  ],
+  "recommendations": [
+    {
+      "plugin": "superpowers",
+      "marketplace": "claude-plugins-official",
+      "reason": "Required for /brocode develop — subagent-driven implementation, systematic debugging, plan execution, and PR creation",
+      "installHint": "claude plugin install superpowers@claude-plugins-official --scope user"
+    }
   ]
 }

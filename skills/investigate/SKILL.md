@@ -43,7 +43,7 @@ Oncall-style bug investigation. Systematic. Token-efficient. Finds root cause be
 
 Dispatch SWE and SRE simultaneously — they are independent:
 
-**SWE agent** — reads `agents/swe.md`:
+**Tech Lead agent** — reads `agents/tech-lead.md`:
 - Reproduce the bug
 - Trace data flow to root cause
 - Converse with Staff SWE via `threads/eng-conversation.md`
@@ -74,7 +74,7 @@ Once SWE has root cause confirmed:
 - Challenges root cause claim — is it proven or assumed?
 - Challenges fix — does it address root cause or symptom?
 - Writes challenge to `07-eng-br-reviews/`
-- SWE/Staff SWE must respond and revise
+- Tech Lead/Staff SWE must respond and revise
 - Max 2 rounds, then escalate to user
 
 ## Completion
@@ -93,11 +93,11 @@ When Engineering BR approves all artifacts:
 .sdlc/<id>/
   00-tpm-log.md             ← TPM master log (live throughout)
   00-brief.md
-  03-investigation.md       ← SWE
+  03-investigation.md       ← Tech Lead
   04-architecture.md        ← Staff SWE
   05-ops.md                 ← SRE
   threads/
-    eng-conversation.md     ← SWE ↔ Staff SWE ↔ SRE exchanges
+    eng-conversation.md     ← Tech Lead ↔ Staff SWE ↔ SRE exchanges
   07-eng-br-reviews/
     01-swe-challenge-round1.md
     01-swe-approved.md

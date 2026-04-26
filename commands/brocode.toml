@@ -11,6 +11,12 @@ If the input is `repos` or `setup` or contains "register repo" / "set repo" / "a
 - Do not proceed to routing logic below
 - Stop after repos skill completes
 
+If the input is `develop` or `implement` or contains "implement the spec" / "start development" / "build it" / "code it":
+- Check superpowers is installed: run `claude plugin list` and grep for `superpowers`
+- If NOT installed: tell user "superpowers plugin required. Install with: `claude plugin install superpowers@claude-plugins-official --scope user` then restart Claude Code."
+- If installed: scan `.sdlc/` for specs with `08-final-spec.md` present. If multiple, list them and ask which to implement. Then invoke `sdlc-develop` skill.
+- Do not proceed to routing logic below
+
 ## Step 1: Route
 
 Analyze the input and decide the mode:
