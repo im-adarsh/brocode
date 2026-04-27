@@ -1222,14 +1222,11 @@ graph TD
     ROOT --> OPS["ops.md\nSRE, versioned"]:::file
     ROOT --> QA["test-cases.md\nQA, versioned"]:::file
     ROOT --> THR["threads/"]:::dir
-    THR --> PCT["product-conversation.md\nPM ↔ Designer"]:::thread
-    THR --> SWED["swe-debate.md\nBackend ↔ Frontend ↔ Mobile"]:::thread
-    THR --> ENGC["eng-conversation.md\nTech Lead ↔ Staff SWE ↔ SRE ↔ QA"]:::thread
-    THR --> ENGP["eng-product-conversation.md\nEng ↔ PM/Designer"]:::thread
+    THR --> PCT["&lt;topic&gt;.md\ncreated on demand per discussion"]:::thread
     ROOT --> PBR["br/product/\nchallenge rounds + gate approval"]:::br
     ROOT --> EBR["br/engineering/\nchallenge rounds + approvals"]:::br
     ROOT --> SPEC["✅ engineering-spec.md\napproved, ready to implement"]:::final
-    ROOT --> TASKS["✅ tasks.md\ndomain-scoped tasks for /brocode develop"]:::final
+    ROOT --> TASKS["✅ tasks.md\ndomain-scoped tasks for /brocode:brocode develop"]:::final
 
     classDef dir fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
     classDef tpm fill:#0d3321,stroke:#3fb950,color:#3fb950
@@ -1286,7 +1283,7 @@ graph TD
 <section id="install">
   <div class="container">
     <h2>Install</h2>
-    <p class="section-lead">Four commands. Copy, paste, run. Restart Claude Code — <code>/brocode</code> is available directly, no prefix needed.</p>
+    <p class="section-lead">Four commands. Copy, paste, run. Restart Claude Code — type <code>/broc</code> and select <code>/brocode:brocode</code> from autocomplete.</p>
     <div class="install-grid">
       <div class="install-step">
         <div class="install-step-header"><div class="num">1</div><h4>Clone brocode</h4></div>
@@ -1313,23 +1310,25 @@ graph TD
           &nbsp;&nbsp;<span class="arg">superpowers@claude-plugins-official</span><br>
           &nbsp;&nbsp;--scope user
         </div>
-        <div class="install-note">superpowers required for /brocode develop and /brocode review · Migrating from old install? <code>claude plugin uninstall sdlc@brocode-local</code> first</div>
+        <div class="install-note">superpowers required for /brocode:brocode develop and /brocode:brocode review · Migrating from old install? <code>claude plugin uninstall sdlc@brocode-local</code> first</div>
       </div>
       <div class="install-step" style="grid-column:1/-1">
         <div class="install-step-header"><div class="num">4</div><h4>Restart Claude Code → start using it</h4></div>
         <div class="install-body">
           <span class="comment"># Register your repo paths (once per machine)</span><br>
-          <span class="cmd">/brocode repos</span><br><br>
+          <span class="cmd">/brocode:brocode repos</span><br><br>
           <span class="comment"># Investigate a bug</span><br>
-          <span class="cmd">/brocode</span> <span class="arg">checkout is throwing 500s after today's deploy</span><br><br>
+          <span class="cmd">/brocode:brocode</span> <span class="arg">checkout is throwing 500s after today's deploy</span><br><br>
           <span class="comment"># Spec a feature</span><br>
-          <span class="cmd">/brocode</span> <span class="arg">add SSO login with Google OAuth</span><br><br>
+          <span class="cmd">/brocode:brocode</span> <span class="arg">add SSO login with Google OAuth</span><br><br>
           <span class="comment"># Implement an approved spec</span><br>
-          <span class="cmd">/brocode develop</span><br><br>
+          <span class="cmd">/brocode:brocode develop</span><br><br>
+          <span class="comment"># Revise a spec from a decision point</span><br>
+          <span class="cmd">/brocode:brocode revise</span><br><br>
           <span class="comment"># Review a PR or MR</span><br>
-          <span class="cmd">/brocode review</span> <span class="arg">https://github.com/org/repo/pull/42</span>
+          <span class="cmd">/brocode:brocode review</span> <span class="arg">https://github.com/org/repo/pull/42</span>
         </div>
-        <div class="install-note">Run <code>/brocode repos</code> once per machine — paths are gitignored</div>
+        <div class="install-note">Type <code>/broc</code> and select from autocomplete — paths stored in <code>~/.brocode/repos.json</code>, shared across all projects</div>
       </div>
     </div>
   </div>

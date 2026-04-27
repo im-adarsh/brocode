@@ -27,10 +27,6 @@ Single entry point: `/brocode`
 
 ## Skills
 
-| File | Purpose |
-|------|---------|
-| `skills/setup-repos/SKILL.md` | Register local repo paths (user-level, persisted to `~/.brocode/repos.json`) |
-
 All orchestration lives in `commands/brocode.md`. Agents use superpowers skills directly:
 
 | When | Skill |

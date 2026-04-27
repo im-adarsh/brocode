@@ -367,10 +367,10 @@ Agents talk to each other. All exchanges logged in thread files.
 
 | Thread | Who talks |
 |--------|-----------|
-| `threads/product-conversation.md` | PM ↔ Designer |
-| `threads/swe-debate.md` | Backend ↔ Frontend ↔ Mobile |
-| `threads/eng-conversation.md` | Tech Lead ↔ Staff SWE ↔ SRE ↔ QA |
-| `threads/eng-product-conversation.md` | Tech Lead / Staff SWE ↔ PM / Designer |
+| `threads/<topic>.md` | Created on demand per discussion topic |
+| `threads/product-conversation.md` | PM ↔ Designer (default) |
+| `threads/swe-debate.md` | Backend ↔ Frontend ↔ Mobile (default) |
+| `threads/eng-conversation.md` | Tech Lead ↔ Staff SWE ↔ SRE ↔ QA (default) |
 
 ---
 
@@ -477,10 +477,8 @@ brocode/
     sre.md
     qa.md
     engineering-bar-raiser.md
-  skills/
-    setup-repos/SKILL.md     # Register local repo paths
   commands/
-    brocode.toml             # /brocode — full orchestration
+    brocode.md               # /brocode:brocode — full orchestration
   docs/
     index.html               # GitHub Pages site
   CLAUDE.md
@@ -494,7 +492,7 @@ brocode/
 ### Add a new agent role
 
 1. Create `agents/<role>.md`
-2. Add to `commands/brocode.toml` at the right phase
+2. Add to `commands/brocode.md` at the right phase
 3. Update `CLAUDE.md` roster table
 
 ### Modify Bar Raiser challenge standards
