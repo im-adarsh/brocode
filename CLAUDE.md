@@ -31,7 +31,7 @@ Single entry point: `/brocode`
 |------|---------|
 | `skills/setup-repos/SKILL.md` | Register local repo paths (user-level, persisted to `.brocode-repos.json`) |
 
-All orchestration lives in `commands/brocode.toml`. Agents use superpowers skills directly:
+All orchestration lives in `commands/brocode.md`. Agents use superpowers skills directly:
 
 | When | Skill |
 |------|-------|
@@ -47,24 +47,27 @@ All orchestration lives in `commands/brocode.toml`. Agents use superpowers skill
 
 | File | Triggers |
 |------|---------|
-| `commands/brocode.toml` | `/brocode <bug or feature>` · `/brocode repos` · `/brocode develop` · `/brocode review <url>` |
+| `commands/brocode.md` | `/brocode:brocode <bug or feature>` · `/brocode:brocode repos` · `/brocode:brocode develop` · `/brocode:brocode review <url>` |
 
 ## Repo Config
 
-Engineer agents read `.brocode-repos.json` from the project root:
+Engineer agents read `.brocode-repos.json` from the project root. Any domain name, multiple paths per domain:
 
 ```json
 {
-  "backend": "/absolute/path/to/backend",
-  "web": "/absolute/path/to/web",
-  "mobile": "/absolute/path/to/mobile",
-  "other": []
+  "backend": ["/path/to/api", "/path/to/auth-service"],
+  "mobile": ["/path/to/ios", "/path/to/android"],
+  "web": ["/path/to/frontend"],
+  "terraform": ["/path/to/infra"],
+  "qa": ["/path/to/tests"],
+  "updated_at": "YYYY-MM-DD"
 }
 ```
 
-- Run `/brocode repos` to create or update
+- Run `/brocode:brocode repos` to create or update
 - Git-ignored (machine-local paths)
-- Missing path → agent asks user, never silent failure
+- Domain → agent mapping: `backend` → Backend Engineer, `mobile` → Mobile Engineer, `web`/`fullstack` → Frontend Engineer, `terraform`/`infra`/`sre` → SRE, `qa` → QA, unknown → Staff SWE
+- Missing path → agent warns user, never silent failure
 
 ---
 
@@ -160,7 +163,7 @@ Tech Lead synthesizes findings
 
 1. Create `agents/<role>.md`
 2. Add to roster table above
-3. Add dispatch step to relevant phase in `commands/brocode.toml`
+3. Add dispatch step to relevant phase in `commands/brocode.md`
 
 ## Modifying BR challenge standards
 

@@ -13,37 +13,48 @@ You are the brocode orchestrator. The user has invoked /brocode with the followi
 If input is `repos` or `setup` or contains "register repo" / "set repo" / "add repo path":
 
 1. Read `.brocode-repos.json` in current working directory if it exists. Show current values.
-2. Ask user:
+2. Ask user to provide repos as a free-form list — any domain name, any number of paths per domain:
    ```
-   Which repos should engineer agents read from?
+   Register repos for engineer agents to read. Any domain name works.
+   Format: <domain>: <path> (one per line). Multiple paths for same domain = multiple lines.
+   Examples:
+     backend: /path/to/api
+     backend: /path/to/auth-service
+     mobile: /path/to/ios-app
+     mobile: /path/to/android-app
+     web: /path/to/frontend
+     terraform: /path/to/infra
+     qa: /path/to/test-suite
+     fullstack: /path/to/monorepo
+     shared: /path/to/design-system
 
-     Backend repo path  : (current: /path or "not set")
-     Web/Frontend path  : (current: /path or "not set")
-     Mobile repo path   : (current: /path or "not set")
-     Other repos        : (optional, comma-separated — current: none)
-
-   Press Enter to keep current value. Type path to update. Type "clear" to remove.
+   Type "done" when finished. Type "clear <domain>" to remove a domain.
+   Current config: (show existing entries or "none")
    ```
-3. For each provided path: run `ls <path>` to confirm it exists. Warn if not found.
-4. Write `.brocode-repos.json` to current working directory:
+3. For each provided path: run `ls <path>` to confirm it exists. Warn if not found, ask to confirm or skip.
+4. Write `.brocode-repos.json` to current working directory — domains are keys, values are arrays of paths:
    ```json
    {
-     "backend": "/absolute/path",
-     "web": "/absolute/path",
-     "mobile": "/absolute/path",
-     "other": [],
+     "backend": ["/path/to/api", "/path/to/auth-service"],
+     "mobile": ["/path/to/ios", "/path/to/android"],
+     "web": ["/path/to/frontend"],
+     "terraform": ["/path/to/infra"],
+     "qa": ["/path/to/tests"],
      "updated_at": "YYYY-MM-DD"
    }
    ```
-5. Print confirmation:
+5. Print confirmation — one line per path:
    ```
    Repos saved to .brocode-repos.json
-     Backend  → /path
-     Web      → /path
-     Mobile   → /path
-   Engineer agents will read these paths during investigations and specs.
-   Run /brocode repos anytime to update.
+     backend   → /path/to/api
+     backend   → /path/to/auth-service
+     mobile    → /path/to/ios
+     mobile    → /path/to/android
+     web       → /path/to/frontend
+     terraform → /path/to/infra
+   Engineer agents will read these paths. Run /brocode:brocode repos anytime to update.
    ```
+6. When agents read `.brocode-repos.json`: match domain name to agent role (backend → Backend Engineer, mobile → Mobile Engineer, web/fullstack → Frontend Engineer, terraform/infra/sre → SRE, qa → QA). Pass all paths for that domain. Unknown domains → pass to Staff SWE.
 - Stop. Do not proceed.
 
 ### `develop` / `implement`

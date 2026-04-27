@@ -55,10 +55,22 @@ No flags. No mode selection. brocode reads context and routes automatically.
 Engineer agents read real code. Tell them where to find it:
 
 ```
-/brocode repos
+/brocode:brocode repos
 ```
 
-Prompts for backend / web / mobile paths. Saves to `.brocode-repos.json` (gitignored). Run once per machine.
+Any domain, any number of repos per domain:
+
+```
+backend: /path/to/api
+backend: /path/to/auth-service
+mobile: /path/to/ios
+mobile: /path/to/android
+web: /path/to/frontend
+terraform: /path/to/infra
+qa: /path/to/test-suite
+```
+
+Saves to `.brocode-repos.json` (gitignored). Run once per machine, update anytime.
 
 ---
 
