@@ -2,7 +2,7 @@
 
 ## What this is
 
-brocode is a multi-agent SDLC plugin. It simulates a full engineering org — PM, Designer, Tech Lead, Staff SWE, SRE, QA, and two Bar Raisers — to investigate bugs, produce engineering specs, and implement approved work.
+brocode is a multi-agent SDLC plugin. It simulates a full engineering org — PM, Designer, Tech Lead, SRE, QA, and two Bar Raisers — to investigate bugs, produce engineering specs, and implement approved work.
 
 Single entry point: `/brocode`
 
@@ -21,8 +21,7 @@ Single entry point: `/brocode`
 | `agents/swe-frontend.md` | Frontend/Fullstack Engineer sub-agent | Engineering |
 | `agents/swe-mobile.md` | Mobile Engineer sub-agent | Engineering |
 | `agents/sre.md` | SRE — ops, blast radius, rollback (Tech Lead's team) | Engineering |
-| `agents/staff-eng.md` | Staff SWE — architecture review, peer to Tech Lead | Engineering |
-| `agents/qa.md` | QA Engineer | Engineering |
+| `agents/qa.md` | QA Engineer (Tech Lead's team) | Engineering |
 | `agents/engineering-bar-raiser.md` | Principal Engineer — gates final spec + tasks | Engineering gate |
 
 ## Skills
@@ -80,7 +79,7 @@ Engineer agents read `~/.brocode/repos.json` (user-level, shared across all proj
 - Run `/brocode:brocode repos` to create or update
 - Stored at `~/.brocode/repos.json` — shared across all projects on this machine
 - Agents read `description`, `labels`, and `tags` to orient before exploring code
-- Domain → agent mapping: `backend` → Backend Engineer, `mobile` → Mobile Engineer, `web`/`fullstack` → Frontend Engineer, `terraform`/`infra`/`sre` → SRE, `qa` → QA, unknown → Staff SWE
+- Domain → agent mapping: `backend` → Backend Engineer, `mobile` → Mobile Engineer, `web`/`fullstack` → Frontend Engineer, `terraform`/`infra`/`sre` → SRE, `qa` → QA
 - Missing path → agent warns user, never silent failure
 
 ---
@@ -89,10 +88,9 @@ Engineer agents read `~/.brocode/repos.json` (user-level, shared across all proj
 
 ### Investigate mode
 ```
-Tech Lead → scoped sub-agents (Backend / Frontend / Mobile, parallel)
+Tech Lead → scoped sub-agents (Backend / Frontend / Mobile / SRE / QA, parallel)
     ↕ debate: threads/<topic>.md
-Tech Lead synthesizes  +  SRE (parallel, blast radius)
-    → Staff SWE (validates root cause architecturally)
+Tech Lead synthesizes
     → Engineering BR loop (max 3 rounds per artifact)
     → engineering-spec.md + tasks.md
 ```
@@ -102,10 +100,9 @@ Tech Lead synthesizes  +  SRE (parallel, blast radius)
 PM ↔ Designer (conversation)
     → Product BR loop (max 3 rounds per artifact)
     → [GATE] engineering blocked until approved
-Tech Lead → scoped sub-agents (parallel)
+Tech Lead → scoped sub-agents (Backend / Frontend / Mobile / SRE / QA, parallel)
     ↕ debate: threads/<topic>.md
-Tech Lead + Staff SWE converge
-    → SRE + QA (parallel)
+Tech Lead synthesizes
     → Engineering BR loop (max 3 rounds per artifact)
     → engineering-spec.md + tasks.md
 ```
@@ -158,7 +155,6 @@ Tech Lead synthesizes findings
   ux.md                   ← Designer — UX flows + e2e mermaid per persona
   implementation-options.md ← Tech Lead (spec mode)
   investigation.md          ← Tech Lead (investigate mode)
-  architecture.md           ← Staff SWE
   ops.md                    ← SRE
   test-cases.md             ← QA
   engineering-spec.md       ← RFC — full self-contained spec
@@ -173,8 +169,6 @@ Tech Lead synthesizes findings
     engineering/
       impl-challenge-r1.md  ← Eng BR challenges per artifact
       impl-approved.md
-      arch-challenge-r1.md
-      arch-approved.md
       ops-challenge-r1.md
       ops-approved.md
       qa-challenge-r1.md

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>brocode — Multi-Agent SDLC for Claude Code</title>
-  <meta name="description" content="One command. Full engineering org. Multi-agent SDLC plugin for Claude Code — investigates bugs, produces engineering specs, and implements features with PM, Designer, Tech Lead, Backend, Frontend, Mobile, Staff SWE, SRE, QA, and two Bar Raisers." />
+  <meta name="description" content="One command. Full engineering org. Multi-agent SDLC plugin for Claude Code — investigates bugs, produces engineering specs, and implements features with PM, Designer, Tech Lead, Backend, Frontend, Mobile, SRE, QA, and two Bar Raisers." />
   <style>
     :root {
       --bg: #0d1117;
@@ -464,7 +464,7 @@
   <div class="hero-badge"><div class="dot"></div>Claude Code Plugin · Open Source · MIT</div>
   <h1>One command.<br><span class="accent">Full engineering org.</span></h1>
   <p class="hero-sub">
-    brocode spins up <strong>12 specialised agents</strong> — PM, Designer, Tech Lead, Backend, Frontend, Mobile, Staff SWE, SRE, QA, and two adversarial Bar Raisers — to investigate bugs, produce specs, and implement features right in your terminal.
+    brocode spins up <strong>11 specialised agents</strong> — PM, Designer, Tech Lead, Backend, Frontend, Mobile, SRE, QA, and two adversarial Bar Raisers — to investigate bugs, produce specs, and implement features right in your terminal.
   </p>
 
   <div class="hero-terminal">
@@ -483,7 +483,7 @@
       <div><span class="t-agent">⚙️  Backend</span><span class="t-arrow">→</span><span class="t-out">reading /api/checkout, tracing request lifecycle</span></div>
       <div><span class="t-agent">🚨 SRE</span><span class="t-arrow">→</span><span class="t-out">assessing blast radius in parallel</span></div>
       <div><span class="t-agent">⚙️  Backend ↔️ 🚨 SRE</span><span class="t-arrow">→</span><span class="t-out">SRE: "affecting all regions or just eu-west?"</span></div>
-      <div><span class="t-agent">🏗️  Staff SWE</span><span class="t-arrow">→</span><span class="t-out">validating root cause: race condition in token refresh middleware</span></div>
+      <div><span class="t-agent">🧪 QA</span><span class="t-arrow">→</span><span class="t-out">writing failing test that reproduces the race condition</span></div>
       <div><span class="t-warn">⚠️  Eng BR</span><span class="t-arrow">→</span><span class="t-out">challenged: "show APM trace — not hypothesis" (round 1)</span></div>
       <div><span class="t-agent">⚙️  Backend</span><span class="t-arrow">→</span><span class="t-out">providing trace + reproducer test (v2)</span></div>
       <div><span class="t-approved">✅ Eng BR</span><span class="t-arrow">→</span><span class="t-out">root cause APPROVED · writing engineering-spec.md + tasks.md</span></div>
@@ -531,17 +531,15 @@ flowchart TD
       FE["🖥️ Frontend\nsub-agent"]:::subagent
       MOB["📱 Mobile\nsub-agent"]:::subagent
       SRE2["🚨 SRE\nTech Lead's team"]:::eng
-      STAFF["🏗️ Staff SWE\npeer to Tech Lead"]:::eng
-      QA["🧪 QA"]:::eng
+      QA["🧪 QA\nTech Lead's team"]:::eng
       EBR["⚖️ Engineering BR\nPrincipal Eng — GATE"]:::gate
     end
 
     TPM --> PROD & ENG
     PM --> PBR
     DS --> PBR
-    TL --> BE & FE & MOB & SRE2
+    TL --> BE & FE & MOB & SRE2 & QA
     TL --> EBR
-    STAFF --> EBR
     QA --> EBR
     SRE2 --> EBR
 
@@ -599,13 +597,6 @@ flowchart TD
           <div class="flow-step">
             <div class="flow-step-num">4</div>
             <div class="flow-step-body">
-              <div class="flow-step-title">Staff SWE validates architecturally</div>
-              <div class="flow-step-sub">Checks for systemic causes beyond this instance. Converses with Tech Lead via eng thread.</div>
-            </div>
-          </div>
-          <div class="flow-step">
-            <div class="flow-step-num">5</div>
-            <div class="flow-step-body">
               <div class="flow-step-title">Engineering BR loop <span class="flow-badge badge-gate">max 3 rounds</span></div>
               <div class="flow-step-sub">Fresh BR sub-agent per round challenges root cause and fix. Fresh producer sub-agent revises. Escalates to you after 3 rounds.</div>
             </div>
@@ -630,17 +621,16 @@ flowchart TD
       FE["🖥️ Frontend"]:::subagent
       MOB["📱 Mobile"]:::subagent
       SRE["🚨 SRE\nblast radius"]:::subagent
+      QA["🧪 QA"]:::subagent
     end
 
-    STAFF["🏗️ Staff SWE\nroot cause validation"]:::node
     EBR["⚖️ Engineering BR\nmax 3 rounds"]:::gate
     OUT(["engineering-spec.md\ntasks.md"]):::output
 
     A --> TPM --> TL
     TL --> TL_TEAM
-    TL_TEAM -->|"swe-debate.md"| TL
-    TL --> STAFF
-    TL & STAFF --> EBR
+    TL_TEAM -->|"threads/<topic>.md"| TL
+    TL --> EBR
     EBR -->|"challenged → producer revises"| EBR
     EBR -->|"approved"| OUT
 
@@ -681,19 +671,12 @@ flowchart TD
           <div class="flow-step">
             <div class="flow-step-num">4</div>
             <div class="flow-step-body">
-              <div class="flow-step-title">Staff SWE architecture review</div>
-              <div class="flow-step-sub">Reviews 3 implementation options. Converges with Tech Lead on single recommendation.</div>
+              <div class="flow-step-title">SRE + QA <span class="flow-badge badge-parallel">parallel</span></div>
+              <div class="flow-step-sub">SRE: ops plan + rollback. QA: full test matrix with real test code. Both report to Tech Lead.</div>
             </div>
           </div>
           <div class="flow-step">
             <div class="flow-step-num">5</div>
-            <div class="flow-step-body">
-              <div class="flow-step-title">SRE + QA <span class="flow-badge badge-parallel">parallel</span></div>
-              <div class="flow-step-sub">SRE: ops plan + rollback. QA: full test matrix with real test code. Both can ask Tech Lead questions.</div>
-            </div>
-          </div>
-          <div class="flow-step">
-            <div class="flow-step-num">6</div>
             <div class="flow-step-body">
               <div class="flow-step-title">Engineering BR loop <span class="flow-badge badge-gate">max 3 rounds each</span></div>
               <div class="flow-step-sub">Challenges all 4 artifacts independently. Cross-consistency check. Writes final spec + tasks when all approved.</div>
@@ -720,10 +703,9 @@ flowchart TD
       FE["🖥️ Frontend"]:::subagent
       MB["📱 Mobile"]:::subagent
       SRE["🚨 SRE"]:::subagent
+      QA["🧪 QA"]:::subagent
     end
 
-    STAFF["🏗️ Staff SWE"]:::node
-    QA["🧪 QA"]:::node
     EBR["⚖️ Engineering BR\nmax 3 rounds each"]:::gate
     OUT(["engineering-spec.md\ntasks.md"]):::output
 
@@ -732,10 +714,8 @@ flowchart TD
     PM & DS --> PBR
     PBR -->|"gate open"| TL
     TL --> TL_TEAM
-    TL_TEAM -->|"swe-debate.md"| TL
-    TL <-->|"converge"| STAFF
-    STAFF --> QA
-    TL & STAFF & QA --> EBR
+    TL_TEAM -->|"threads/<topic>.md"| TL
+    TL --> EBR
     EBR -->|"challenged → revise"| EBR
     EBR -->|"all approved"| OUT
 
@@ -936,7 +916,6 @@ flowchart TD
         <div><span class="pl-convo">↔️</span>&nbsp;&nbsp; <span class="pl-agent">⚙️ Backend ↔️ 🖥️ Frontend</span><span class="pl-sep">→</span><span class="pl-action">Backend: "3 round-trips to render one screen"</span></div>
         <div><span class="pl-convo">↔️</span>&nbsp;&nbsp; <span class="pl-agent">📱 Mobile ↔️ ⚙️ Backend</span><span class="pl-sep">→</span><span class="pl-action">Mobile: "340KB payload kills battery on 3G polling"</span></div>
         <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🤝 Tech Lead</span><span class="pl-sep">→</span><span class="pl-action">synthesising debate — 3 options drafted</span></div>
-        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🏗️ Staff SWE</span><span class="pl-sep">→</span><span class="pl-action">architecture review — validating option 2</span></div>
         <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🚨 SRE + 🧪 QA</span><span class="pl-sep">→</span><span class="pl-action">running parallel: ops plan + test matrix</span></div>
         <div><span class="pl-warn">⚠️</span>&nbsp;&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">challenged Tech Lead: "option 3 N+1 query — mitigation?" (round 1)</span></div>
         <div><span class="pl-warn">⚠️</span>&nbsp;&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">challenged QA: "AC-7 has no test case" (round 1)</span></div>
@@ -1030,15 +1009,6 @@ flowchart TD
 
       <div class="agent-card track-eng">
         <div class="agent-header">
-          <div class="agent-icon" style="background:rgba(210,153,34,.1)">🏗️</div>
-          <div class="agent-meta"><h3>Staff SWE</h3><div class="agent-model"><span class="model-opus">claude-opus</span></div></div>
-        </div>
-        <div class="agent-desc">System-level architectural review. Converses with Tech Lead before forming opinions. Identifies failure modes, hidden coupling, scalability cliffs. Peer — not manager — of Tech Lead. Joint recommendation.</div>
-        <div class="agent-tags"><span class="tag tag-eng">Engineering</span></div>
-      </div>
-
-      <div class="agent-card track-eng">
-        <div class="agent-header">
           <div class="agent-icon" style="background:rgba(210,153,34,.1)">🚨</div>
           <div class="agent-meta"><h3>SRE</h3><div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div></div>
         </div>
@@ -1101,11 +1071,9 @@ flowchart TD
         <p class="br-subtitle">Principal Engineer. Reviews all 4 engineering artifacts. Writes engineering-spec.md + tasks.md when all approved.</p>
         <ul class="br-checks">
           <li>Challenges Tech Lead options for vague tradeoffs or inconsistency with design</li>
-          <li>Challenges Staff SWE concerns without codebase evidence</li>
           <li>Challenges SRE rollback plans that are theoretical rather than executable</li>
           <li>Challenges QA for ACs without tests or TODOs instead of real test code</li>
-          <li>Cross-checks all 4 artifacts for mutual consistency</li>
-          <li>Tech Lead recommendation must match Staff SWE architecture — flags divergence</li>
+          <li>Cross-checks all artifacts for mutual consistency</li>
         </ul>
         <div class="br-loop">
           <div class="loop-dot"></div>
@@ -1151,7 +1119,7 @@ flowchart TD
           <div class="repo-step-num">4</div>
           <div class="repo-step-body">
             <h4>Domain → agent mapping</h4>
-            <p><code>backend</code> → Backend Engineer · <code>mobile</code> → Mobile · <code>web</code>/<code>fullstack</code> → Frontend · <code>terraform</code>/<code>sre</code> → SRE · <code>qa</code> → QA · unknown → Staff SWE</p>
+            <p><code>backend</code> → Backend Engineer · <code>mobile</code> → Mobile · <code>web</code>/<code>fullstack</code> → Frontend · <code>terraform</code>/<code>infra</code>/<code>sre</code> → SRE · <code>qa</code> → QA</p>
           </div>
         </div>
       </div>
@@ -1218,7 +1186,6 @@ graph TD
     ROOT --> REQ["product-spec.md\nPM, versioned"]:::file
     ROOT --> DES["ux.md\nDesigner, versioned"]:::file
     ROOT --> IMPL["implementation-options.md\nTech Lead"]:::file
-    ROOT --> ARCH["architecture.md\nStaff SWE, versioned"]:::file
     ROOT --> OPS["ops.md\nSRE, versioned"]:::file
     ROOT --> QA["test-cases.md\nQA, versioned"]:::file
     ROOT --> THR["threads/"]:::dir

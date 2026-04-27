@@ -91,7 +91,7 @@ flowchart TD
         FE["🖥️ Frontend Engineer"]
         MOB["📱 Mobile Engineer"]
         SRE["🚨 SRE\n(parallel)"]
-        STAFF["🏗️ Staff SWE\nvalidates root cause"]
+        QA["🧪 QA\n(parallel)"]
     end
 
     subgraph BR_LOOP["Engineering BR Loop (max 3 rounds)"]
@@ -102,12 +102,9 @@ flowchart TD
     OUT(["engineering-spec.md + tasks.md"])
 
     A --> TL
-    TL --> BE & FE & MOB
-    BE & FE & MOB -->|"swe-debate.md"| TL
-    A --> SRE
-    TL --> STAFF
-    STAFF --> EBR
-    SRE --> EBR
+    TL --> BE & FE & MOB & SRE & QA
+    BE & FE & MOB & SRE & QA -->|"threads/<topic>.md"| TL
+    TL --> EBR
     EBR -->|"approved"| OUT
     EBR -->|"challenged → producer revises"| EBR
     EBR -->|"round > 3"| ESCALATE
@@ -136,7 +133,6 @@ flowchart TD
         BE["⚙️ Backend"]
         FE["🖥️ Frontend"]
         MOB["📱 Mobile"]
-        STAFF["🏗️ Staff SWE"]
         SRE["🚨 SRE"]
         QA["🧪 QA"]
     end
@@ -149,7 +145,7 @@ flowchart TD
     OUT(["engineering-spec.md + tasks.md"])
 
     A --> PM
-    PM <-->|"product-conversation.md"| DS
+    PM <-->|"threads/<topic>.md"| DS
     PM --> PBR
     DS --> PBR
     PBR -->|"challenged"| PM & DS
@@ -157,14 +153,9 @@ flowchart TD
     GATE -->|"yes"| TL
     GATE -->|"no"| PM
 
-    TL --> BE & FE & MOB
-    BE & FE & MOB -->|"swe-debate.md"| TL
-    TL <-->|"eng-conversation.md"| STAFF
-    STAFF --> SRE & QA
-    SRE --> EBR
-    QA --> EBR
+    TL --> BE & FE & MOB & SRE & QA
+    BE & FE & MOB & SRE & QA -->|"threads/<topic>.md"| TL
     TL --> EBR
-    STAFF --> EBR
     EBR -->|"approved"| OUT
     EBR -->|"challenged → producer revises"| EBR
 ```
@@ -259,7 +250,6 @@ flowchart TD
         FE["🖥️ Frontend"]
         MOB["📱 Mobile"]
         SRE["🚨 SRE"]
-        STAFF["🏗️ Staff SWE"]
         QA["🧪 QA"]
         EBR["⚖️ Engineering Bar Raiser\nPrincipal Eng"]
     end
@@ -267,9 +257,8 @@ flowchart TD
     TPM --> PROD & ENG
     PM --> PBR
     DS --> PBR
-    TL --> BE & FE & MOB & SRE
+    TL --> BE & FE & MOB & SRE & QA
     TL --> EBR
-    STAFF --> EBR
     QA --> EBR
     SRE --> EBR
 ```
@@ -281,13 +270,12 @@ flowchart TD
 | **Designer** | Senior Designer (UX / UI) | `ux.md` |
 | **Product Bar Raiser** | Principal PM — challenges PM + Designer, gates engineering | Challenge files + gate approval |
 | **Tech Lead** | Owns engineering team, dispatches sub-agents, synthesizes debate | `investigation.md` or `implementation-options.md` |
-| → **Backend Engineer** *(sub-agent)* | APIs, DB, services, queues | Debate in `swe-debate.md` |
-| → **Frontend Engineer** *(sub-agent)* | Web UI, state, browser, SSR/CSR | Debate in `swe-debate.md` |
-| → **Mobile Engineer** *(sub-agent)* | iOS, Android, RN, Flutter, offline | Debate in `swe-debate.md` |
-| → **SRE** *(Tech Lead's team)* | Ops plan, blast radius, rollback | `ops.md` |
-| **Staff SWE** | Architecture review, peer to Tech Lead | `architecture.md` |
-| **QA** | Full test matrix with actual test code | `test-cases.md` |
-| **Engineering Bar Raiser** | Principal Eng — challenges all 4 artifacts, writes final spec | `engineering-spec.md` + `tasks.md` |
+| → **Backend Engineer** *(sub-agent)* | APIs, DB, services, queues | Threads in `threads/<topic>.md` |
+| → **Frontend Engineer** *(sub-agent)* | Web UI, state, browser, SSR/CSR | Threads in `threads/<topic>.md` |
+| → **Mobile Engineer** *(sub-agent)* | iOS, Android, RN, Flutter, offline | Threads in `threads/<topic>.md` |
+| → **SRE** *(sub-agent)* | Ops plan, blast radius, rollback | `ops.md` |
+| → **QA** *(sub-agent)* | Full test matrix with actual test code | `test-cases.md` |
+| **Engineering Bar Raiser** | Principal Eng — challenges all artifacts, writes final spec | `engineering-spec.md` + `tasks.md` |
 
 ---
 
@@ -330,10 +318,9 @@ flowchart TD
 
 **Engineering Bar Raiser** (Principal Engineer):
 - Challenges Tech Lead options: vague tradeoffs, inconsistency with design
-- Challenges Staff SWE: concerns without codebase evidence
 - Challenges SRE: theoretical rollback plans, missing observability
 - Challenges QA: ACs without tests, TODOs instead of test code
-- Cross-checks all four artifacts for consistency
+- Cross-checks all artifacts for consistency
 - Writes `engineering-spec.md` + `tasks.md` after all approved
 
 ---
@@ -370,7 +357,7 @@ Agents talk to each other. All exchanges logged in thread files.
 | `threads/<topic>.md` | Created on demand per discussion topic |
 | `threads/product-conversation.md` | PM ↔ Designer (default) |
 | `threads/swe-debate.md` | Backend ↔ Frontend ↔ Mobile (default) |
-| `threads/eng-conversation.md` | Tech Lead ↔ Staff SWE ↔ SRE ↔ QA (default) |
+| `threads/eng-conversation.md` | Tech Lead ↔ SRE ↔ QA (default) |
 
 ---
 
@@ -387,13 +374,10 @@ graph TD
     ROOT --> REQ["product-spec.md — PM, versioned"]:::file
     ROOT --> DES["ux.md — Designer, versioned"]:::file
     ROOT --> IMPL["implementation-options.md / investigation.md — Tech Lead"]:::file
-    ROOT --> ARCH["architecture.md — Staff SWE, versioned"]:::file
     ROOT --> OPS["ops.md — SRE, versioned"]:::file
     ROOT --> QA["test-cases.md — QA, versioned"]:::file
     ROOT --> THR["threads/"]:::dir
-    THR --> PCT["product-conversation.md — PM ↔ Designer"]:::thread
-    THR --> SWED["swe-debate.md — Backend ↔ Frontend ↔ Mobile"]:::thread
-    THR --> ENGC["eng-conversation.md — Tech Lead ↔ Staff SWE ↔ SRE ↔ QA"]:::thread
+    THR --> PCT["&lt;topic&gt;.md — created on demand per discussion"]:::thread
     THR --> ENGP["eng-product-conversation.md — Eng ↔ PM/Designer"]:::thread
     ROOT --> PBR["br/product/ — challenge rounds + gate approval"]:::br
     ROOT --> EBR["br/engineering/ — challenge rounds + approvals"]:::br
@@ -473,7 +457,6 @@ brocode/
     swe-backend.md           # Backend sub-agent
     swe-frontend.md          # Frontend sub-agent
     swe-mobile.md            # Mobile sub-agent
-    staff-eng.md
     sre.md
     qa.md
     engineering-bar-raiser.md
