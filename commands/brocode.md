@@ -12,7 +12,7 @@ You are the brocode orchestrator. The user has invoked /brocode with the followi
 ### `repos` / `setup`
 If input is `repos` or `setup` or contains "register repo" / "set repo" / "add repo path":
 
-1. Read `.brocode-repos.json` in current working directory if it exists. Show current values.
+1. Read `~/.brocode/repos.json` if it exists. Show current entries.
 2. Ask user to provide repos as a free-form list — any domain name, any number of paths per domain:
    ```
    Register repos for engineer agents to read. Any domain name works.
@@ -21,40 +21,60 @@ If input is `repos` or `setup` or contains "register repo" / "set repo" / "add r
      backend: /path/to/api
      backend: /path/to/auth-service
      mobile: /path/to/ios-app
-     mobile: /path/to/android-app
      web: /path/to/frontend
      terraform: /path/to/infra
      qa: /path/to/test-suite
-     fullstack: /path/to/monorepo
-     shared: /path/to/design-system
 
    Type "done" when finished. Type "clear <domain>" to remove a domain.
    Current config: (show existing entries or "none")
    ```
 3. For each provided path: run `ls <path>` to confirm it exists. Warn if not found, ask to confirm or skip.
-4. Write `.brocode-repos.json` to current working directory — domains are keys, values are arrays of paths:
+4. For each confirmed path, ask (one prompt per repo):
+   ```
+   <path>
+     Description (what does this repo do?): _
+     Labels (comma-separated, e.g. api,billing,auth — optional): _
+     Tags (comma-separated tech stack, e.g. node,postgres,redis — optional): _
+   ```
+5. Create `~/.brocode/` if it does not exist: `mkdir -p ~/.brocode`
+6. Write `~/.brocode/repos.json` — domains are keys, values are arrays of repo objects:
    ```json
    {
-     "backend": ["/path/to/api", "/path/to/auth-service"],
-     "mobile": ["/path/to/ios", "/path/to/android"],
-     "web": ["/path/to/frontend"],
-     "terraform": ["/path/to/infra"],
-     "qa": ["/path/to/tests"],
+     "backend": [
+       {
+         "path": "/path/to/api",
+         "description": "Main REST API handling user accounts and billing",
+         "labels": ["api", "billing"],
+         "tags": ["node", "express", "postgres"]
+       },
+       {
+         "path": "/path/to/auth-service",
+         "description": "Authentication and token issuance service",
+         "labels": ["auth", "security"],
+         "tags": ["go", "jwt", "redis"]
+       }
+     ],
+     "mobile": [
+       {
+         "path": "/path/to/ios",
+         "description": "iOS app (Swift/SwiftUI)",
+         "labels": ["ios"],
+         "tags": ["swift", "swiftui"]
+       }
+     ],
      "updated_at": "YYYY-MM-DD"
    }
    ```
-5. Print confirmation — one line per path:
+7. Print confirmation — one line per repo:
    ```
-   Repos saved to .brocode-repos.json
-     backend   → /path/to/api
-     backend   → /path/to/auth-service
-     mobile    → /path/to/ios
-     mobile    → /path/to/android
-     web       → /path/to/frontend
-     terraform → /path/to/infra
+   Repos saved to ~/.brocode/repos.json
+     backend   → /path/to/api           "Main REST API handling user accounts and billing"
+     backend   → /path/to/auth-service  "Authentication and token issuance service"
+     mobile    → /path/to/ios           "iOS app (Swift/SwiftUI)"
+     web       → /path/to/frontend      "React web app"
    Engineer agents will read these paths. Run /brocode:brocode repos anytime to update.
    ```
-6. When agents read `.brocode-repos.json`: match domain name to agent role (backend → Backend Engineer, mobile → Mobile Engineer, web/fullstack → Frontend Engineer, terraform/infra/sre → SRE, qa → QA). Pass all paths for that domain. Unknown domains → pass to Staff SWE.
+8. When agents read `~/.brocode/repos.json`: match domain name to agent role (backend → Backend Engineer, mobile → Mobile Engineer, web/fullstack → Frontend Engineer, terraform/infra/sre → SRE, qa → QA). Pass all repo objects for that domain — agents must use `description`, `labels`, and `tags` to orient themselves before reading code. Unknown domains → pass to Staff SWE.
 - Stop. Do not proceed.
 
 ### `develop` / `implement`
@@ -68,7 +88,7 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
   ```
   Stop.
 - Scan `.brocode/` for dirs with `08-final-spec.md` + `09-tasks.md`. If multiple, list and ask which.
-- Read `.brocode-repos.json` for repo paths.
+- Read `~/.brocode/repos.json` for repo paths.
 - For each domain with tasks (backend / web / mobile):
   1. Invoke `superpowers:using-git-worktrees` — create isolated worktree in that domain's repo for branch `brocode/<spec-id>-<domain>`
   2. Invoke `superpowers:writing-plans` — convert domain tasks from `09-tasks.md` into a superpowers plan at `docs/superpowers/plans/<spec-id>-<domain>.md` inside the worktree
@@ -127,7 +147,7 @@ Analyze input:
 1. Generate ID: `inv-YYYYMMDD-<slug>`
 2. Create `.brocode/<id>/` and `.brocode/<id>/threads/`
 3. Write `.brocode/<id>/00-brief.md` from user input
-4. Read `.brocode-repos.json` for repo paths — pass to relevant engineer agents
+4. Read `~/.brocode/repos.json` for repo paths — pass to relevant engineer agents
 
 ### Org: who does what
 ```
@@ -197,7 +217,7 @@ When all three artifacts approved: write `08-final-spec.md` + `09-tasks.md`.
 2. Create `.brocode/<id>/`, `.brocode/<id>/threads/`, `.brocode/<id>/07-product-br-reviews/`, `.brocode/<id>/07-eng-br-reviews/`
 3. Handle external input: if URL/doc attached, fetch content (use Google Drive MCP if available, else ask user to paste). If image, describe it.
 4. Write `.brocode/<id>/00-brief.md`
-5. Read `.brocode-repos.json` for repo paths — pass to engineer agents
+5. Read `~/.brocode/repos.json` for repo paths — pass to engineer agents
 
 ### Org: who does what
 ```

@@ -58,19 +58,16 @@ Engineer agents read real code. Tell them where to find it:
 /brocode:brocode repos
 ```
 
-Any domain, any number of repos per domain:
+Any domain, any number of repos per domain. You'll be prompted for a description, labels, and tags per repo so agents know what each one does:
 
 ```
-backend: /path/to/api
-backend: /path/to/auth-service
-mobile: /path/to/ios
-mobile: /path/to/android
-web: /path/to/frontend
-terraform: /path/to/infra
-qa: /path/to/test-suite
+backend: /path/to/api           → "Main REST API — billing and accounts"  labels: api,billing  tags: node,postgres
+backend: /path/to/auth-service  → "Auth service"                          labels: auth         tags: go,redis
+mobile: /path/to/ios            → "iOS app (Swift/SwiftUI)"               labels: ios          tags: swift
+web: /path/to/frontend          → "React web app"                                              tags: react,ts
 ```
 
-Saves to `.brocode-repos.json` (gitignored). Run once per machine, update anytime.
+Saves to `~/.brocode/repos.json` — shared across all projects on this machine. Run once per machine, update anytime.
 
 ---
 
@@ -298,13 +295,31 @@ flowchart TD
 
 Bar Raisers run adversarial review loops. Challenges are blockers, not suggestions.
 
-```
-round = 1
-loop:
-  BR reviews artifact (fresh sub-agent)
-  → approved: continue
-  → challenged: producer revises (fresh sub-agent) → round += 1
-  → round > 3: escalate to user with exact question
+```mermaid
+flowchart TD
+    START(["Artifact ready"])
+    BR["⚖️ BR reviews artifact\n(fresh sub-agent per round)"]
+    APPROVED(["✅ Approved — continue"])
+    CHALLENGED["⚠️ Challenged\nproducer revises (fresh sub-agent)"]
+    ESCALATE(["🚫 Escalate to user\nexact question + all context"])
+    MAX{"round > 3?"}
+
+    START --> BR
+    BR -->|approved| APPROVED
+    BR -->|challenged| MAX
+    MAX -->|no| CHALLENGED
+    CHALLENGED --> BR
+    MAX -->|yes| ESCALATE
+
+    classDef ok fill:#0d3321,stroke:#3fb950,color:#3fb950
+    classDef warn fill:#3d2b00,stroke:#d29922,color:#d29922
+    classDef block fill:#3d0000,stroke:#f85149,color:#f85149
+    classDef node fill:#21262d,stroke:#484f58,color:#e6edf3
+
+    class APPROVED ok
+    class CHALLENGED warn
+    class ESCALATE block
+    class BR,MAX node
 ```
 
 **Product Bar Raiser** (Principal PM):
@@ -363,34 +378,34 @@ Agents talk to each other. All exchanges logged in thread files.
 
 Every `/brocode` run creates `.brocode/<id>/`:
 
-```
-.brocode/spec-20260426-oauth/
-  00-tpm-log.md
-  00-brief.md
-  01-requirements.md
-  02-design.md
-  03-implementation-options.md   # spec mode
-  03-investigation.md            # investigate mode
-  04-architecture.md
-  05-ops.md
-  06-test-cases.md
-  threads/
-    product-conversation.md
-    swe-debate.md
-    eng-conversation.md
-    eng-product-conversation.md
-  07-product-br-reviews/
-    01-pm-challenge-round1.md
-    01-pm-approved.md
-    02-design-approved.md
-    gate-approved.md
-  07-eng-br-reviews/
-    01-techlead-approved.md
-    02-staff-swe-approved.md
-    03-sre-approved.md
-    04-qa-approved.md
-  08-final-spec.md
-  09-tasks.md
+```mermaid
+graph TD
+    ROOT[".brocode/spec-20260426-oauth/"]:::dir
+
+    ROOT --> TPM["📋 00-tpm-log.md — TPM master log, live"]:::tpm
+    ROOT --> BRIEF["00-brief.md — user input + clarified scope"]:::file
+    ROOT --> REQ["01-requirements.md — PM, versioned"]:::file
+    ROOT --> DES["02-design.md — Designer, versioned"]:::file
+    ROOT --> IMPL["03-implementation-options.md / 03-investigation.md — Tech Lead"]:::file
+    ROOT --> ARCH["04-architecture.md — Staff SWE, versioned"]:::file
+    ROOT --> OPS["05-ops.md — SRE, versioned"]:::file
+    ROOT --> QA["06-test-cases.md — QA, versioned"]:::file
+    ROOT --> THR["threads/"]:::dir
+    THR --> PCT["product-conversation.md — PM ↔ Designer"]:::thread
+    THR --> SWED["swe-debate.md — Backend ↔ Frontend ↔ Mobile"]:::thread
+    THR --> ENGC["eng-conversation.md — Tech Lead ↔ Staff SWE ↔ SRE ↔ QA"]:::thread
+    THR --> ENGP["eng-product-conversation.md — Eng ↔ PM/Designer"]:::thread
+    ROOT --> PBR["07-product-br-reviews/ — challenge rounds + gate approval"]:::br
+    ROOT --> EBR["07-eng-br-reviews/ — challenge rounds + approvals"]:::br
+    ROOT --> SPEC["✅ 08-final-spec.md — approved, ready to implement"]:::final
+    ROOT --> TASKS["✅ 09-tasks.md — domain-scoped tasks for /brocode develop"]:::final
+
+    classDef dir fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
+    classDef tpm fill:#0d3321,stroke:#3fb950,color:#3fb950
+    classDef file fill:#21262d,stroke:#484f58,color:#e6edf3
+    classDef thread fill:#2a1a4a,stroke:#bc8cff,color:#bc8cff
+    classDef br fill:#3d2b00,stroke:#d29922,color:#d29922
+    classDef final fill:#0d3321,stroke:#3fb950,color:#3fb950
 ```
 
 `.brocode/` is gitignored.
@@ -403,18 +418,30 @@ Every `/brocode` run creates `.brocode/<id>/`:
 /brocode repos
 ```
 
-Prompts for paths, validates they exist, writes `.brocode-repos.json` (gitignored):
+Prompts for paths, description, labels, and tags per repo. Writes to `~/.brocode/repos.json` (user-level, shared across all projects):
 
 ```json
 {
-  "backend": "/absolute/path/to/backend",
-  "web": "/absolute/path/to/web",
-  "mobile": "/absolute/path/to/mobile",
-  "other": []
+  "backend": [
+    {
+      "path": "/absolute/path/to/api",
+      "description": "Main REST API handling user accounts and billing",
+      "labels": ["api", "billing"],
+      "tags": ["node", "express", "postgres"]
+    }
+  ],
+  "web": [
+    {
+      "path": "/absolute/path/to/frontend",
+      "description": "React web app",
+      "labels": [],
+      "tags": ["react", "typescript"]
+    }
+  ]
 }
 ```
 
-If a path isn't set, that engineer agent notes it and skips code reading. No silent failures.
+Agents read `description`, `labels`, and `tags` to orient themselves before exploring code. If a path isn't set, that engineer agent notes it and skips code reading. No silent failures.
 
 ---
 

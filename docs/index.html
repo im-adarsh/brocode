@@ -1130,20 +1130,27 @@ flowchart TD
           <div class="repo-step-num">1</div>
           <div class="repo-step-body">
             <h4>Run the setup command</h4>
-            <p>Enter repos as <code>domain: /path</code> lines. Any domain name. Multiple paths per domain. brocode validates each exists.</p>
+            <p>Enter repos as <code>domain: /path</code> lines. brocode validates each path exists, then asks for description, labels, and tags per repo.</p>
           </div>
         </div>
         <div class="repo-step">
           <div class="repo-step-num">2</div>
           <div class="repo-step-body">
-            <h4>Saved to <code>.brocode-repos.json</code></h4>
-            <p>Gitignored — machine-local. Re-run anytime to update.</p>
+            <h4>Saved to <code>~/.brocode/repos.json</code></h4>
+            <p>User-level — shared across all projects on this machine. Re-run anytime to update.</p>
           </div>
         </div>
         <div class="repo-step">
           <div class="repo-step-num">3</div>
           <div class="repo-step-body">
-            <h4>Agents read their repos automatically</h4>
+            <h4>Agents orient from metadata, then read code</h4>
+            <p>Each agent reads <code>description</code>, <code>labels</code>, and <code>tags</code> before exploring files — so they know what the repo does before diving in.</p>
+          </div>
+        </div>
+        <div class="repo-step">
+          <div class="repo-step-num">4</div>
+          <div class="repo-step-body">
+            <h4>Domain → agent mapping</h4>
             <p><code>backend</code> → Backend Engineer · <code>mobile</code> → Mobile · <code>web</code>/<code>fullstack</code> → Frontend · <code>terraform</code>/<code>sre</code> → SRE · <code>qa</code> → QA · unknown → Staff SWE</p>
           </div>
         </div>
@@ -1153,30 +1160,37 @@ flowchart TD
           <div class="code-block-header"><span>Terminal</span></div>
           <div class="code-block-body">
             <span class="cb-cmd">/brocode:brocode repos</span><br><br>
-            <span class="cb-comment"># Enter one per line, type "done" when finished:</span><br>
+            <span class="cb-comment"># Enter paths, type "done" when finished:</span><br>
             &nbsp; <span class="cb-val">backend: /home/me/api</span><br>
             &nbsp; <span class="cb-val">backend: /home/me/auth-service</span><br>
-            &nbsp; <span class="cb-val">mobile: /home/me/ios-app</span><br>
-            &nbsp; <span class="cb-val">mobile: /home/me/android-app</span><br>
             &nbsp; <span class="cb-val">web: /home/me/frontend</span><br>
-            &nbsp; <span class="cb-val">terraform: /home/me/infra</span><br>
-            &nbsp; <span class="cb-val">qa: /home/me/tests</span><br>
-            &nbsp; <span class="cb-val">done</span>
+            &nbsp; <span class="cb-val">done</span><br><br>
+            <span class="cb-comment"># brocode then prompts per repo:</span><br>
+            &nbsp; <span class="cb-comment">Description: Main REST API — billing and accounts</span><br>
+            &nbsp; <span class="cb-comment">Labels: api, billing</span><br>
+            &nbsp; <span class="cb-comment">Tags: node, express, postgres</span>
           </div>
         </div>
         <div style="margin-top:1rem">
           <div class="code-block">
             <div class="code-block-header">
-              <span>.brocode-repos.json</span>
-              <span style="color:var(--teal);font-size:.7rem">gitignored</span>
+              <span>~/.brocode/repos.json</span>
+              <span style="color:var(--teal);font-size:.7rem">user-level · shared</span>
             </div>
             <div class="code-block-body">
 {<br>
-&nbsp;&nbsp;<span class="cb-key">"backend"</span>: [<span class="cb-val">"/home/me/api"</span>, <span class="cb-val">"/home/me/auth-service"</span>],<br>
-&nbsp;&nbsp;<span class="cb-key">"mobile"</span>: [<span class="cb-val">"/home/me/ios-app"</span>, <span class="cb-val">"/home/me/android-app"</span>],<br>
-&nbsp;&nbsp;<span class="cb-key">"web"</span>: [<span class="cb-val">"/home/me/frontend"</span>],<br>
-&nbsp;&nbsp;<span class="cb-key">"terraform"</span>: [<span class="cb-val">"/home/me/infra"</span>],<br>
-&nbsp;&nbsp;<span class="cb-key">"qa"</span>: [<span class="cb-val">"/home/me/tests"</span>],<br>
+&nbsp;&nbsp;<span class="cb-key">"backend"</span>: [{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cb-key">"path"</span>: <span class="cb-val">"/home/me/api"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cb-key">"description"</span>: <span class="cb-val">"Main REST API — billing and accounts"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cb-key">"labels"</span>: [<span class="cb-val">"api"</span>, <span class="cb-val">"billing"</span>],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cb-key">"tags"</span>: [<span class="cb-val">"node"</span>, <span class="cb-val">"postgres"</span>]<br>
+&nbsp;&nbsp;}],<br>
+&nbsp;&nbsp;<span class="cb-key">"web"</span>: [{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cb-key">"path"</span>: <span class="cb-val">"/home/me/frontend"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cb-key">"description"</span>: <span class="cb-val">"React web app"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cb-key">"labels"</span>: [],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cb-key">"tags"</span>: [<span class="cb-val">"react"</span>, <span class="cb-val">"typescript"</span>]<br>
+&nbsp;&nbsp;}],<br>
 &nbsp;&nbsp;<span class="cb-key">"updated_at"</span>: <span class="cb-val">"2026-04-27"</span><br>
 }
             </div>
@@ -1193,26 +1207,37 @@ flowchart TD
 <section>
   <div class="container">
     <h2>Context files</h2>
-    <p class="section-lead">Every run creates <code>.sdlc/&lt;id&gt;/</code> — small focused files, one per agent. Gitignored. Resume anytime.</p>
-    <div class="tree">
-<span class="tr-dir">.sdlc/spec-20260426-oauth/</span><br>
-&nbsp;&nbsp;<span class="tr-tpm">00-tpm-log.md</span><span class="tr-comment">            ← TPM master log, live throughout</span><br>
-&nbsp;&nbsp;<span class="tr-file">00-brief.md</span><span class="tr-comment">               ← user input + clarified scope</span><br>
-&nbsp;&nbsp;<span class="tr-file">01-requirements.md</span><span class="tr-comment">        ← PM, versioned</span><br>
-&nbsp;&nbsp;<span class="tr-file">02-design.md</span><span class="tr-comment">              ← Designer, versioned</span><br>
-&nbsp;&nbsp;<span class="tr-file">03-implementation-options.md</span><span class="tr-comment"> ← Tech Lead</span><br>
-&nbsp;&nbsp;<span class="tr-file">04-architecture.md</span><span class="tr-comment">        ← Staff SWE, versioned</span><br>
-&nbsp;&nbsp;<span class="tr-file">05-ops.md</span><span class="tr-comment">                 ← SRE, versioned</span><br>
-&nbsp;&nbsp;<span class="tr-file">06-test-cases.md</span><span class="tr-comment">          ← QA, versioned</span><br>
-&nbsp;&nbsp;<span class="tr-dir">threads/</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">product-conversation.md</span><span class="tr-comment">    ← PM ↔ Designer</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">swe-debate.md</span><span class="tr-comment">              ← Backend ↔ Frontend ↔ Mobile</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">eng-conversation.md</span><span class="tr-comment">        ← Tech Lead ↔ Staff SWE ↔ SRE ↔ QA</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="tr-thread">eng-product-conversation.md</span><span class="tr-comment"> ← Eng ↔ PM/Designer</span><br>
-&nbsp;&nbsp;<span class="tr-br">07-product-br-reviews/</span><span class="tr-comment">     ← challenge rounds + gate approval</span><br>
-&nbsp;&nbsp;<span class="tr-br">07-eng-br-reviews/</span><span class="tr-comment">         ← challenge rounds + approvals</span><br>
-&nbsp;&nbsp;<span class="tr-final">08-final-spec.md</span><span class="tr-comment">           ← approved, ready to implement</span><br>
-&nbsp;&nbsp;<span class="tr-final">09-tasks.md</span><span class="tr-comment">                ← domain-scoped task list for /brocode develop</span><br>
+    <p class="section-lead">Every run creates <code>.brocode/&lt;id&gt;/</code> — small focused files, one per agent. Gitignored. Resume anytime.</p>
+    <div class="flow-diagram">
+      <div class="mermaid">
+graph TD
+    ROOT[".brocode/spec-20260426-oauth/"]:::dir
+
+    ROOT --> TPM["📋 00-tpm-log.md\nTPM master log, live throughout"]:::tpm
+    ROOT --> BRIEF["00-brief.md\nuser input + clarified scope"]:::file
+    ROOT --> REQ["01-requirements.md\nPM, versioned"]:::file
+    ROOT --> DES["02-design.md\nDesigner, versioned"]:::file
+    ROOT --> IMPL["03-implementation-options.md\nTech Lead"]:::file
+    ROOT --> ARCH["04-architecture.md\nStaff SWE, versioned"]:::file
+    ROOT --> OPS["05-ops.md\nSRE, versioned"]:::file
+    ROOT --> QA["06-test-cases.md\nQA, versioned"]:::file
+    ROOT --> THR["threads/"]:::dir
+    THR --> PCT["product-conversation.md\nPM ↔ Designer"]:::thread
+    THR --> SWED["swe-debate.md\nBackend ↔ Frontend ↔ Mobile"]:::thread
+    THR --> ENGC["eng-conversation.md\nTech Lead ↔ Staff SWE ↔ SRE ↔ QA"]:::thread
+    THR --> ENGP["eng-product-conversation.md\nEng ↔ PM/Designer"]:::thread
+    ROOT --> PBR["07-product-br-reviews/\nchallenge rounds + gate approval"]:::br
+    ROOT --> EBR["07-eng-br-reviews/\nchallenge rounds + approvals"]:::br
+    ROOT --> SPEC["✅ 08-final-spec.md\napproved, ready to implement"]:::final
+    ROOT --> TASKS["✅ 09-tasks.md\ndomain-scoped tasks for /brocode develop"]:::final
+
+    classDef dir fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
+    classDef tpm fill:#0d3321,stroke:#3fb950,color:#3fb950
+    classDef file fill:#21262d,stroke:#484f58,color:#e6edf3
+    classDef thread fill:#2a1a4a,stroke:#bc8cff,color:#bc8cff
+    classDef br fill:#3d2b00,stroke:#d29922,color:#d29922
+    classDef final fill:#0d3321,stroke:#3fb950,color:#3fb950
+      </div>
     </div>
   </div>
 </section>

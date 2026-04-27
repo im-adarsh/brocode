@@ -29,7 +29,7 @@ Single entry point: `/brocode`
 
 | File | Purpose |
 |------|---------|
-| `skills/setup-repos/SKILL.md` | Register local repo paths (user-level, persisted to `.brocode-repos.json`) |
+| `skills/setup-repos/SKILL.md` | Register local repo paths (user-level, persisted to `~/.brocode/repos.json`) |
 
 All orchestration lives in `commands/brocode.md`. Agents use superpowers skills directly:
 
@@ -51,21 +51,39 @@ All orchestration lives in `commands/brocode.md`. Agents use superpowers skills 
 
 ## Repo Config
 
-Engineer agents read `.brocode-repos.json` from the project root. Any domain name, multiple paths per domain:
+Engineer agents read `~/.brocode/repos.json` (user-level, shared across all projects). Any domain name, multiple repos per domain, each with metadata:
 
 ```json
 {
-  "backend": ["/path/to/api", "/path/to/auth-service"],
-  "mobile": ["/path/to/ios", "/path/to/android"],
-  "web": ["/path/to/frontend"],
-  "terraform": ["/path/to/infra"],
-  "qa": ["/path/to/tests"],
+  "backend": [
+    {
+      "path": "/path/to/api",
+      "description": "Main REST API handling user accounts and billing",
+      "labels": ["api", "billing"],
+      "tags": ["node", "express", "postgres"]
+    },
+    {
+      "path": "/path/to/auth-service",
+      "description": "Authentication and token issuance service",
+      "labels": ["auth", "security"],
+      "tags": ["go", "jwt", "redis"]
+    }
+  ],
+  "mobile": [
+    {
+      "path": "/path/to/ios",
+      "description": "iOS app (Swift/SwiftUI)",
+      "labels": ["ios"],
+      "tags": ["swift", "swiftui"]
+    }
+  ],
   "updated_at": "YYYY-MM-DD"
 }
 ```
 
 - Run `/brocode:brocode repos` to create or update
-- Git-ignored (machine-local paths)
+- Stored at `~/.brocode/repos.json` — shared across all projects on this machine
+- Agents read `description`, `labels`, and `tags` to orient before exploring code
 - Domain → agent mapping: `backend` → Backend Engineer, `mobile` → Mobile Engineer, `web`/`fullstack` → Frontend Engineer, `terraform`/`infra`/`sre` → SRE, `qa` → QA, unknown → Staff SWE
 - Missing path → agent warns user, never silent failure
 
