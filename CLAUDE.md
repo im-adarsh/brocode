@@ -14,7 +14,7 @@ Single entry point: `/brocode`
 |------|------|-------|
 | `agents/tpm.md` | TPM — program orchestrator, logs all transitions | Cross-cutting |
 | `agents/pm.md` | Product Manager | Product |
-| `agents/designer.md` | Designer (API + UX) | Product |
+| `agents/designer.md` | Designer (UX / UI) — user flows, screen states, interaction design | Product |
 | `agents/product-bar-raiser.md` | Principal PM / Head of Product — gates engineering | Product gate |
 | `agents/tech-lead.md` | Tech Lead — owns engineering team (Backend, Frontend, Mobile, SRE) | Engineering |
 | `agents/swe-backend.md` | Backend Engineer sub-agent | Engineering |
