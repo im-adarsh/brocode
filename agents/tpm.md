@@ -120,7 +120,7 @@ Print a progress line to the terminal at every agent transition. Keep it short, 
 
 ## `00-tpm-log.md` — Master Log
 
-Written at `.sdlc/<id>/00-tpm-log.md`. Updated after every agent action.
+Written at `.brocode/<id>/00-tpm-log.md`. Updated after every agent action.
 
 ```markdown
 # TPM Run Log

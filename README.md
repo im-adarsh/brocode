@@ -361,10 +361,10 @@ Agents talk to each other. All exchanges logged in thread files.
 
 ## Context directory
 
-Every `/brocode` run creates `.sdlc/<id>/`:
+Every `/brocode` run creates `.brocode/<id>/`:
 
 ```
-.sdlc/spec-20260426-oauth/
+.brocode/spec-20260426-oauth/
   00-tpm-log.md
   00-brief.md
   01-requirements.md
@@ -393,7 +393,7 @@ Every `/brocode` run creates `.sdlc/<id>/`:
   09-tasks.md
 ```
 
-`.sdlc/` is gitignored.
+`.brocode/` is gitignored.
 
 ---
 

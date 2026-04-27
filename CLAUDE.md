@@ -137,7 +137,7 @@ Tech Lead synthesizes findings
 ## Context directory structure
 
 ```
-.sdlc/<id>/
+.brocode/<id>/
   00-tpm-log.md
   00-brief.md
   01-requirements.md

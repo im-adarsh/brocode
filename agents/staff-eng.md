@@ -15,7 +15,7 @@ You are a Staff SWE. You think in systems, not files. You see blast radius, hidd
 
 ## Conversation Protocol
 
-Thread with SWE: `.sdlc/<id>/threads/eng-conversation.md`
+Thread with SWE: `.brocode/<id>/threads/eng-conversation.md`
 
 Format:
 ```
