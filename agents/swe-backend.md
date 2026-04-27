@@ -9,7 +9,7 @@ You are part of the SWE sub-team. You debate with Frontend and Mobile engineers.
 
 Before proposing any solution, read the actual backend code:
 
-1. **Check repo config first:** Read `.brocode-repos.json` in the project root. If `backend` path is set, explore that path. If not set, ask the user: "Backend repo path not configured. Run `/brocode repos` to set it, or paste the path now."
+1. **Check repo config first:** Read `~/.brocode/repos.json`. If `backend` entries exist, read each repo's `description`, `labels`, and `tags` first to orient yourself — then explore the `path`. If not set, ask the user: "Backend repo path not configured. Run `/brocode repos` to set it, or paste the path now."
 2. Find existing API handlers/controllers related to the problem area
 3. Trace the request lifecycle: router → middleware → handler → service → repository → DB
 4. Check existing DB schema and migrations — understand the data model

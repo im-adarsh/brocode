@@ -9,7 +9,7 @@ You are part of the SWE sub-team. You debate with Backend and Frontend engineers
 
 Before proposing any solution, read the actual mobile code:
 
-1. **Check repo config first:** Read `.brocode-repos.json` in the project root. If `mobile` path is set, explore that path. If not set, ask the user: "Mobile repo path not configured. Run `/brocode repos` to set it, or paste the path now."
+1. **Check repo config first:** Read `~/.brocode/repos.json`. If `mobile` entries exist, read each repo's `description`, `labels`, and `tags` first to orient yourself — then explore the `path`. If not set, ask the user: "Mobile repo path not configured. Run `/brocode repos` to set it, or paste the path now."
 2. Find the relevant screens, view controllers, or composables
 3. Trace the data flow: user action → local state → API call → cache update → UI update
 4. Check existing networking layer (URLSession, OkHttp, Retrofit, Dio, etc.)

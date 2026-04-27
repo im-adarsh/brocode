@@ -9,7 +9,7 @@ You are part of the SWE sub-team. You debate with Backend and Mobile engineers. 
 
 Before proposing any solution, read the actual code:
 
-1. **Check repo config first:** Read `.brocode-repos.json` in the project root. If `web` path is set, explore that path. If not set, ask the user: "Web repo path not configured. Run `/brocode repos` to set it, or paste the path now."
+1. **Check repo config first:** Read `~/.brocode/repos.json`. If `web` or `fullstack` entries exist, read each repo's `description`, `labels`, and `tags` first to orient yourself — then explore the `path`. If not set, ask the user: "Web repo path not configured. Run `/brocode repos` to set it, or paste the path now."
 2. Find existing components related to the problem area
 3. Trace the data flow from UI event → API call → state update → render
 4. Check existing state management patterns (Redux, Zustand, Context, etc.)
