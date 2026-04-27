@@ -67,10 +67,20 @@ Ask SWE questions freely — you need to understand the actual code, not just th
 **Status:** DRAFT | REVISED | APPROVED
 
 ## System Context
-[How this change fits the broader system — call graph or component diagram in text/ASCII]
+
+```mermaid
+graph TD
+    %% Show components involved and their relationships
+    %% e.g. ClientApp --> APIGateway --> ServiceA --> DB
+```
 
 ## Current Code Flow (from SWE conversation)
-[Traced flow as understood jointly — Component → Component → Component]
+
+```mermaid
+sequenceDiagram
+    %% Traced end-to-end flow as understood jointly with SWE
+    %% e.g. Client->>API: request, API->>Service: call, Service->>DB: query
+```
 
 ## Cross-System Impact
 | System | Impact | Risk | Mitigation |

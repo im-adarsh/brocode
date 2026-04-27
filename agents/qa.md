@@ -61,51 +61,140 @@ Ask before assuming:
 
 ## Output Format — `06-test-cases.md`
 
+Organize ALL test cases by user flow. Read the personas from `01-requirements.md` — every persona gets its own section. Typical flows: End User / Consumer, Merchant / Partner, Driver / Field Agent, Admin / Ops, Support Team. Use whatever personas the PM defined — do not invent personas not in requirements.
+
 ```markdown
 # Test Cases
-**Investigation ID:** [id]
+**Spec ID:** [id]
 **Version:** [N]
 **Status:** DRAFT | REVISED | APPROVED
 
-## Coverage Matrix
-| Acceptance Criterion | Unit | Integration | E2E | Status |
-|----------------------|------|-------------|-----|--------|
-| AC-1: ... | ✓ TC-01 | ✓ TC-05 | ✓ TC-09 | COVERED |
-| AC-2: ... | ✓ TC-02 | — | ✓ TC-10 | COVERED |
+## Personas Covered
+[List every persona from requirements and which section covers it]
 
-## Test Cases
+---
 
-### TC-01: [Name]
-**Type:** Unit
-**Scenario:** [What situation]
+## [Flow 1: e.g., End User / Consumer]
+
+### Coverage Matrix
+| AC | Scenario | Unit | Integration | E2E | Status |
+|----|----------|------|-------------|-----|--------|
+| AC-1 | Happy path | TC-01 | TC-05 | TC-09 | COVERED |
+| AC-2 | Empty state | TC-02 | — | TC-10 | COVERED |
+| AC-3 | Error: invalid input | TC-03 | TC-06 | — | COVERED |
+
+### Happy Path
+
+#### TC-01: [Name]
+**Type:** Unit | Integration | E2E
+**Scenario:** [Exact situation — what the user is doing, what state the system is in]
 **Setup:**
 ```[lang]
-// Exact setup code
+// Exact setup code — seed data, mocks, preconditions
 ```
 **Action:**
 ```[lang]
-// Exact call
+// Exact call or user interaction
 ```
 **Expected:**
 ```[lang]
-// Exact assertion
+// Exact assertions — response shape, state changes, side effects
 ```
 **Covers:** AC-1
 
-### TC-02: [Name]
+### Error Paths
+
+#### TC-02: [Name]
+[same structure — one test per error path from design doc]
+
+### Edge Cases
+
+#### TC-03: [Name]
+[same structure — concurrent access, empty inputs, boundary values, idempotency]
+
+### Security Tests
+
+#### TC-04: [Name]
+[same structure — auth bypass, permission boundary, data isolation]
+
+---
+
+## [Flow 2: e.g., Merchant / Partner]
+
+### Coverage Matrix
 [same structure]
 
-## Edge Cases
-[List each edge case with TC reference]
+### Happy Path
+[tests]
+
+### Error Paths
+[tests]
+
+### Edge Cases
+[tests]
+
+---
+
+## [Flow 3: e.g., Admin / Ops]
+
+### Coverage Matrix
+[same structure]
+
+### Happy Path
+[tests — ops creating/editing/disabling feature]
+
+### Error Paths
+[tests]
+
+---
+
+## [Flow 4: e.g., Support Team]
+
+### Coverage Matrix
+[same structure]
+
+### Happy Path
+[tests — support viewing audit trail, looking up user state]
+
+---
+
+## Cross-Flow Tests
+[Tests that span multiple personas — e.g., merchant creates X, consumer sees it]
+
+### TC-N: [Name]
+[same structure]
+
+---
+
+## Performance Tests
+
+### TC-PERF-01: [Name]
+**SLO:** [e.g., p99 < 200ms at 1000 req/s]
+**Tool:** [k6 / Locust / JMeter]
+**Scenario:**
+```[lang]
+// Load test script
+```
+**Pass criteria:** [exact thresholds]
+
+---
 
 ## Regression Tests
-[Existing behaviors that must be verified unchanged — with test references]
+| Test | What existing behavior is protected | Reference |
+|------|-------------------------------------|-----------|
+| TC-REG-01 | [behavior] | TC-[N] |
+
+---
 
 ## Not Testable / Manual Only
-[Anything that cannot be automated — with reason and manual test procedure]
+| Scenario | Why not automatable | Manual procedure |
+|----------|--------------------|--------------------|
+
+---
 
 ## Coverage Gaps
-[Anything in requirements/design NOT covered by any test — flag as risk]
+| AC or scenario | Not covered | Risk | Reason |
+|----------------|------------|------|--------|
 ```
 
 ## Test Writing Rules
