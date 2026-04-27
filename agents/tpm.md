@@ -48,9 +48,9 @@ Prefixes: `🟢` working · `↔️` agent convo · `⚠️` BR challenge · `�
 
 ---
 
-## `00-tpm-log.md` — The Run Journal
+## `tpm-logs.md` — The Run Journal
 
-Written at `.brocode/<id>/00-tpm-log.md`.
+Written at `.brocode/<id>/tpm-logs.md`.
 
 **This is an append-only time-series journal.** Every entry gets its own block. No tables for the main log — tables flatten decisions into rows and make them invisible. Write each entry immediately when the event happens. Never batch. Never rewrite.
 
@@ -73,18 +73,16 @@ There are two kinds of entries: **Events** (`E-NNN`) and **Decisions** (`D-NNN`)
 | Stage | Agent(s) | Status | Notes |
 |-------|----------|--------|-------|
 | Input ingestion | TPM | ✅ DONE | |
-| Requirements | PM | 🔄 IN_PROGRESS | v1 with Product BR |
-| Design | Designer | ⏳ PENDING | awaiting PM approval |
-| Product BR — Requirements | Product BR | ⏳ PENDING | |
-| Product BR — Design | Product BR | ⏳ PENDING | |
-| Product BR Gate | Product BR | ⏳ PENDING | |
-| SWE debate | Backend + Frontend + Mobile | ⏳ PENDING | |
-| SWE synthesis | Tech Lead | ⏳ PENDING | |
-| Architecture | Staff SWE | ⏳ PENDING | |
-| Ops plan | SRE | ⏳ PENDING | |
-| Test cases | QA | ⏳ PENDING | |
-| Eng BR reviews | Eng BR | ⏳ PENDING | |
-| Final spec + tasks | Eng BR | ⏳ PENDING | |
+| brief.md | TPM | ⏳ PENDING | |
+| product-spec.md | PM | 🔄 IN_PROGRESS | v1 with Product BR |
+| ux.md | Designer | ⏳ PENDING | awaiting PM approval |
+| Product BR gate | Product BR | ⏳ PENDING | |
+| implementation-options.md | Tech Lead | ⏳ PENDING | |
+| architecture.md | Staff SWE | ⏳ PENDING | |
+| ops.md | SRE | ⏳ PENDING | |
+| test-cases.md | QA | ⏳ PENDING | |
+| Engineering BR reviews | Eng BR | ⏳ PENDING | |
+| engineering-spec.md | Eng BR | ⏳ PENDING | |
 
 Status: ⏳ PENDING · 🔄 IN_PROGRESS · 🚫 BLOCKED · ✅ DONE · 🟡 ESCALATED
 
@@ -104,13 +102,13 @@ TPM will pick it up on next run and reopen from that entry.]
 
 ---
 ### [E-001] HH:MM · DISPATCH · TPM
-Kicked off [id]. Created `.brocode/[id]/` and threads directory.
-**Action:** Wrote `00-brief.md` from user input.
+Kicked off [id]. Created `.brocode/[id]/`, `product/`, `engineering/`, `threads/` directories.
+**Action:** Wrote `brief.md` from user input.
 **→ Next:** PM
 
 ---
 ### [E-002] HH:MM · START · PM
-Reading `00-brief.md`. Building requirements.
+Reading `brief.md`. Building requirements.
 
 ---
 ### [D-001] HH:MM · DECISION · PM
@@ -129,14 +127,14 @@ Reading `00-brief.md`. Building requirements.
 
 ---
 ### [E-003] HH:MM · ARTIFACT · PM
-Produced **01-requirements.md v1**
+Produced **product-spec.md v1**
 - [N] personas: [list]
 - [N] ACs (AC-1 through AC-N)
 - Key decision baked in: D-001
 **→ Next:** Product BR
 
 ---
-### [E-004] HH:MM · CHALLENGE · Product BR (Round 1 on 01-requirements.md)
+### [E-004] HH:MM · CHALLENGE · Product BR (Round 1 on product-spec.md)
 **[N] challenges raised:**
 - C1: [title] — [one line: what is wrong]
 - C2: [title] — [one line: what is wrong]
@@ -159,15 +157,15 @@ Produced **01-requirements.md v1**
 
 ---
 ### [E-005] HH:MM · REVISE · PM
-Revised to **01-requirements.md v2**
+Revised to **product-spec.md v2**
 - [What changed]: [see D-002, D-003]
 - [What changed]: [see D-004]
 **→ Next:** Product BR
 
 ---
 ### [E-006] HH:MM · APPROVE · Product BR
-Approved **01-requirements.md v2** — all challenges resolved.
-**→ Next:** Product BR reviews 02-design.md
+Approved **product-spec.md v2** — all challenges resolved.
+**→ Next:** Product BR reviews ux.md
 
 ---
 ### [E-007] HH:MM · GATE · Product BR
@@ -176,27 +174,38 @@ Engineering track unblocked.
 **→ Next:** Tech Lead
 
 ---
-### [E-008] HH:MM · CONVO · PM → Designer
+### [E-008] HH:MM · THREAD-OPEN · PM
+Created thread: `threads/empty-state-first-time-users.md`
+**Participants:** PM, Designer
+**Topic:** [topic in 5 words]
+
+---
+### [E-009] HH:MM · THREAD-RESOLVE · PM
+Resolved thread: `threads/empty-state-first-time-users.md`
+**References:** D-[N]
+
+---
+### [E-010] HH:MM · CONVO · PM → Designer
 > "[Verbatim question or key point from PM]"
 
 **→ Next:** Designer to respond
 
 ---
-### [E-009] HH:MM · CONVO · Designer → PM
+### [E-011] HH:MM · CONVO · Designer → PM
 > "[Verbatim answer]"
 
 **Outcome:** [What was agreed or left open]
 
 ---
-### [E-010] HH:MM · BLOCK · TPM
+### [E-012] HH:MM · BLOCK · TPM
 **[Blocker title]**
 **Reason:** [Why nothing can proceed]
 **Waiting on:** User / [Agent]
 **Unblock question:** [Exact question — one sentence]
 
 ---
-### [E-011] HH:MM · UNBLOCK · User
-**Resolved:** [Blocker title from E-010]
+### [E-013] HH:MM · UNBLOCK · User
+**Resolved:** [Blocker title from E-012]
 **User answer:** [What the user said]
 **Recorded as:** D-[N] (see below)
 **→ Next:** [Agent that was blocked]
@@ -216,7 +225,7 @@ Engineering track unblocked.
 **Revisit if:** [Condition]
 
 ---
-### [E-012] HH:MM · ESCALATE · TPM
+### [E-014] HH:MM · ESCALATE · TPM
 **[BR] and [producer] unresolved after 3 rounds on [artifact]**
 
 History:
@@ -228,18 +237,18 @@ Still unresolved: [exact gap in one sentence]
 **Question for user:** [One specific question that unblocks this]
 
 ---
-### [E-013] HH:MM · COMPLETE · TPM
+### [E-015] HH:MM · COMPLETE · TPM
 Run complete.
 **Produced:**
-- `08-final-spec.md` — approved engineering spec
-- `09-tasks.md` — [N] implementation tasks across [domains]
+- `final-spec.md` — approved engineering spec
+- `tasks.md` — [N] implementation tasks across [domains]
 
 **Key decisions made (index):**
 | Ref | Decision | Made by | Artifact |
 |-----|----------|---------|---------|
-| D-001 | [title] | PM | 01-requirements.md |
-| D-002 | [title] | PM | 01-requirements.md v2 |
-| D-003 | [title] | Tech Lead | 03-implementation-options.md |
+| D-001 | [title] | PM | product-spec.md |
+| D-002 | [title] | PM | product-spec.md v2 |
+| D-003 | [title] | Tech Lead | implementation-options.md |
 ```
 
 ---
@@ -254,6 +263,15 @@ Run complete.
 - Tech Lead picks which domains to dispatch
 - Staff SWE recommends one implementation option over others
 - SRE chooses a rollback strategy
+- A thread resolves — capture as D-NNN referenced by THREAD-RESOLVE event
+
+### Always write a THREAD-OPEN event when:
+- Any agent creates a new thread file in `.brocode/<id>/threads/`
+- Log: thread file path, participants, topic
+
+### Always write a THREAD-RESOLVE event when:
+- An agent marks a thread Status: RESOLVED and writes the Decision section
+- Log: thread file path, references the D-NNN decision entry
 
 ### What makes a good DECISION entry:
 - The options table must have at least 2 real options — not "do it" vs "don't do it"
@@ -349,6 +367,19 @@ Update: Stage Progress table — set to 🚫 BLOCKED
 Write: E-NNN · ESCALATE · TPM  — full history of all 3 rounds
 Print: 🚫  📋 TPM  →  ESCALATE — [BR] × [artifact] — [question in 10 words]
 Surface to user in chat: full context + one specific decision question
+```
+
+### On THREAD-OPEN
+```
+Write: E-NNN · THREAD-OPEN · [creator]  — thread file path, participants, topic
+Print: ↔️  [emoji A] ↔️ [emoji B]  →  opened thread: [topic in 5 words]
+```
+
+### On THREAD-RESOLVE
+```
+Write: D-NNN for the thread decision (options considered, chose, rationale, downstream impact)
+Write: E-NNN · THREAD-RESOLVE · [resolver]  — thread file path, references D-NNN
+Print: ✅  ↔️  →  [topic] resolved — [one-line outcome]
 ```
 
 ### On COMPLETE

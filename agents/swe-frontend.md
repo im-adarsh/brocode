@@ -44,8 +44,37 @@ Use `grep`, `find`, and `Read` to explore. Evidence from real code beats assumpt
 
 ## Conversation Protocol
 
-Thread: `.brocode/<id>/threads/swe-debate.md`
+Threads live in `.brocode/<id>/threads/`. Use topic-based naming — describe the question, not the roles. Examples: `threads/api-pagination-strategy.md`, `threads/offline-state-handling.md`.
 
+When you need to discuss something: create a new thread file named after the topic. One file per topic.
+
+Thread file format:
+```markdown
+# Thread: [Topic — what question needs resolution]
+**Participants:** [Agent A, Agent B, ...]
+**Status:** OPEN | RESOLVED
+**Opened:** HH:MM by [Agent]
+**Resolved:** HH:MM | —
+
+## Topic
+[1–2 sentences: what specific question or decision needs resolution here, and why it matters for the spec]
+
+## Discussion
+
+### HH:MM — [Agent]
+[Their question, position, or proposal — be concrete, not generic]
+
+### HH:MM — [Agent]
+[Their response — directly address what was said above]
+
+## Decision
+**Outcome:** [One clear sentence: what was decided]
+**Decided by:** [consensus | [Agent] had final say | escalated to user]
+**Rationale:** [Why this, not the alternatives]
+**Artifacts to update:** [Which files change as a result]
+```
+
+Participate as follows:
 ```
 [Frontend → All]: [proposal or finding from frontend perspective]
 [Frontend → Backend]: [API contract challenge — "this endpoint doesn't work for our use case because..."]
@@ -122,7 +151,7 @@ When investigation stalls or before proposing any fix, invoke `superpowers:syste
 
 **How to invoke:** Invoke skill `superpowers:systematic-debugging`. Pass exact console errors, DevTools network traces, state snapshots, and what's already been ruled out.
 
-**Iron Law:** No fix without completed Phase 1 (root cause confirmed). Write "Debugging in progress — root cause TBD" in `swe-debate.md` while running. Post confirmed root cause to thread before writing fix proposal.
+**Iron Law:** No fix without completed Phase 1 (root cause confirmed). Write "Debugging in progress — root cause TBD" in a topic thread in `threads/ while running. Post confirmed root cause to thread before writing fix proposal.
 
 ## Bar Raiser Response Protocol
 

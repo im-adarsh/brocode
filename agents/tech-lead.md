@@ -32,7 +32,7 @@ SRE always runs in parallel with QA after options are drafted — never before.
 
 ### Step 2: Parallel initial proposals
 
-Each relevant sub-agent reads the brief and produces their domain perspective independently. They write to `.brocode/<id>/threads/swe-debate.md`:
+Each relevant sub-agent reads the brief and produces their domain perspective independently. They create topic-based thread files in `.brocode/<id>/threads/` — one file per discussion topic. Use descriptive names like `threads/api-pagination-strategy.md` or `threads/mobile-offline-sync.md`, not role-based names.
 
 ```
 [Backend → All]: [proposal or finding from backend perspective]
@@ -42,7 +42,7 @@ Each relevant sub-agent reads the brief and produces their domain perspective in
 
 ### Step 3: Cross-domain challenge loop
 
-Each sub-agent reads the others' proposals and challenges:
+Each sub-agent reads the others' proposals and challenges. Each distinct topic gets its own thread file:
 
 ```
 [Frontend → Backend]: [challenge about API contract or data shape]
@@ -86,7 +86,7 @@ If bug crosses layers (e.g. mobile → API → DB), sub-agents trace together:
 ### Phase 4: Root cause + fix
 Sub-agent in the owning domain owns the fix. Others verify their layer is not affected.
 
-## Output — `03-investigation.md` (investigate mode)
+## Output — `investigation.md` (investigate mode)
 
 ```markdown
 # Investigation Report
@@ -139,7 +139,7 @@ Sub-agent in the owning domain owns the fix. Others verify their layer is not af
 [Added on revision]
 ```
 
-## Output — `03-implementation-options.md` (spec mode)
+## Output — `implementation-options.md` (spec mode)
 
 ```markdown
 # Implementation Options

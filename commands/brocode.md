@@ -9,6 +9,26 @@ You are the brocode orchestrator. The user has invoked /brocode with the followi
 
 ## Step 0: Subcommands
 
+### `revise` / `challenge`
+If input is `revise` or `challenge` or contains "add constraint" / "throw it back" / "reopen" / "challenge decision":
+
+This is a **revision run** — the user has reviewed the output artifacts and wants to rerun part of the loop with new constraints.
+
+1. Scan `.brocode/` for completed runs (dirs containing `engineering-spec.md` or `product-spec.md`). If multiple, list and ask which.
+2. Read `tpm-logs.md` from the selected run. Show the Reviewer Revision Requests table.
+3. If the user provided new constraints in the input (e.g. "/brocode revise: make payment idempotent, scope to mobile only"), add a row to the Reviewer Revision Requests table referencing the most relevant D-NNN decision.
+4. For each OPEN row in Reviewer Revision Requests:
+   - Find the referenced D-NNN entry in the log
+   - Determine which stage produced that decision (PM → product-spec.md, Designer → ux.md, Tech Lead → implementation-options.md, etc.)
+   - Write a new D-NNN entry: `[D-NNN] HH:MM · DECISION · [Producer] (revision of D-NNN per reviewer)` with the constraint captured in the options table
+   - Mark the revision request row as RESOLVED
+   - Rerun from that stage forward — all downstream agents must re-read the updated artifact and revise if affected
+   - Skip stages whose inputs did not change
+5. Product BR and Engineering BR re-review any revised artifacts (new round, max 2 rounds).
+6. When all revision requests resolved: rewrite `engineering-spec.md` + `tasks.md` from approved revised artifacts.
+7. Print: `✅ 📋 TPM → revision complete — [N] decisions updated, spec + tasks rewritten`
+- Stop.
+
 ### `repos` / `setup`
 If input is `repos` or `setup` or contains "register repo" / "set repo" / "add repo path":
 
@@ -87,11 +107,11 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
   Then restart Claude Code.
   ```
   Stop.
-- Scan `.brocode/` for dirs with `08-final-spec.md` + `09-tasks.md`. If multiple, list and ask which.
+- Scan `.brocode/` for dirs with `engineering-spec.md` + `tasks.md`. If multiple, list and ask which.
 - Read `~/.brocode/repos.json` for repo paths.
 - For each domain with tasks (backend / web / mobile):
   1. Invoke `superpowers:using-git-worktrees` — create isolated worktree in that domain's repo for branch `brocode/<spec-id>-<domain>`
-  2. Invoke `superpowers:writing-plans` — convert domain tasks from `09-tasks.md` into a superpowers plan at `docs/superpowers/plans/<spec-id>-<domain>.md` inside the worktree
+  2. Invoke `superpowers:writing-plans` — convert domain tasks from `tasks.md` into a superpowers plan at `docs/superpowers/plans/<spec-id>-<domain>.md` inside the worktree
   3. Invoke `superpowers:subagent-driven-development` — execute plan task by task inside the worktree with 2-stage review (spec compliance + code quality) per task
   4. Invoke `superpowers:finishing-a-development-branch` — run tests, push branch, create PR
   5. Delete the worktree after PR is created: `git worktree remove --force <worktree-path>`
@@ -146,12 +166,12 @@ Analyze input:
 ### Pre-flight
 1. Generate ID: `inv-YYYYMMDD-<slug>`
 2. Create `.brocode/<id>/` and `.brocode/<id>/threads/`
-3. Write `.brocode/<id>/00-brief.md` from user input
+3. Write `.brocode/<id>/brief.md` from user input
 4. Read `~/.brocode/repos.json` for repo paths — pass to relevant engineer agents
 
 ### Org: who does what
 ```
-TPM (you) — overall orchestrator, logs all transitions to 00-tpm-log.md
+TPM (you) — overall orchestrator, logs all transitions to tpm-logs.md
 └── Engineering Track
     ├── Tech Lead (agents/tech-lead.md) — dispatches engineer sub-agents, owns investigation
     │   ├── Backend Engineer (agents/swe-backend.md) — if bug is server-side
@@ -163,17 +183,17 @@ TPM (you) — overall orchestrator, logs all transitions to 00-tpm-log.md
 ```
 
 ### Phase 1 (parallel)
-- **Tech Lead** reads `agents/tech-lead.md` — triages domain, dispatches scoped engineer sub-agents, runs cross-domain debug in `threads/swe-debate.md`, produces `03-investigation.md`
+- **Tech Lead** reads `agents/tech-lead.md` — triages domain, dispatches scoped engineer sub-agents, creates topic-based threads in `threads/`, produces `investigation.md`
   - Each engineer sub-agent: invoke `superpowers:systematic-debugging` if investigation stalls (2 hypotheses eliminated, intermittent bug, 3+ layers, contradictory symptoms)
-- **SRE** reads `agents/sre.md` — assesses blast radius, produces `05-ops.md` (impact only, no rollback yet)
-- Both write to `threads/eng-conversation.md`
+- **SRE** reads `agents/sre.md` — assesses blast radius, produces `ops.md` (impact only, no rollback yet)
+- Both create topic threads under `threads/` as needed
 
 ### Phase 2 (sequential)
-- **Staff SWE** reads `agents/staff-eng.md` — reads `03-investigation.md`, converses with Tech Lead via thread, validates root cause architecturally, produces `04-architecture.md`
+- **Staff SWE** reads `agents/staff-eng.md` — reads `investigation.md`, converses with Tech Lead via topic threads, validates root cause architecturally, produces `architecture.md`
 
 ### Phase 3 — Engineering BR loop
 
-For each artifact (`03-investigation.md`, `04-architecture.md`, `05-ops.md`):
+For each artifact (`investigation.md`, `architecture.md`, `ops.md`):
 
 ```
 round = 1
@@ -181,8 +201,8 @@ loop:
   dispatch Engineering BR sub-agent (fresh context):
     - reads artifact + all prior challenge files for this artifact
     - reads agents/engineering-bar-raiser.md
-    - either: writes 07-eng-br-reviews/0N-<artifact>-challenge-round<round>.md
-    - or:     writes 07-eng-br-reviews/0N-<artifact>-approved.md → BREAK loop
+    - either: writes br/engineering/0N-<artifact>-challenge-round<round>.md
+    - or:     writes br/engineering/0N-<artifact>-approved.md → BREAK loop
 
   if challenged:
     print: ⚠️  ⚖️ Eng BR  →  [N challenges on <artifact>] (round <round>)
@@ -200,7 +220,7 @@ loop:
     break
 ```
 
-When all three artifacts approved: write `08-final-spec.md` + `09-tasks.md`.
+When all three artifacts approved: write `engineering-spec.md` + `tasks.md`.
 
 ### Iron laws
 1. No fix proposed without confirmed root cause
@@ -214,17 +234,17 @@ When all three artifacts approved: write `08-final-spec.md` + `09-tasks.md`.
 
 ### Pre-flight
 1. Generate ID: `spec-YYYYMMDD-<slug>`
-2. Create `.brocode/<id>/`, `.brocode/<id>/threads/`, `.brocode/<id>/07-product-br-reviews/`, `.brocode/<id>/07-eng-br-reviews/`
+2. Create `.brocode/<id>/`, `.brocode/<id>/threads/`, `.brocode/<id>/br/product/`, `.brocode/<id>/br/engineering/`
 3. Handle external input: if URL/doc attached, fetch content (use Google Drive MCP if available, else ask user to paste). If image, describe it.
-4. Write `.brocode/<id>/00-brief.md`
+4. Write `.brocode/<id>/brief.md`
 5. Read `~/.brocode/repos.json` for repo paths — pass to engineer agents
 
 ### Org: who does what
 ```
-TPM (you) — overall orchestrator, logs all transitions to 00-tpm-log.md
+TPM (you) — overall orchestrator, logs all transitions to tpm-logs.md
 ├── Product Track (gates engineering)
 │   ├── PM (agents/pm.md) — requirements, personas, journeys, ACs
-│   ├── Designer (agents/designer.md) — API contracts, user flows, ops/support interfaces
+│   ├── Designer (agents/designer.md) — UX flows, screen states, e2e mermaid diagram
 │   └── Product Bar Raiser (agents/product-bar-raiser.md) — challenges both, gates engineering
 └── Engineering Track (starts only after Product BR gate open)
     ├── Tech Lead (agents/tech-lead.md) — dispatches engineer sub-agents, owns implementation options
@@ -239,20 +259,20 @@ TPM (you) — overall orchestrator, logs all transitions to 00-tpm-log.md
 
 ### Phase 1 — Product Track
 **Step 1a: PM** reads `agents/pm.md`
-- Reads `00-brief.md` + any raw input
-- Converses with Designer via `threads/product-conversation.md`
-- Produces `01-requirements.md`
+- Reads `brief.md` + any raw input
+- Converses with Designer via topic threads in `threads/`
+- Produces `product-spec.md`
 
 **Step 1b: Designer** reads `agents/designer.md`
-- Reads `01-requirements.md`
-- Converses with PM via thread
-- Produces `02-design.md`
+- Reads `product-spec.md`
+- Converses with PM via topic threads
+- Produces `ux.md`
 
 PM and Designer converse freely. Both artifacts stable before Product BR reviews.
 
 **Step 1c: Product Bar Raiser loop**
 
-For each artifact (`01-requirements.md`, `02-design.md`):
+For each artifact (`product-spec.md`, `ux.md`):
 
 ```
 round = 1
@@ -261,8 +281,8 @@ loop:
     - reads artifact + all prior challenge files for this artifact
     - reads agents/product-bar-raiser.md
     - uses web search when competitors referenced
-    - either: writes 07-product-br-reviews/0N-<artifact>-challenge-round<round>.md
-    - or:     writes 07-product-br-reviews/0N-<artifact>-approved.md → BREAK loop
+    - either: writes br/product/0N-<artifact>-challenge-round<round>.md
+    - or:     writes br/product/0N-<artifact>-approved.md → BREAK loop
 
   if challenged:
     print: ⚠️  🔬 Product BR  →  [N challenges on <artifact>] (round <round>)
@@ -281,35 +301,35 @@ loop:
     break
 ```
 
-When both artifacts approved: write `07-product-br-reviews/gate-approved.md`.
+When both artifacts approved: write `br/product/gate-approved.md`.
 
 **Engineering track does NOT start until Product BR gate is approved.**
 
 ### Phase 2 — Engineering Track
 
 **Step 2a: Tech Lead** reads `agents/tech-lead.md` (parallel start with Step 2b)
-- Reads `01-requirements.md` + `02-design.md`
+- Reads `product-spec.md` + `ux.md`
 - Dispatches Backend / Frontend / Mobile sub-agents based on scope — run in parallel
-- Sub-agents debate in `threads/swe-debate.md`
+- Sub-agents create topic threads in `threads/` for cross-domain debate
 - Each sub-agent uses `superpowers:systematic-debugging` if they hit a bug during codebase analysis
-- Converses with Staff SWE via `threads/eng-conversation.md`
-- Produces `03-implementation-options.md` (3 options with real code sketches)
+- Converses with Staff SWE via topic threads
+- Produces `implementation-options.md` (3 options with real code sketches)
 
 **Step 2b: Staff SWE** reads `agents/staff-eng.md` (converges with Tech Lead)
-- Reads `02-design.md` + `03-implementation-options.md`
-- Converses with Tech Lead via `threads/eng-conversation.md`
-- Produces `04-architecture.md`
+- Reads `ux.md` + `implementation-options.md`
+- Converses with Tech Lead via topic threads
+- Produces `architecture.md`
 
 Tech Lead + Staff SWE must converge on single recommendation before Step 2c.
 
 **Step 2c: SRE + QA (parallel)**
-- **SRE** reads `agents/sre.md` — reads approved artifacts, produces `05-ops.md`
-- **QA** reads `agents/qa.md` — reads approved artifacts, produces `06-test-cases.md`
-- Both can ask Tech Lead / Staff SWE via `threads/eng-conversation.md`
+- **SRE** reads `agents/sre.md` — reads approved artifacts, produces `ops.md`
+- **QA** reads `agents/qa.md` — reads approved artifacts, produces `test-cases.md`
+- Both can ask Tech Lead / Staff SWE via topic threads
 
 **Step 2d: Engineering Bar Raiser loop**
 
-For each artifact (`03-implementation-options.md`, `04-architecture.md`, `05-ops.md`, `06-test-cases.md`):
+For each artifact (`implementation-options.md`, `architecture.md`, `ops.md`, `test-cases.md`):
 
 ```
 round = 1
@@ -318,8 +338,8 @@ loop:
     - reads this artifact + all other eng artifacts (cross-consistency check)
     - reads all prior challenge files for this artifact
     - reads agents/engineering-bar-raiser.md
-    - either: writes 07-eng-br-reviews/0N-<artifact>-challenge-round<round>.md
-    - or:     writes 07-eng-br-reviews/0N-<artifact>-approved.md → BREAK loop
+    - either: writes br/engineering/0N-<artifact>-challenge-round<round>.md
+    - or:     writes br/engineering/0N-<artifact>-approved.md → BREAK loop
 
   if challenged:
     print: ⚠️  ⚖️ Eng BR  →  [N challenges on <artifact>] (round <round>)
@@ -337,7 +357,7 @@ loop:
     break
 ```
 
-When all four artifacts approved: write `08-final-spec.md` + `09-tasks.md`.
+When all four artifacts approved: write `engineering-spec.md` + `tasks.md`.
 
 ### Iron laws
 1. Product BR must approve before engineering starts
@@ -367,7 +387,7 @@ You are the overall program orchestrator. Invoke `superpowers:using-superpowers`
 ```
 Prefixes: `🟢` working · `↔️` agent convo · `⚠️` BR challenge · `✅` approved · `🚫` blocked
 
-**Log all transitions to `00-tpm-log.md`.**
+**Log all transitions to `tpm-logs.md`.**
 **Surface blockers immediately with exact question.**
 **Never skip a stage. Never do an agent's job yourself.**
 
