@@ -14,7 +14,7 @@ Single entry point: `/brocode`
 |------|------|-------|
 | `agents/tpm.md` | TPM — program orchestrator, logs all transitions | Cross-cutting |
 | `agents/pm.md` | Product Manager | Product |
-| `agents/designer.md` | Designer (API + UX) | Product |
+| `agents/designer.md` | Designer (UX / UI) — user flows, screen states, interaction design | Product |
 | `agents/product-bar-raiser.md` | Principal PM / Head of Product — gates engineering | Product gate |
 | `agents/tech-lead.md` | Tech Lead — owns engineering team (Backend, Frontend, Mobile, SRE) | Engineering |
 | `agents/swe-backend.md` | Backend Engineer sub-agent | Engineering |
@@ -38,7 +38,7 @@ All orchestration lives in `commands/brocode.md`. Agents use superpowers skills 
 | TPM session start | `superpowers:using-superpowers` |
 | Investigation stalls / bug encountered | `superpowers:systematic-debugging` |
 | Code review on PR/MR | `superpowers:code-review` |
-| Convert 09-tasks.md to plan | `superpowers:writing-plans` |
+| Convert tasks.md to plan | `superpowers:writing-plans` |
 | Execute plan task by task | `superpowers:subagent-driven-development` |
 | Finish domain branch + PR | `superpowers:finishing-a-development-branch` |
 | Isolated domain workspace | `superpowers:using-git-worktrees` |
@@ -47,7 +47,7 @@ All orchestration lives in `commands/brocode.md`. Agents use superpowers skills 
 
 | File | Triggers |
 |------|---------|
-| `commands/brocode.md` | `/brocode:brocode <bug or feature>` · `/brocode:brocode repos` · `/brocode:brocode develop` · `/brocode:brocode review <url>` |
+| `commands/brocode.md` | `/brocode:brocode <bug or feature>` · `/brocode:brocode repos` · `/brocode:brocode develop` · `/brocode:brocode review <url>` · `/brocode:brocode revise` |
 
 ## Repo Config
 
@@ -94,11 +94,11 @@ Engineer agents read `~/.brocode/repos.json` (user-level, shared across all proj
 ### Investigate mode
 ```
 Tech Lead → scoped sub-agents (Backend / Frontend / Mobile, parallel)
-    ↕ debate: swe-debate.md
+    ↕ debate: threads/<topic>.md
 Tech Lead synthesizes  +  SRE (parallel, blast radius)
     → Staff SWE (validates root cause architecturally)
     → Engineering BR loop (max 3 rounds per artifact)
-    → 08-final-spec.md + 09-tasks.md
+    → engineering-spec.md + tasks.md
 ```
 
 ### Spec mode
@@ -107,17 +107,17 @@ PM ↔ Designer (conversation)
     → Product BR loop (max 3 rounds per artifact)
     → [GATE] engineering blocked until approved
 Tech Lead → scoped sub-agents (parallel)
-    ↕ debate: swe-debate.md
+    ↕ debate: threads/<topic>.md
 Tech Lead + Staff SWE converge
     → SRE + QA (parallel)
     → Engineering BR loop (max 3 rounds per artifact)
-    → 08-final-spec.md + 09-tasks.md
+    → engineering-spec.md + tasks.md
 ```
 
 ### Develop mode
 ```
 Requires: superpowers installed
-Reads: 08-final-spec.md + 09-tasks.md
+Reads: final-spec.md + tasks.md
 Per domain (backend / web / mobile) — parallel:
     → superpowers:using-git-worktrees  (isolated worktree)
     → superpowers:writing-plans
@@ -156,24 +156,39 @@ Tech Lead synthesizes findings
 
 ```
 .brocode/<id>/
-  00-tpm-log.md
-  00-brief.md
-  01-requirements.md
-  02-design.md
-  03-investigation.md | 03-implementation-options.md
-  04-architecture.md
-  05-ops.md
-  06-test-cases.md
+  brief.md                ← user input + clarified scope
+  tpm-logs.md             ← TPM journal (E-NNN events + D-NNN decisions)
+  product-spec.md         ← PM — pRFC format
+  ux.md                   ← Designer — UX flows + e2e mermaid per persona
+  implementation-options.md ← Tech Lead (spec mode)
+  investigation.md          ← Tech Lead (investigate mode)
+  architecture.md           ← Staff SWE
+  ops.md                    ← SRE
+  test-cases.md             ← QA
+  engineering-spec.md       ← RFC — full self-contained spec
+  tasks.md                  ← domain-scoped implementation tasks
+  br/
+    product/
+      req-challenge-r1.md   ← Product BR challenges on product-spec
+      req-approved.md
+      ux-challenge-r1.md    ← Product BR challenges on ux
+      ux-approved.md
+      gate-approved.md      ← product gate opened
+    engineering/
+      impl-challenge-r1.md  ← Eng BR challenges per artifact
+      impl-approved.md
+      arch-challenge-r1.md
+      arch-approved.md
+      ops-challenge-r1.md
+      ops-approved.md
+      qa-challenge-r1.md
+      qa-approved.md
   threads/
-    product-conversation.md      ← PM ↔ Designer
-    swe-debate.md                ← Backend ↔ Frontend ↔ Mobile
-    eng-conversation.md          ← Tech Lead ↔ Staff SWE ↔ SRE ↔ QA
-    eng-product-conversation.md  ← Eng ↔ PM/Designer
-  07-product-br-reviews/
-  07-eng-br-reviews/
-  08-final-spec.md
-  09-tasks.md
+    <topic-slug>.md         ← one per discussion topic, created on demand
+                               format: Topic / Discussion / Decision
 ```
+
+---
 
 ---
 

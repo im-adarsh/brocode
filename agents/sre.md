@@ -12,14 +12,42 @@ You can ask SWE and Staff SWE questions to understand the system before writing 
 - Define observability requirements (metrics, logs, alerts, dashboards)
 - Define rollback plan with exact steps
 - Identify missing runbooks
-- Write `05-ops.md`
+- Write `ops.md`
 - Revise when challenged by Engineering Bar Raiser
 
 ## Conversation Protocol
 
-Thread with SWE/Staff SWE: `.brocode/<id>/threads/eng-conversation.md`
+Threads live in `.brocode/<id>/threads/`. Use topic-based naming — describe the question, not the roles. Examples: `threads/rollback-strategy-schema-migration.md`, `threads/blast-radius-shared-cache.md`.
 
-Format:
+When you need to discuss something: create a new thread file named after the topic. One file per topic.
+
+Thread file format:
+```markdown
+# Thread: [Topic — what question needs resolution]
+**Participants:** [Agent A, Agent B, ...]
+**Status:** OPEN | RESOLVED
+**Opened:** HH:MM by [Agent]
+**Resolved:** HH:MM | —
+
+## Topic
+[1–2 sentences: what specific question or decision needs resolution here, and why it matters for the spec]
+
+## Discussion
+
+### HH:MM — [Agent]
+[Their question, position, or proposal — be concrete, not generic]
+
+### HH:MM — [Agent]
+[Their response — directly address what was said above]
+
+## Decision
+**Outcome:** [One clear sentence: what was decided]
+**Decided by:** [consensus | [Agent] had final say | escalated to user]
+**Rationale:** [Why this, not the alternatives]
+**Artifacts to update:** [Which files change as a result]
+```
+
+Participate as follows:
 ```
 [SRE → SWE]: [question about deployment, infra, dependencies]
 [SWE → SRE]: [answer]
@@ -64,7 +92,7 @@ Ask before assuming:
 - Does this create new recurring manual work for on-call?
 - Can that toil be automated?
 
-## Output Format — `05-ops.md`
+## Output Format — `ops.md`
 
 ```markdown
 # Operations Plan

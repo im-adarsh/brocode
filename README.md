@@ -99,7 +99,7 @@ flowchart TD
         ESCALATE["🚫 Escalate to user"]
     end
 
-    OUT(["08-final-spec.md + 09-tasks.md"])
+    OUT(["engineering-spec.md + tasks.md"])
 
     A --> TL
     TL --> BE & FE & MOB
@@ -146,7 +146,7 @@ flowchart TD
     end
 
     GATE{{"Product gate\napproved?"}}
-    OUT(["08-final-spec.md + 09-tasks.md"])
+    OUT(["engineering-spec.md + tasks.md"])
 
     A --> PM
     PM <-->|"product-conversation.md"| DS
@@ -182,7 +182,7 @@ flowchart TD
     A(["/brocode develop"])
     CHECK{"superpowers\ninstalled?"}
     INSTALL["Install superpowers\nclaude plugin install superpowers@claude-plugins-official"]
-    TASKS["Read 08-final-spec.md\n+ 09-tasks.md"]
+    TASKS["Read engineering-spec.md\n+ tasks.md"]
 
     subgraph DOMAIN["Per domain (backend / web / mobile) — runs in parallel"]
         WT["superpowers:using-git-worktrees\ncreate isolated worktree"]
@@ -276,18 +276,18 @@ flowchart TD
 
 | Agent | Role | Produces |
 |-------|------|---------|
-| **TPM** | Program orchestrator, logs all transitions, prints live progress | `00-tpm-log.md` |
-| **PM** | Senior Product Manager | `01-requirements.md` |
-| **Designer** | Senior Designer (API + UX) | `02-design.md` |
+| **TPM** | Program orchestrator, logs all transitions, prints live progress | `tpm-logs.md` |
+| **PM** | Senior Product Manager | `product-spec.md` |
+| **Designer** | Senior Designer (UX / UI) | `ux.md` |
 | **Product Bar Raiser** | Principal PM — challenges PM + Designer, gates engineering | Challenge files + gate approval |
-| **Tech Lead** | Owns engineering team, dispatches sub-agents, synthesizes debate | `03-investigation.md` or `03-implementation-options.md` |
+| **Tech Lead** | Owns engineering team, dispatches sub-agents, synthesizes debate | `investigation.md` or `implementation-options.md` |
 | → **Backend Engineer** *(sub-agent)* | APIs, DB, services, queues | Debate in `swe-debate.md` |
 | → **Frontend Engineer** *(sub-agent)* | Web UI, state, browser, SSR/CSR | Debate in `swe-debate.md` |
 | → **Mobile Engineer** *(sub-agent)* | iOS, Android, RN, Flutter, offline | Debate in `swe-debate.md` |
-| → **SRE** *(Tech Lead's team)* | Ops plan, blast radius, rollback | `05-ops.md` |
-| **Staff SWE** | Architecture review, peer to Tech Lead | `04-architecture.md` |
-| **QA** | Full test matrix with actual test code | `06-test-cases.md` |
-| **Engineering Bar Raiser** | Principal Eng — challenges all 4 artifacts, writes final spec | `08-final-spec.md` + `09-tasks.md` |
+| → **SRE** *(Tech Lead's team)* | Ops plan, blast radius, rollback | `ops.md` |
+| **Staff SWE** | Architecture review, peer to Tech Lead | `architecture.md` |
+| **QA** | Full test matrix with actual test code | `test-cases.md` |
+| **Engineering Bar Raiser** | Principal Eng — challenges all 4 artifacts, writes final spec | `engineering-spec.md` + `tasks.md` |
 
 ---
 
@@ -334,7 +334,7 @@ flowchart TD
 - Challenges SRE: theoretical rollback plans, missing observability
 - Challenges QA: ACs without tests, TODOs instead of test code
 - Cross-checks all four artifacts for consistency
-- Writes `08-final-spec.md` + `09-tasks.md` after all approved
+- Writes `engineering-spec.md` + `tasks.md` after all approved
 
 ---
 
@@ -382,23 +382,23 @@ Every `/brocode` run creates `.brocode/<id>/`:
 graph TD
     ROOT[".brocode/spec-20260426-oauth/"]:::dir
 
-    ROOT --> TPM["📋 00-tpm-log.md — TPM master log, live"]:::tpm
-    ROOT --> BRIEF["00-brief.md — user input + clarified scope"]:::file
-    ROOT --> REQ["01-requirements.md — PM, versioned"]:::file
-    ROOT --> DES["02-design.md — Designer, versioned"]:::file
-    ROOT --> IMPL["03-implementation-options.md / 03-investigation.md — Tech Lead"]:::file
-    ROOT --> ARCH["04-architecture.md — Staff SWE, versioned"]:::file
-    ROOT --> OPS["05-ops.md — SRE, versioned"]:::file
-    ROOT --> QA["06-test-cases.md — QA, versioned"]:::file
+    ROOT --> TPM["📋 tpm-logs.md — TPM master log, live"]:::tpm
+    ROOT --> BRIEF["brief.md — user input + clarified scope"]:::file
+    ROOT --> REQ["product-spec.md — PM, versioned"]:::file
+    ROOT --> DES["ux.md — Designer, versioned"]:::file
+    ROOT --> IMPL["implementation-options.md / investigation.md — Tech Lead"]:::file
+    ROOT --> ARCH["architecture.md — Staff SWE, versioned"]:::file
+    ROOT --> OPS["ops.md — SRE, versioned"]:::file
+    ROOT --> QA["test-cases.md — QA, versioned"]:::file
     ROOT --> THR["threads/"]:::dir
     THR --> PCT["product-conversation.md — PM ↔ Designer"]:::thread
     THR --> SWED["swe-debate.md — Backend ↔ Frontend ↔ Mobile"]:::thread
     THR --> ENGC["eng-conversation.md — Tech Lead ↔ Staff SWE ↔ SRE ↔ QA"]:::thread
     THR --> ENGP["eng-product-conversation.md — Eng ↔ PM/Designer"]:::thread
-    ROOT --> PBR["07-product-br-reviews/ — challenge rounds + gate approval"]:::br
-    ROOT --> EBR["07-eng-br-reviews/ — challenge rounds + approvals"]:::br
-    ROOT --> SPEC["✅ 08-final-spec.md — approved, ready to implement"]:::final
-    ROOT --> TASKS["✅ 09-tasks.md — domain-scoped tasks for /brocode develop"]:::final
+    ROOT --> PBR["br/product/ — challenge rounds + gate approval"]:::br
+    ROOT --> EBR["br/engineering/ — challenge rounds + approvals"]:::br
+    ROOT --> SPEC["✅ engineering-spec.md — approved, ready to implement"]:::final
+    ROOT --> TASKS["✅ tasks.md — domain-scoped tasks for /brocode develop"]:::final
 
     classDef dir fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
     classDef tpm fill:#0d3321,stroke:#3fb950,color:#3fb950

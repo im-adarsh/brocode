@@ -486,7 +486,7 @@
       <div><span class="t-agent">🏗️  Staff SWE</span><span class="t-arrow">→</span><span class="t-out">validating root cause: race condition in token refresh middleware</span></div>
       <div><span class="t-warn">⚠️  Eng BR</span><span class="t-arrow">→</span><span class="t-out">challenged: "show APM trace — not hypothesis" (round 1)</span></div>
       <div><span class="t-agent">⚙️  Backend</span><span class="t-arrow">→</span><span class="t-out">providing trace + reproducer test (v2)</span></div>
-      <div><span class="t-approved">✅ Eng BR</span><span class="t-arrow">→</span><span class="t-out">root cause APPROVED · writing 08-final-spec.md + 09-tasks.md</span></div>
+      <div><span class="t-approved">✅ Eng BR</span><span class="t-arrow">→</span><span class="t-out">root cause APPROVED · writing engineering-spec.md + tasks.md</span></div>
     </div>
   </div>
 
@@ -521,7 +521,7 @@ flowchart TD
 
     subgraph PROD["Product Track"]
       PM["🎯 PM\nSenior PM"]:::prod
-      DS["🎨 Designer\nAPI + UX"]:::prod
+      DS["🎨 Designer\nUX / UI"]:::prod
       PBR["🔬 Product Bar Raiser\nPrincipal PM — GATE"]:::gate
     end
 
@@ -613,7 +613,7 @@ flowchart TD
           <div class="flow-step">
             <div class="flow-step-num">6</div>
             <div class="flow-step-body">
-              <div class="flow-step-title">08-final-spec.md + 09-tasks.md</div>
+              <div class="flow-step-title">engineering-spec.md + tasks.md</div>
               <div class="flow-step-sub">Confirmed root cause + exact fix + failing test + ops rollback + domain-scoped task list for implementation.</div>
             </div>
           </div>
@@ -634,7 +634,7 @@ flowchart TD
 
     STAFF["🏗️ Staff SWE\nroot cause validation"]:::node
     EBR["⚖️ Engineering BR\nmax 3 rounds"]:::gate
-    OUT(["08-final-spec.md\n09-tasks.md"]):::output
+    OUT(["engineering-spec.md\ntasks.md"]):::output
 
     A --> TPM --> TL
     TL --> TL_TEAM
@@ -661,7 +661,7 @@ flowchart TD
             <div class="flow-step-num">1</div>
             <div class="flow-step-body">
               <div class="flow-step-title">PM + Designer converse <span class="flow-badge badge-parallel">free conversation</span></div>
-              <div class="flow-step-sub">PM writes requirements with all personas + journeys. Designer writes API contracts + flows. Both converse freely.</div>
+              <div class="flow-step-sub">PM writes requirements with all personas + journeys. Designer designs UX flows, screen states, and interactions per persona. Both converse freely.</div>
             </div>
           </div>
           <div class="flow-step">
@@ -725,7 +725,7 @@ flowchart TD
     STAFF["🏗️ Staff SWE"]:::node
     QA["🧪 QA"]:::node
     EBR["⚖️ Engineering BR\nmax 3 rounds each"]:::gate
-    OUT(["08-final-spec.md\n09-tasks.md"]):::output
+    OUT(["engineering-spec.md\ntasks.md"]):::output
 
     A --> TPM
     TPM --> PM & DS
@@ -755,7 +755,7 @@ flowchart TD
           <div class="flow-step">
             <div class="flow-step-num">1</div>
             <div class="flow-step-body">
-              <div class="flow-step-title">Read 08-final-spec.md + 09-tasks.md</div>
+              <div class="flow-step-title">Read engineering-spec.md + tasks.md</div>
               <div class="flow-step-sub">Tasks are already domain-scoped with exact file paths, function signatures, and acceptance criteria.</div>
             </div>
           </div>
@@ -770,7 +770,7 @@ flowchart TD
             <div class="flow-step-num">3</div>
             <div class="flow-step-body">
               <div class="flow-step-title">Convert tasks to superpowers plan</div>
-              <div class="flow-step-sub">superpowers:writing-plans converts 09-tasks.md into a TDD-driven plan with exact steps and code sketches.</div>
+              <div class="flow-step-sub">superpowers:writing-plans converts tasks.md into a TDD-driven plan with exact steps and code sketches.</div>
             </div>
           </div>
           <div class="flow-step">
@@ -801,7 +801,7 @@ flowchart TD
     A(["/brocode develop"]):::entry
     TPM["📋 TPM\norchestrator"]:::tpm
     CHECK{"superpowers\ninstalled?"}
-    SPEC["Read 08-final-spec.md\n+ 09-tasks.md"]:::node
+    SPEC["Read engineering-spec.md\n+ tasks.md"]:::node
     TL["🤝 Tech Lead\nper domain"]:::node
 
     subgraph PER_DOMAIN["Per domain — parallel (backend / web / mobile)"]
@@ -928,7 +928,7 @@ flowchart TD
         <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">📋 TPM</span><span class="pl-sep">→</span><span class="pl-action">kicked off spec-20260426-oauth, tracking stages</span></div>
         <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎯 PM</span><span class="pl-sep">→</span><span class="pl-action">reading brief, building requirements</span></div>
         <div><span class="pl-convo">↔️</span>&nbsp;&nbsp; <span class="pl-agent">🎯 PM ↔️ 🎨 Designer</span><span class="pl-sep">→</span><span class="pl-action">PM asked: "empty state for first-time users?"</span></div>
-        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎨 Designer</span><span class="pl-sep">→</span><span class="pl-action">writing API contracts and all user flows</span></div>
+        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎨 Designer</span><span class="pl-sep">→</span><span class="pl-action">designing UX flows and screen states per persona</span></div>
         <div><span class="pl-warn">⚠️</span>&nbsp;&nbsp; <span class="pl-agent">🔬 Product BR</span><span class="pl-sep">→</span><span class="pl-action">challenge round 1: ops interface missing, AC-4 untestable</span></div>
         <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎯 PM</span><span class="pl-sep">→</span><span class="pl-action">revising requirements v2</span></div>
         <div><span class="pl-ok">✅</span>&nbsp;&nbsp; <span class="pl-agent">🔬 Product BR</span><span class="pl-sep">→</span><span class="pl-action">APPROVED — product gate OPEN</span></div>
@@ -941,7 +941,7 @@ flowchart TD
         <div><span class="pl-warn">⚠️</span>&nbsp;&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">challenged Tech Lead: "option 3 N+1 query — mitigation?" (round 1)</span></div>
         <div><span class="pl-warn">⚠️</span>&nbsp;&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">challenged QA: "AC-7 has no test case" (round 1)</span></div>
         <div><span class="pl-ok">✅</span>&nbsp;&nbsp; <span class="pl-agent">⚖️ Eng BR</span><span class="pl-sep">→</span><span class="pl-action">all 4 artifacts APPROVED — writing final spec + tasks</span></div>
-        <div><span class="pl-ok">✅</span>&nbsp;&nbsp; <span class="pl-agent">📋 TPM</span><span class="pl-sep">→</span><span class="pl-action">08-final-spec.md + 09-tasks.md written — done</span></div>
+        <div><span class="pl-ok">✅</span>&nbsp;&nbsp; <span class="pl-agent">📋 TPM</span><span class="pl-sep">→</span><span class="pl-action">engineering-spec.md + tasks.md written — done</span></div>
       </div>
     </div>
   </div>
@@ -979,7 +979,7 @@ flowchart TD
           <div class="agent-icon" style="background:rgba(88,166,255,.1)">🎨</div>
           <div class="agent-meta"><h3>Designer</h3><div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div></div>
         </div>
-        <div class="agent-desc">Designs API contracts, all user flows (happy, error, empty, loading), ops interface, and support interface. Converses with PM. Answers engineering questions during the engineering track.</div>
+        <div class="agent-desc">Designs UX flows, screen states, and interactions for every persona (end user, ops/admin, support). Covers happy path, error, empty, and loading states. Converses with PM. Answers SWE questions about intended UX behavior.</div>
         <div class="agent-tags"><span class="tag tag-product">Product</span></div>
       </div>
 
@@ -1060,7 +1060,7 @@ flowchart TD
           <div class="agent-icon" style="background:rgba(248,81,73,.1)">⚖️</div>
           <div class="agent-meta"><h3>Engineering Bar Raiser</h3><div class="agent-model"><span class="model-opus">claude-opus</span></div></div>
         </div>
-        <div class="agent-desc">Principal Engineer. Challenges all 4 engineering artifacts — cross-artifact consistency check. Fresh sub-agent per review round. Writes 08-final-spec.md + 09-tasks.md when all approved.</div>
+        <div class="agent-desc">Principal Engineer. Challenges all 4 engineering artifacts — cross-artifact consistency check. Fresh sub-agent per review round. Writes engineering-spec.md + tasks.md when all approved.</div>
         <div class="agent-tags"><span class="tag tag-gate-eng">Engineering Gate</span></div>
       </div>
 
@@ -1086,7 +1086,7 @@ flowchart TD
           <li>Verifies all personas: end user, ops/admin, support team</li>
           <li>Checks every journey has error states and recovery actions</li>
           <li>Web-searches competitor references — verifies claims against real behavior</li>
-          <li>Challenges API contracts for missing error cases</li>
+          <li>Challenges designs for missing error states and edge case flows</li>
           <li>Verifies ops team can actually manage this feature post-launch</li>
         </ul>
         <div class="br-loop">
@@ -1098,7 +1098,7 @@ flowchart TD
       <div class="br-card br-eng">
         <div class="br-eyebrow">Engineering Track</div>
         <h3>Engineering Bar Raiser</h3>
-        <p class="br-subtitle">Principal Engineer. Reviews all 4 engineering artifacts. Writes 08-final-spec.md + 09-tasks.md when all approved.</p>
+        <p class="br-subtitle">Principal Engineer. Reviews all 4 engineering artifacts. Writes engineering-spec.md + tasks.md when all approved.</p>
         <ul class="br-checks">
           <li>Challenges Tech Lead options for vague tradeoffs or inconsistency with design</li>
           <li>Challenges Staff SWE concerns without codebase evidence</li>
@@ -1213,23 +1213,23 @@ flowchart TD
 graph TD
     ROOT[".brocode/spec-20260426-oauth/"]:::dir
 
-    ROOT --> TPM["📋 00-tpm-log.md\nTPM master log, live throughout"]:::tpm
-    ROOT --> BRIEF["00-brief.md\nuser input + clarified scope"]:::file
-    ROOT --> REQ["01-requirements.md\nPM, versioned"]:::file
-    ROOT --> DES["02-design.md\nDesigner, versioned"]:::file
-    ROOT --> IMPL["03-implementation-options.md\nTech Lead"]:::file
-    ROOT --> ARCH["04-architecture.md\nStaff SWE, versioned"]:::file
-    ROOT --> OPS["05-ops.md\nSRE, versioned"]:::file
-    ROOT --> QA["06-test-cases.md\nQA, versioned"]:::file
+    ROOT --> TPM["📋 tpm-logs.md\nTPM master log, live throughout"]:::tpm
+    ROOT --> BRIEF["brief.md\nuser input + clarified scope"]:::file
+    ROOT --> REQ["product-spec.md\nPM, versioned"]:::file
+    ROOT --> DES["ux.md\nDesigner, versioned"]:::file
+    ROOT --> IMPL["implementation-options.md\nTech Lead"]:::file
+    ROOT --> ARCH["architecture.md\nStaff SWE, versioned"]:::file
+    ROOT --> OPS["ops.md\nSRE, versioned"]:::file
+    ROOT --> QA["test-cases.md\nQA, versioned"]:::file
     ROOT --> THR["threads/"]:::dir
     THR --> PCT["product-conversation.md\nPM ↔ Designer"]:::thread
     THR --> SWED["swe-debate.md\nBackend ↔ Frontend ↔ Mobile"]:::thread
     THR --> ENGC["eng-conversation.md\nTech Lead ↔ Staff SWE ↔ SRE ↔ QA"]:::thread
     THR --> ENGP["eng-product-conversation.md\nEng ↔ PM/Designer"]:::thread
-    ROOT --> PBR["07-product-br-reviews/\nchallenge rounds + gate approval"]:::br
-    ROOT --> EBR["07-eng-br-reviews/\nchallenge rounds + approvals"]:::br
-    ROOT --> SPEC["✅ 08-final-spec.md\napproved, ready to implement"]:::final
-    ROOT --> TASKS["✅ 09-tasks.md\ndomain-scoped tasks for /brocode develop"]:::final
+    ROOT --> PBR["br/product/\nchallenge rounds + gate approval"]:::br
+    ROOT --> EBR["br/engineering/\nchallenge rounds + approvals"]:::br
+    ROOT --> SPEC["✅ engineering-spec.md\napproved, ready to implement"]:::final
+    ROOT --> TASKS["✅ tasks.md\ndomain-scoped tasks for /brocode develop"]:::final
 
     classDef dir fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
     classDef tpm fill:#0d3321,stroke:#3fb950,color:#3fb950
