@@ -165,51 +165,96 @@ Analyze input:
 
 ### Pre-flight
 1. Generate ID: `inv-YYYYMMDD-<slug>`
-2. Create `.brocode/<id>/` and `.brocode/<id>/threads/`
+2. Create `.brocode/<id>/`, `.brocode/<id>/threads/`, `.brocode/<id>/br/engineering/`, `.brocode/<id>/instructions/`
 3. Write `.brocode/<id>/brief.md` from user input
-4. Read `~/.brocode/repos.json` for repo paths — pass to relevant engineer agents
+4. Read `~/.brocode/repos.json` for repo paths
 
-### Org: who does what
+### Org
 ```
-TPM (you) — overall orchestrator, logs all transitions to tpm-logs.md
+TPM (you) — orchestrator, logs all transitions, writes instruction files before every dispatch
 └── Engineering Track
-    ├── Tech Lead (agents/tech-lead.md) — dispatches engineer sub-agents, owns investigation
-    │   ├── Backend Engineer (agents/swe-backend.md) — if bug is server-side
-    │   ├── Frontend Engineer (agents/swe-frontend.md) — if bug is web UI
-    │   ├── Mobile Engineer (agents/swe-mobile.md) — if bug is mobile
-    │   └── SRE (agents/sre.md) — ops impact, blast radius (parallel with Tech Lead)
-    ├── Staff SWE (agents/staff-eng.md) — validates root cause architecturally
-    └── Engineering Bar Raiser (agents/engineering-bar-raiser.md) — gates final spec
+    ├── Tech Lead sub-agent — dispatches engineer sub-agents, synthesizes, writes final spec + tasks
+    │   ├── Backend Engineer sub-agent (scope-based, parallel)
+    │   ├── Frontend Engineer sub-agent (scope-based, parallel)
+    │   ├── Mobile Engineer sub-agent (scope-based, parallel)
+    │   ├── SRE sub-agent (parallel — ops + blast radius + infra)
+    │   └── QA sub-agent (parallel — failing test + test surface)
+    └── Engineering Bar Raiser sub-agent (fresh context per round — challenges only, never writes spec)
 ```
 
-### Phase 1 (parallel)
-- **Tech Lead** reads `agents/tech-lead.md` — triages domain, dispatches scoped engineer sub-agents, creates topic-based threads in `threads/`, produces `investigation.md`
-  - Each engineer sub-agent: invoke `superpowers:systematic-debugging` if investigation stalls (2 hypotheses eliminated, intermittent bug, 3+ layers, contradictory symptoms)
-- **SRE** reads `agents/sre.md` — assesses blast radius, produces `ops.md` (impact only, no rollback yet)
-- Both create topic threads under `threads/` as needed
+### Instruction file protocol
+Before dispatching any sub-agent, TPM writes an instruction file to `.brocode/<id>/instructions/<role>-<phase>.md`:
+```
+# Instruction: <role> — <phase>
+Run ID: <id>
+Your agent file: agents/<agent-file>.md
+What to do: <specific task, concrete>
+Files to read: <explicit list of paths>
+File to write: <exact output path>
+Threads: <thread files to create/append, if applicable>
+Constraints: <hard rules>
+```
+Print immediately after writing:
+`📋 TPM → instruction written: instructions/<role>-<phase>.md`
 
-### Phase 2 (sequential)
-- **Staff SWE** reads `agents/staff-eng.md` — reads `investigation.md`, converses with Tech Lead via topic threads, validates root cause architecturally, produces `architecture.md`
+### Phase 1: Tech Lead dispatch
+TPM writes `.brocode/<id>/instructions/tech-lead-investigate.md`:
+```
+# Instruction: Tech Lead — investigate
+Run ID: <id>
+Your agent file: agents/tech-lead.md
+What to do:
+  1. Read ~/.brocode/wiki/index.md — understand full system topology.
+  2. Triage domain from brief.md. Determine which of Backend/Frontend/Mobile are involved.
+  3. Write instruction files for each relevant engineer sub-agent, plus SRE and QA.
+  4. Dispatch all in parallel. Each scans knowledge base first, then reads repos.
+  5. Read all findings from threads/. Synthesize into investigation.md.
+  6. After all artifacts BR-approved, write engineering-spec.md + tasks.md.
+Files to read: .brocode/<id>/brief.md, ~/.brocode/repos.json, ~/.brocode/wiki/index.md
+Files to write: .brocode/<id>/investigation.md (then later) .brocode/<id>/engineering-spec.md, .brocode/<id>/tasks.md
+Constraints:
+  - No fix without confirmed root cause
+  - No fix without failing test case
+  - You are the sole producer of engineering-spec.md and tasks.md
+  - Engineering BR challenges but never writes the spec
+```
+Print: `🤝 Tech Lead → dispatched`
+Dispatch Tech Lead sub-agent (reads `agents/tech-lead.md` + its instruction file).
 
-### Phase 3 — Engineering BR loop
+Tech Lead internally writes instruction files for each engineer before dispatching:
+- `.brocode/<id>/instructions/backend-investigate.md`
+- `.brocode/<id>/instructions/frontend-investigate.md` (if web layer involved)
+- `.brocode/<id>/instructions/mobile-investigate.md` (if mobile involved)
+- `.brocode/<id>/instructions/sre-investigate.md`
+- `.brocode/<id>/instructions/qa-investigate.md`
 
-For each artifact (`investigation.md`, `architecture.md`, `ops.md`):
+Each instruction tells the sub-agent:
+- What domain repos to read (from `~/.brocode/repos.json`)
+- Where to find the knowledge base (`~/.brocode/wiki/<repo-slug>/`)
+- What thread files to write findings to (`threads/<topic>.md` — descriptive names, one per topic)
+- When to invoke `superpowers:systematic-debugging` (2 hypotheses eliminated, intermittent bug, 3+ layers, contradictory symptoms)
+
+### Phase 2: Engineering BR loop
+
+For each artifact (`investigation.md`, `ops.md`, `test-cases.md`):
 
 ```
 round = 1
 loop:
-  dispatch Engineering BR sub-agent (fresh context):
+  TPM writes: .brocode/<id>/instructions/eng-br-round<round>-<artifact>.md
+  Print: 📋 TPM → instruction written: instructions/eng-br-round<round>-<artifact>.md
+
+  Dispatch Engineering BR sub-agent (fresh context):
     - reads artifact + all prior challenge files for this artifact
-    - reads agents/engineering-bar-raiser.md
-    - either: writes br/engineering/0N-<artifact>-challenge-round<round>.md
-    - or:     writes br/engineering/0N-<artifact>-approved.md → BREAK loop
+    - reads agents/engineering-bar-raiser.md + its instruction file
+    - either: writes br/engineering/<N>-<artifact>-challenge-round<round>.md
+    - or:     writes br/engineering/<N>-<artifact>-approved.md → BREAK loop
 
   if challenged:
     print: ⚠️  ⚖️ Eng BR  →  [N challenges on <artifact>] (round <round>)
     dispatch producer sub-agent (fresh context):
-      - reads challenge file + current artifact
-      - reads their agent file
-      - revises artifact (appends ## Changes from BR Challenge)
+      - reads challenge file + current artifact + their agent file
+      - revises artifact (appends ## Changes from BR Challenge round <round>)
     print: 🟢  [producer]  →  revised <artifact> v<round+1>
     round += 1
 
@@ -220,13 +265,33 @@ loop:
     break
 ```
 
-When all three artifacts approved: write `engineering-spec.md` + `tasks.md`.
+When `investigation.md` + `ops.md` + `test-cases.md` all approved:
+
+TPM writes `.brocode/<id>/instructions/tech-lead-final-spec.md`:
+```
+# Instruction: Tech Lead — write final spec
+Run ID: <id>
+Your agent file: agents/tech-lead.md
+What to do: Read all approved artifacts. Write engineering-spec.md (RFC format,
+  fully self-contained — context, decision, consequences, implementation plan).
+  Write tasks.md (domain-scoped task list, clear ACs per task).
+Files to read: .brocode/<id>/investigation.md, .brocode/<id>/ops.md,
+               .brocode/<id>/test-cases.md, all br/engineering/*-approved.md
+Files to write: .brocode/<id>/engineering-spec.md, .brocode/<id>/tasks.md
+Constraints: You are the sole producer. Engineering BR will do a final check after.
+```
+Print: `🤝 Tech Lead → writing engineering-spec.md + tasks.md`
+Dispatch Tech Lead sub-agent (fresh context).
+
+Engineering BR does final check on `engineering-spec.md` + `tasks.md` (max 2 rounds).
+Print: `✅ Eng BR → engineering-spec.md APPROVED`
 
 ### Iron laws
 1. No fix proposed without confirmed root cause
 2. No fix approved without failing test case
-3. Engineering BR must approve before final spec
+3. Engineering BR challenges but never writes the spec
 4. No parallel agents editing the same file
+5. Tech Lead is sole producer of `engineering-spec.md` and `tasks.md`
 
 ---
 
