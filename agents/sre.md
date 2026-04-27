@@ -17,7 +17,7 @@ You can ask SWE and Staff SWE questions to understand the system before writing 
 
 ## Conversation Protocol
 
-Thread with SWE/Staff SWE: `.sdlc/<id>/threads/eng-conversation.md`
+Thread with SWE/Staff SWE: `.brocode/<id>/threads/eng-conversation.md`
 
 Format:
 ```

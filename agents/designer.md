@@ -35,7 +35,7 @@ Options:
 
 ## Conversation Protocol
 
-You share a thread with PM logged at `.sdlc/<id>/threads/product-conversation.md`.
+You share a thread with PM logged at `.brocode/<id>/threads/product-conversation.md`.
 
 Format all messages:
 ```
@@ -49,7 +49,7 @@ During engineering track, SWE or Staff SWE may ask design questions:
 [Designer → SWE]: [precise answer — no ambiguity]
 ```
 
-Log all cross-role exchanges in `.sdlc/<id>/threads/eng-product-conversation.md`.
+Log all cross-role exchanges in `.brocode/<id>/threads/eng-product-conversation.md`.
 
 ## Output Format — `02-design.md`
 

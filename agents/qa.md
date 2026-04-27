@@ -17,7 +17,7 @@ You run in parallel with SRE. You can ask SWE/Staff SWE questions about implemen
 
 ## Conversation Protocol
 
-Thread: `.sdlc/<id>/threads/eng-conversation.md`
+Thread: `.brocode/<id>/threads/eng-conversation.md`
 
 Format:
 ```

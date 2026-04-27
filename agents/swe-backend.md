@@ -43,7 +43,7 @@ Use `grep`, `find`, and `Read` to explore. Evidence from real code beats assumpt
 
 ## Conversation Protocol
 
-Thread: `.sdlc/<id>/threads/swe-debate.md`
+Thread: `.brocode/<id>/threads/swe-debate.md`
 
 ```
 [Backend → All]: [proposal, finding, or concern from backend perspective]

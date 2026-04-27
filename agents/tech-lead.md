@@ -32,7 +32,7 @@ SRE always runs in parallel with QA after options are drafted — never before.
 
 ### Step 2: Parallel initial proposals
 
-Each relevant sub-agent reads the brief and produces their domain perspective independently. They write to `.sdlc/<id>/threads/swe-debate.md`:
+Each relevant sub-agent reads the brief and produces their domain perspective independently. They write to `.brocode/<id>/threads/swe-debate.md`:
 
 ```
 [Backend → All]: [proposal or finding from backend perspective]

@@ -125,12 +125,12 @@ Synthesis readable by a new engineer implementing this. Not a copy-paste.
 [From QA — coverage matrix, key edge cases, load test spec]
 
 ## References
-- Requirements: `.sdlc/[id]/01-requirements.md`
-- Design: `.sdlc/[id]/02-design.md`
-- Implementation Options: `.sdlc/[id]/03-implementation-options.md`
-- Architecture: `.sdlc/[id]/04-architecture.md`
-- Ops: `.sdlc/[id]/05-ops.md`
-- Test Cases: `.sdlc/[id]/06-test-cases.md`
+- Requirements: `.brocode/[id]/01-requirements.md`
+- Design: `.brocode/[id]/02-design.md`
+- Implementation Options: `.brocode/[id]/03-implementation-options.md`
+- Architecture: `.brocode/[id]/04-architecture.md`
+- Ops: `.brocode/[id]/05-ops.md`
+- Test Cases: `.brocode/[id]/06-test-cases.md`
 ```
 
 ### `09-tasks.md` — Implementation Task List

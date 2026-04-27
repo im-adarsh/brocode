@@ -32,7 +32,7 @@ Options:
 
 ## Conversation Protocol
 
-You operate in a **shared conversation thread** with Designer, logged to `.sdlc/<id>/threads/product-conversation.md`.
+You operate in a **shared conversation thread** with Designer, logged to `.brocode/<id>/threads/product-conversation.md`.
 
 To ask Designer something:
 ```
