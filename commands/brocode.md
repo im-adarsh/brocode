@@ -299,63 +299,82 @@ Print: `✅ Eng BR → engineering-spec.md APPROVED`
 
 ### Pre-flight
 1. Generate ID: `spec-YYYYMMDD-<slug>`
-2. Create `.brocode/<id>/`, `.brocode/<id>/threads/`, `.brocode/<id>/br/product/`, `.brocode/<id>/br/engineering/`
-3. Handle external input: if URL/doc attached, fetch content (use Google Drive MCP if available, else ask user to paste). If image, describe it.
+2. Create `.brocode/<id>/`, `.brocode/<id>/threads/`, `.brocode/<id>/br/product/`, `.brocode/<id>/br/engineering/`, `.brocode/<id>/instructions/`
+3. Handle external input: if URL/doc attached, fetch content (Google Drive MCP if available, else ask user to paste). If image, describe it.
 4. Write `.brocode/<id>/brief.md`
-5. Read `~/.brocode/repos.json` for repo paths — pass to engineer agents
+5. Read `~/.brocode/repos.json` for repo paths
 
-### Org: who does what
+### Org
 ```
-TPM (you) — overall orchestrator, logs all transitions to tpm-logs.md
+TPM (you) — orchestrator, logs all transitions, writes instruction files before every dispatch
 ├── Product Track (gates engineering)
-│   ├── PM (agents/pm.md) — requirements, personas, journeys, ACs
-│   ├── Designer (agents/designer.md) — UX flows, screen states, e2e mermaid diagram
-│   └── Product Bar Raiser (agents/product-bar-raiser.md) — challenges both, gates engineering
+│   ├── PM sub-agent — requirements, personas, journeys, ACs
+│   ├── Designer sub-agent — UX flows, screen states, e2e mermaid diagram
+│   └── Product BR sub-agent (fresh per round) — challenges both, gates engineering
 └── Engineering Track (starts only after Product BR gate open)
-    ├── Tech Lead (agents/tech-lead.md) — dispatches engineer sub-agents, owns implementation options
-    │   ├── Backend Engineer (agents/swe-backend.md)
-    │   ├── Frontend Engineer (agents/swe-frontend.md)
-    │   ├── Mobile Engineer (agents/swe-mobile.md)
-    │   └── SRE (agents/sre.md) — ops plan, parallel with QA
-    ├── Staff SWE (agents/staff-eng.md) — architecture review, converges with Tech Lead
-    ├── QA (agents/qa.md) — test matrix, parallel with SRE
-    └── Engineering Bar Raiser (agents/engineering-bar-raiser.md) — gates final spec + tasks
+    ├── Tech Lead sub-agent — dispatches team, synthesizes, writes engineering-spec + tasks
+    │   ├── Backend Engineer sub-agent (parallel)
+    │   ├── Frontend Engineer sub-agent (parallel)
+    │   ├── Mobile Engineer sub-agent (parallel)
+    │   ├── SRE sub-agent (parallel — ops + infra)
+    │   └── QA sub-agent (parallel — test matrix)
+    └── Engineering BR sub-agent (fresh per round) — challenges artifacts, never writes spec
 ```
 
 ### Phase 1 — Product Track
-**Step 1a: PM** reads `agents/pm.md`
-- Reads `brief.md` + any raw input
-- Converses with Designer via topic threads in `threads/`
-- Produces `product-spec.md`
 
-**Step 1b: Designer** reads `agents/designer.md`
-- Reads `product-spec.md`
-- Converses with PM via topic threads
-- Produces `ux.md`
+**Step 1a: PM**
+TPM writes `.brocode/<id>/instructions/pm-phase1.md`:
+```
+# Instruction: PM — phase 1
+Run ID: <id>
+Your agent file: agents/pm.md
+What to do: Read brief.md. Converse with Designer via threads/<topic>.md (create one file per discussion topic, descriptive name). Produce product-spec.md.
+Files to read: .brocode/<id>/brief.md
+File to write: .brocode/<id>/product-spec.md
+Threads: create .brocode/<id>/threads/<topic>.md per discussion topic with Designer
+Constraints: All personas covered. Every AC testable and measurable.
+```
+Print: `🎯 PM → dispatched`
+Dispatch PM sub-agent (reads `agents/pm.md` + its instruction file).
 
-PM and Designer converse freely. Both artifacts stable before Product BR reviews.
+**Step 1b: Designer** (after PM writes product-spec.md)
+TPM writes `.brocode/<id>/instructions/designer-phase1.md`:
+```
+# Instruction: Designer — phase 1
+Run ID: <id>
+Your agent file: agents/designer.md
+What to do: Read product-spec.md. Converse with PM via threads (append to existing thread files or create new ones). Produce ux.md with e2e mermaid diagram per persona.
+Files to read: .brocode/<id>/product-spec.md, .brocode/<id>/threads/ (any existing)
+File to write: .brocode/<id>/ux.md
+Threads: append to existing threads or create .brocode/<id>/threads/<topic>.md
+Constraints: Every screen state covered. Every error state defined. API contracts explicit.
+```
+Print: `🎨 Designer → dispatched`
+Dispatch Designer sub-agent (reads `agents/designer.md` + its instruction file).
 
-**Step 1c: Product Bar Raiser loop**
+**Step 1c: Product BR loop**
 
 For each artifact (`product-spec.md`, `ux.md`):
-
 ```
 round = 1
 loop:
-  dispatch Product BR sub-agent (fresh context):
+  TPM writes: .brocode/<id>/instructions/product-br-round<round>-<artifact>.md
+  Print: 📋 TPM → instruction written: instructions/product-br-round<round>-<artifact>.md
+
+  Dispatch Product BR sub-agent (fresh context):
     - reads artifact + all prior challenge files for this artifact
-    - reads agents/product-bar-raiser.md
+    - reads agents/product-bar-raiser.md + its instruction file
     - uses web search when competitors referenced
-    - either: writes br/product/0N-<artifact>-challenge-round<round>.md
-    - or:     writes br/product/0N-<artifact>-approved.md → BREAK loop
+    - either: writes br/product/<N>-<artifact>-challenge-round<round>.md
+    - or:     writes br/product/<N>-<artifact>-approved.md → BREAK loop
 
   if challenged:
     print: ⚠️  🔬 Product BR  →  [N challenges on <artifact>] (round <round>)
     dispatch producer sub-agent (PM or Designer, fresh context):
-      - reads challenge file + current artifact
-      - reads their agent file
-      - revises artifact (appends ## Changes from BR Challenge)
-      - notifies the other if change affects their artifact
+      - reads challenge file + current artifact + their agent file + their original instruction
+      - revises artifact (appends ## Changes from Product BR Challenge round <round>)
+      - notifies other agent if change affects their artifact (appends to thread)
     print: 🟢  [producer]  →  revised <artifact> v<round+1>
     round += 1
 
@@ -366,52 +385,75 @@ loop:
     break
 ```
 
-When both artifacts approved: write `br/product/gate-approved.md`.
+When both `product-spec.md` + `ux.md` approved:
+Write `br/product/gate-approved.md`.
+Print: `🔓 TPM → [D-NNN] product gate OPEN — engineering starts`
 
 **Engineering track does NOT start until Product BR gate is approved.**
 
 ### Phase 2 — Engineering Track
 
-**Step 2a: Tech Lead** reads `agents/tech-lead.md` (parallel start with Step 2b)
-- Reads `product-spec.md` + `ux.md`
-- Dispatches Backend / Frontend / Mobile sub-agents based on scope — run in parallel
-- Sub-agents create topic threads in `threads/` for cross-domain debate
-- Each sub-agent uses `superpowers:systematic-debugging` if they hit a bug during codebase analysis
-- Converses with Staff SWE via topic threads
-- Produces `implementation-options.md` (3 options with real code sketches)
+**Step 2a: Tech Lead dispatch**
+TPM writes `.brocode/<id>/instructions/tech-lead-phase2.md`:
+```
+# Instruction: Tech Lead — phase 2 (spec)
+Run ID: <id>
+Your agent file: agents/tech-lead.md
+What to do:
+  1. Read ~/.brocode/wiki/index.md — understand full system topology.
+  2. Write instruction files for Backend, Frontend, Mobile, SRE, QA sub-agents.
+  3. Dispatch all 5 in parallel. Each scans knowledge base first, then reads repos.
+  4. Read all findings from threads/. Synthesize into implementation-options.md (3 options
+     with real code sketches, tradeoffs, and a clear recommendation).
+  5. After all artifacts BR-approved, write engineering-spec.md + tasks.md.
+Files to read: .brocode/<id>/product-spec.md, .brocode/<id>/ux.md,
+               ~/.brocode/repos.json, ~/.brocode/wiki/index.md
+Files to write: .brocode/<id>/implementation-options.md (then later)
+                .brocode/<id>/engineering-spec.md, .brocode/<id>/tasks.md
+Constraints:
+  - You are the sole producer of engineering-spec.md and tasks.md
+  - Engineering BR challenges but never writes the spec
+  - 3 implementation options required with real code sketches
+```
+Print: `🤝 Tech Lead → dispatched`
+Dispatch Tech Lead sub-agent (reads `agents/tech-lead.md` + its instruction file).
 
-**Step 2b: Staff SWE** reads `agents/staff-eng.md` (converges with Tech Lead)
-- Reads `ux.md` + `implementation-options.md`
-- Converses with Tech Lead via topic threads
-- Produces `architecture.md`
+Tech Lead internally writes and dispatches instruction files for:
+- `.brocode/<id>/instructions/backend-phase2.md`
+- `.brocode/<id>/instructions/frontend-phase2.md`
+- `.brocode/<id>/instructions/mobile-phase2.md`
+- `.brocode/<id>/instructions/sre-phase2.md`
+- `.brocode/<id>/instructions/qa-phase2.md`
 
-Tech Lead + Staff SWE must converge on single recommendation before Step 2c.
+Each instruction tells the sub-agent:
+- Domain repos from `~/.brocode/repos.json`
+- Knowledge base path: `~/.brocode/wiki/<repo-slug>/`
+- Thread files to write findings to (`threads/<topic>.md` — descriptive names)
+- When to invoke `superpowers:systematic-debugging`
+- SRE: produce `ops.md` (ops plan + infra/platform impact)
+- QA: produce `test-cases.md` (full test matrix with real test code)
 
-**Step 2c: SRE + QA (parallel)**
-- **SRE** reads `agents/sre.md` — reads approved artifacts, produces `ops.md`
-- **QA** reads `agents/qa.md` — reads approved artifacts, produces `test-cases.md`
-- Both can ask Tech Lead / Staff SWE via topic threads
+**Step 2b: Engineering BR loop**
 
-**Step 2d: Engineering Bar Raiser loop**
-
-For each artifact (`implementation-options.md`, `architecture.md`, `ops.md`, `test-cases.md`):
-
+For each artifact (`implementation-options.md`, `ops.md`, `test-cases.md`):
 ```
 round = 1
 loop:
-  dispatch Engineering BR sub-agent (fresh context):
+  TPM writes: .brocode/<id>/instructions/eng-br-round<round>-<artifact>.md
+  Print: 📋 TPM → instruction written: instructions/eng-br-round<round>-<artifact>.md
+
+  Dispatch Engineering BR sub-agent (fresh context):
     - reads this artifact + all other eng artifacts (cross-consistency check)
     - reads all prior challenge files for this artifact
-    - reads agents/engineering-bar-raiser.md
-    - either: writes br/engineering/0N-<artifact>-challenge-round<round>.md
-    - or:     writes br/engineering/0N-<artifact>-approved.md → BREAK loop
+    - reads agents/engineering-bar-raiser.md + its instruction file
+    - either: writes br/engineering/<N>-<artifact>-challenge-round<round>.md
+    - or:     writes br/engineering/<N>-<artifact>-approved.md → BREAK loop
 
   if challenged:
     print: ⚠️  ⚖️ Eng BR  →  [N challenges on <artifact>] (round <round>)
-    dispatch producer sub-agent (Tech Lead / Staff SWE / SRE / QA, fresh context):
-      - reads challenge file + current artifact
-      - reads their agent file
-      - revises artifact (appends ## Changes from BR Challenge)
+    dispatch producer sub-agent (Tech Lead / SRE / QA, fresh context):
+      - reads challenge file + current artifact + their agent file
+      - revises artifact (appends ## Changes from BR Challenge round <round>)
     print: 🟢  [producer]  →  revised <artifact> v<round+1>
     round += 1
 
@@ -422,12 +464,34 @@ loop:
     break
 ```
 
-When all four artifacts approved: write `engineering-spec.md` + `tasks.md`.
+**Step 2c: Tech Lead writes final spec**
+After `implementation-options.md` + `ops.md` + `test-cases.md` all approved:
+
+TPM writes `.brocode/<id>/instructions/tech-lead-final-spec.md`:
+```
+# Instruction: Tech Lead — write final spec (spec mode)
+Run ID: <id>
+Your agent file: agents/tech-lead.md
+What to do: Read all approved artifacts. Write engineering-spec.md (RFC format —
+  title, status, context, decision, consequences, implementation plan, open questions).
+  Write tasks.md (domain-scoped task list — one section per domain, clear ACs per task,
+  ordered by dependency).
+Files to read: .brocode/<id>/product-spec.md, .brocode/<id>/ux.md,
+               .brocode/<id>/implementation-options.md, .brocode/<id>/ops.md,
+               .brocode/<id>/test-cases.md, all br/engineering/*-approved.md
+Files to write: .brocode/<id>/engineering-spec.md, .brocode/<id>/tasks.md
+Constraints: Sole producer. Engineering BR will final-check after. Self-contained RFC.
+```
+Print: `🤝 Tech Lead → writing engineering-spec.md + tasks.md`
+Dispatch Tech Lead sub-agent (fresh context).
+
+Engineering BR does final check on `engineering-spec.md` + `tasks.md` (max 2 rounds).
+Print after approval: `✅ Eng BR → engineering-spec.md + tasks.md APPROVED`
 
 ### Iron laws
 1. Product BR must approve before engineering starts
-2. Tech Lead + Staff SWE must converge before SRE/QA start
-3. Engineering BR must approve all 4 artifacts before final spec
+2. Tech Lead is sole producer of `engineering-spec.md` and `tasks.md`
+3. Engineering BR challenges but never writes the spec
 4. Max 3 BR rounds per artifact — escalate to user if unresolved
 5. No agent edits another agent's artifact
 
