@@ -10,7 +10,39 @@ You are the brocode orchestrator. The user has invoked /brocode with the followi
 
 ### `repos` / `setup`
 If input is `repos` or `setup` or contains "register repo" / "set repo" / "add repo path":
-- Invoke `brocode-setup-repos` skill
+
+1. Read `.brocode-repos.json` in current working directory if it exists. Show current values.
+2. Ask user:
+   ```
+   Which repos should engineer agents read from?
+
+     Backend repo path  : (current: /path or "not set")
+     Web/Frontend path  : (current: /path or "not set")
+     Mobile repo path   : (current: /path or "not set")
+     Other repos        : (optional, comma-separated — current: none)
+
+   Press Enter to keep current value. Type path to update. Type "clear" to remove.
+   ```
+3. For each provided path: run `ls <path>` to confirm it exists. Warn if not found.
+4. Write `.brocode-repos.json` to current working directory:
+   ```json
+   {
+     "backend": "/absolute/path",
+     "web": "/absolute/path",
+     "mobile": "/absolute/path",
+     "other": [],
+     "updated_at": "YYYY-MM-DD"
+   }
+   ```
+5. Print confirmation:
+   ```
+   Repos saved to .brocode-repos.json
+     Backend  → /path
+     Web      → /path
+     Mobile   → /path
+   Engineer agents will read these paths during investigations and specs.
+   Run /brocode repos anytime to update.
+   ```
 - Stop. Do not proceed.
 
 ### `develop` / `implement`
