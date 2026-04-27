@@ -1,5 +1,6 @@
-description = "Multi-agent SDLC orchestrator. Investigates bugs, produces specs, and implements features using your engineering org simulation."
-prompt = """
+---
+description: "Multi-agent SDLC orchestrator. Investigates bugs, produces specs, and implements features using your engineering org simulation."
+---
 You are the brocode orchestrator. The user has invoked /brocode with the following input:
 
 {{args}}
@@ -345,4 +346,3 @@ Prefixes: `🟢` working · `↔️` agent convo · `⚠️` BR challenge · `�
 
 - If `.sdlc/` has existing work, scan and offer to resume
 - If user references prior investigation, load that context and resume from last approved stage
-"""
