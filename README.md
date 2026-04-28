@@ -383,6 +383,8 @@ graph TD
     ROOT --> EBR["br/engineering/ — challenge rounds + approvals"]:::br
     ROOT --> SPEC["✅ engineering-spec.md — approved, ready to implement"]:::final
     ROOT --> TASKS["✅ tasks.md — domain-scoped tasks for /brocode develop"]:::final
+    ROOT --> INST["instructions/ — TPM writes before each dispatch"]:::dir
+    ROOT --> RETRO["brocode.md — post-run retrospective"]:::file
 
     classDef dir fill:#1a3a5c,stroke:#58a6ff,color:#58a6ff
     classDef tpm fill:#0d3321,stroke:#3fb950,color:#3fb950
@@ -426,6 +428,26 @@ Prompts for paths, description, labels, and tags per repo. Writes to `~/.brocode
 ```
 
 Agents read `description`, `labels`, and `tags` to orient themselves before exploring code. If a path isn't set, that engineer agent notes it and skips code reading. No silent failures.
+
+---
+
+## Knowledge base
+
+Engineer sub-agents scan registered repos on first use and cache findings to `~/.brocode/wiki/`. Compounds across all brocode runs.
+
+```
+~/.brocode/wiki/
+  index.md            ← all repos scanned, global TOC
+  log.md              ← scan history
+  <repo-slug>/
+    overview.md       ← pattern, stack, CI
+    patterns.md       ← layout, service boundaries, naming
+    conventions.md    ← from CLAUDE.md + observed patterns
+    dependencies.md   ← deps, external services
+    test-strategy.md  ← test runner, file locations
+```
+
+Re-scanned automatically if > 7 days old. No manual action needed.
 
 ---
 
