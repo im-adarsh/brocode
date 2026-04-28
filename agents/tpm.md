@@ -72,30 +72,18 @@ Print BEFORE dispatch (shows intent) and AFTER artifact written (shows completio
 
 ## tpm-logs.md Format
 
-Append-only. Never overwrite. Add E-NNN events and D-NNN decisions as they happen.
+Written at `.brocode/<id>/tpm-logs.md`. Use **only** the block-entry format defined in the **`tpm-logs.md` — The Run Journal** section below.
 
-```markdown
-## Events
-E-001  HH:MM  TPM        → run started: <id>
-E-002  HH:MM  TPM        → instruction written: instructions/pm-phase1.md
-E-003  HH:MM  PM         → dispatched
-E-004  HH:MM  PM         → product-spec.md written (v1)
-E-005  HH:MM  Product BR → dispatched (round 1, artifact: product-spec.md)
-E-006  HH:MM  Product BR → CHALLENGED product-spec.md (3 issues)
-E-007  HH:MM  PM         → dispatched (revision, round 1)
-E-008  HH:MM  PM         → product-spec.md revised (v2)
-E-009  HH:MM  Product BR → APPROVED product-spec.md
+**Never use tables, flat lists, or improvised formats for the Run Log.** Tables flatten decisions into invisible rows. Flat `E-NNN  HH:MM  Agent → note` lines strip the rationale that makes logs useful.
 
-## Decisions
-D-001  HH:MM  Product gate OPEN
-              options: [wait for ux approval | open now]
-              chosen: open now
-              reason: product-spec approved, unblocks TL while ux completes
+Rules:
+- Append-only. Never overwrite.
+- One `### [E-NNN]` or `### [D-NNN]` block per event. Never batch multiple events into one block.
+- Sub-agents dispatched in parallel still get individual entries: 5 parallel dispatches = 5 separate DISPATCH blocks.
+- Sub-agent artifacts get individual entries: Backend findings, SRE ops.md, QA test-cases.md — each its own ARTIFACT block.
+- A full SPEC run produces 40–70 log entries. Fewer than 25 is a sign of under-logging.
 
-## Reviewer Revision Requests
-| ID | Constraint | References | Status |
-|----|-----------|-----------|--------|
-```
+See the Run Journal section for the full format, every entry type, and worked examples.
 
 ---
 
@@ -170,21 +158,22 @@ There are two kinds of entries: **Events** (`E-NNN`) and **Decisions** (`D-NNN`)
 ---
 
 ## Stage Progress
-| Stage | Agent(s) | Status | Notes |
-|-------|----------|--------|-------|
-| Input ingestion | TPM | ✅ DONE | |
-| brief.md | TPM | ⏳ PENDING | |
-| product-spec.md | PM | 🔄 IN_PROGRESS | v1 with Product BR |
-| ux.md | Designer | ⏳ PENDING | awaiting PM approval |
-| Product BR gate | Product BR | ⏳ PENDING | |
-| implementation-options.md | Tech Lead | ⏳ PENDING | |
-| architecture.md | Staff SWE | ⏳ PENDING | |
-| ops.md | SRE | ⏳ PENDING | |
-| test-cases.md | QA | ⏳ PENDING | |
-| Engineering BR reviews | Eng BR | ⏳ PENDING | |
-| engineering-spec.md | Eng BR | ⏳ PENDING | |
+| Stage | Agent(s) | Status | Started | Duration | Revisions | Notes |
+|-------|----------|--------|---------|----------|-----------|-------|
+| Input ingestion | TPM | ✅ DONE | HH:MM | N min | — | |
+| brief.md | TPM | ⏳ PENDING | — | — | — | |
+| product-spec.md | PM | 🔄 IN_PROGRESS | HH:MM | — | 0 | v1 with Product BR |
+| ux.md | Designer | ⏳ PENDING | — | — | — | awaiting PM approval |
+| Product BR gate | Product BR | ⏳ PENDING | — | — | — | |
+| implementation-options.md | Tech Lead | ⏳ PENDING | — | — | — | |
+| ops.md | SRE | ⏳ PENDING | — | — | — | |
+| test-cases.md | QA | ⏳ PENDING | — | — | — | |
+| Engineering BR reviews | Eng BR | ⏳ PENDING | — | — | — | |
+| engineering-spec.md | Tech Lead | ⏳ PENDING | — | — | — | |
 
 Status: ⏳ PENDING · 🔄 IN_PROGRESS · 🚫 BLOCKED · ✅ DONE · 🟡 ESCALATED
+Duration = time from agent dispatched to artifact approved (includes all revision rounds).
+Revisions = number of BR challenge rounds the agent went through.
 
 ---
 
@@ -231,6 +220,7 @@ Produced **product-spec.md v1**
 - [N] personas: [list]
 - [N] ACs (AC-1 through AC-N)
 - Key decision baked in: D-001
+**Elapsed:** N min (dispatched HH:MM → artifact HH:MM)
 **→ Next:** Product BR
 
 ---
@@ -260,6 +250,7 @@ Produced **product-spec.md v1**
 Revised to **product-spec.md v2**
 - [What changed]: [see D-002, D-003]
 - [What changed]: [see D-004]
+**Revision elapsed:** N min (challenge received HH:MM → revision submitted HH:MM)
 **→ Next:** Product BR
 
 ---
@@ -338,10 +329,28 @@ Still unresolved: [exact gap in one sentence]
 
 ---
 ### [E-015] HH:MM · COMPLETE · TPM
-Run complete.
+Run complete. **Total duration: N min** (started HH:MM → completed HH:MM)
+
 **Produced:**
-- `final-spec.md` — approved engineering spec
+- `engineering-spec.md` — approved engineering spec
 - `tasks.md` — [N] implementation tasks across [domains]
+
+**Performance Summary:**
+| Agent | Artifact | Dispatched | Done | Duration | Revisions | Revision time |
+|-------|----------|-----------|------|----------|-----------|---------------|
+| PM | product-spec.md | HH:MM | HH:MM | N min | N rounds | N min |
+| Designer | ux.md | HH:MM | HH:MM | N min | N rounds | N min |
+| Tech Lead | implementation-options.md | HH:MM | HH:MM | N min | N rounds | N min |
+| Backend Engineer | threads/backend-findings.md | HH:MM | HH:MM | N min | — | — |
+| Frontend Engineer | threads/web-findings.md | HH:MM | HH:MM | N min | — | — |
+| Mobile Engineer | threads/mobile-findings.md | HH:MM | HH:MM | N min | — | — |
+| SRE | ops.md | HH:MM | HH:MM | N min | N rounds | N min |
+| QA | test-cases.md | HH:MM | HH:MM | N min | N rounds | N min |
+| Tech Lead | engineering-spec.md + tasks.md | HH:MM | HH:MM | N min | N rounds | N min |
+| **Total run** | | **HH:MM** | **HH:MM** | **N min** | | |
+
+Duration = dispatched → artifact approved (includes revision rounds).
+Revision time = sum of time spent responding to BR challenges (excludes drafting time).
 
 **Key decisions made (index):**
 | Ref | Decision | Made by | Artifact |
@@ -385,6 +394,23 @@ Run complete.
 - Missing downstream impact
 - Vague "revisit if" like "if something changes"
 
+### Never-collapse rule: one event = one log entry
+
+Parallel execution does not mean one log entry. Never write a single block like "TL dispatched team, all findings written." Each of the following is a separate `### [E-NNN]` block:
+
+- Each instruction file written by TPM
+- Each sub-agent dispatched — even when dispatched in parallel (5 dispatches = 5 DISPATCH blocks)
+- Each thread file opened by any agent (sub-agents open threads; TPM logs each one as THREAD-OPEN)
+- Each thread file resolved (THREAD-RESOLVE + associated D-NNN)
+- Each artifact version produced — v1, v2, v3 are separate ARTIFACT blocks
+- Each BR challenge round on each artifact
+- Each BR approval
+- Each gate transition (gate open, gate closed)
+
+When Tech Lead dispatches Backend / Frontend / Mobile / SRE / QA in parallel, write five DISPATCH entries — one per sub-agent — before logging any of their output.
+
+When those sub-agents produce findings (threads, ops.md, test-cases.md), write one ARTIFACT entry per agent — not one entry for all of them combined.
+
 ### DECISION entries are numbered globally (D-001, D-002, ...) across the entire run.
 ### EVENT entries are numbered globally (E-001, E-002, ...) across the entire run.
 ### Never edit a past entry. If a decision is revisited, write a new DECISION entry that references the original.
@@ -414,17 +440,18 @@ When a human reviewer adds a row to **Reviewer Revision Requests**:
 
 ### On DISPATCH
 ```
-Write: E-NNN · DISPATCH · [agent]
+Write: E-NNN · DISPATCH · [agent]  — include Started: HH:MM
 Print: 🟢  [emoji] [Agent]  →  [what they're starting]
-Update: Stage Progress table — set to 🔄 IN_PROGRESS
+Update: Stage Progress table — set to 🔄 IN_PROGRESS, record Started: HH:MM
 ```
 
 ### On ARTIFACT produced
 ```
-Write: E-NNN · ARTIFACT · [agent]  — include version and key outputs
+Write: E-NNN · ARTIFACT · [agent]  — include version, key outputs, and:
+  Elapsed: N min  (dispatched HH:MM → artifact HH:MM)
 Write: D-NNN for every choice the agent made while producing it
-Print: 🟢  [emoji] [Agent]  →  [artifact] v[N] produced
-Update: Stage Progress table
+Print: 🟢  [emoji] [Agent]  →  [artifact] v[N] produced (N min)
+Update: Stage Progress table — record Duration so far
 ```
 
 ### On inter-agent CONVO
@@ -438,21 +465,22 @@ Print: ↔️  [emoji A] ↔️ [emoji B]  →  [topic in 5 words]
 ```
 Write: E-NNN · CHALLENGE · [BR] (Round N on [artifact])  — list every challenge title
 Print: ⚠️  [emoji] [BR]  →  [N] challenges on [artifact] (round N)
-Update: Stage Progress table for that artifact
+Update: Stage Progress table — increment Revisions counter for that artifact
 ```
 
 ### On REVISE
 ```
 Write: D-NNN for each choice made in the revision  — what did they change and why
-Write: E-NNN · REVISE · [agent]  — list what changed, reference D-NNN entries
-Print: 🟢  [emoji] [Agent]  →  revised [artifact] v[N]
+Write: E-NNN · REVISE · [agent]  — list what changed, reference D-NNN entries, and:
+  Revision elapsed: N min  (challenge received HH:MM → revision submitted HH:MM)
+Print: 🟢  [emoji] [Agent]  →  revised [artifact] v[N] (N min)
 ```
 
 ### On APPROVE
 ```
 Write: E-NNN · APPROVE · [BR]
 Print: ✅  [emoji] [BR]  →  [artifact] APPROVED
-Update: Stage Progress table — set to ✅ DONE
+Update: Stage Progress table — set to ✅ DONE, fill in final Duration
 ```
 
 ### On BLOCK
@@ -482,11 +510,29 @@ Write: E-NNN · THREAD-RESOLVE · [resolver]  — thread file path, references D
 Print: ✅  ↔️  →  [topic] resolved — [one-line outcome]
 ```
 
+### When Tech Lead dispatches sub-agents (Backend / Frontend / Mobile / SRE / QA)
+Tech Lead dispatches sub-agents internally, but TPM logs each one separately:
+```
+For each sub-agent Tech Lead dispatches:
+  Write: E-NNN · DISPATCH · [sub-agent]  — include instruction file path + what they are investigating
+  Print: 🟢  [emoji] [sub-agent]  →  scanning repos + knowledge base [parallel]
+
+For each thread file a sub-agent opens:
+  Write: E-NNN · THREAD-OPEN · [sub-agent]  — thread file path, topic
+  Print: ↔️  [emoji]  →  opened thread: [topic in 5 words]
+
+For each artifact a sub-agent produces (threads/<topic>.md, ops.md, test-cases.md):
+  Write: E-NNN · ARTIFACT · [sub-agent]  — artifact name, version, brief summary of findings
+  Print: ✅  [emoji] [sub-agent]  →  [artifact] written
+```
+Do not wait until all sub-agents finish to write a single combined entry. Log each completion as it happens.
+
 ### On COMPLETE
 ```
-Write: E-NNN · COMPLETE · TPM  — list all produced artifacts
+Write: E-NNN · COMPLETE · TPM  — total duration, list all produced artifacts
+Write: Performance Summary table (one row per agent: dispatched, done, duration, revisions, revision time)
 Write: Decision index table (summary of all D-NNN entries)
-Print: ✅  📋 TPM  →  done — [N] decisions logged, spec + tasks written
+Print: ✅  📋 TPM  →  done — N min total, [N] decisions logged, spec + tasks written
 ```
 
 ---
