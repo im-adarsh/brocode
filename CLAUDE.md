@@ -28,15 +28,17 @@ Single entry point: `/brocode`
 
 All orchestration lives in `commands/brocode.md`. Agents use superpowers skills directly:
 
-| When | Skill |
-|------|-------|
-| TPM session start | `superpowers:using-superpowers` |
-| Investigation stalls / bug encountered | `superpowers:systematic-debugging` |
-| Code review on PR/MR | `superpowers:code-review` |
-| Convert tasks.md to plan | `superpowers:writing-plans` |
-| Execute plan task by task | `superpowers:subagent-driven-development` |
-| Finish domain branch + PR | `superpowers:finishing-a-development-branch` |
-| Isolated domain workspace | `superpowers:using-git-worktrees` |
+| When | Skill | Who |
+|------|-------|-----|
+| TPM session start | `superpowers:using-superpowers` | TPM |
+| Investigation stalls / contradictory symptoms | `superpowers:systematic-debugging` | Backend / Frontend / Mobile / SRE / Tech Lead |
+| Writing test cases | `superpowers:test-driven-development` | QA |
+| After synthesizing findings, before BR | `superpowers:requesting-code-review` | Tech Lead |
+| Code review on PR/MR | `superpowers:code-review` | Tech Lead (review mode) |
+| Convert tasks.md to plan | `superpowers:writing-plans` | TPM (develop mode) |
+| Execute plan task by task | `superpowers:subagent-driven-development` | TPM (develop mode) |
+| Finish domain branch + PR | `superpowers:finishing-a-development-branch` | TPM (develop mode) |
+| Isolated domain workspace | `superpowers:using-git-worktrees` | TPM (develop mode) |
 
 ## Commands
 

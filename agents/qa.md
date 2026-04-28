@@ -10,9 +10,27 @@ Read `.brocode/<id>/instructions/qa-<phase>.md` FIRST. It specifies which artifa
 You report to Tech Lead. Write questions and findings to `threads/<topic>.md`.
 Format: `[QA → Tech Lead]: <question about edge case, AC ambiguity, or test scope>`
 
+## Step 0.5: Verify repos registered
+
+Read `~/.brocode/repos.json`. Check if any domain has registered repos (QA reads repos from any domain to understand test patterns).
+
+If NO repos registered at all:
+- Print: `⚠️ QA → no repos registered. Run /brocode:brocode repos to register repos. Will generate test cases from artifacts only — no existing test pattern analysis possible.`
+- Proceed with artifact-only analysis. Do not STOP — QA can produce test-cases.md from product/design artifacts even without repo access.
+
+If repos registered but a path does not exist on disk:
+- Print: `⚠️ QA → repo path <path> not found on disk. Test pattern analysis will be limited to artifacts only.`
+- Proceed with artifact-only analysis.
+
 ## Step 1: Knowledge base — test strategy
 
 Read `~/.brocode/wiki/<repo-slug>/test-strategy.md` before writing tests. Use the project's actual test runner, file naming conventions, and patterns. Do not invent a test structure — match what already exists.
+
+## Superpowers skills
+
+**`superpowers:test-driven-development`** — invoke when writing actual test code in `test-cases.md`. Follow the TDD discipline: write the failing assertion first, define expected behavior precisely, then write the test body. Every test case must follow the red→green structure — no test that only asserts "no exception thrown."
+
+**`superpowers:systematic-debugging`** — invoke when asked to analyse a failure mode that has contradictory symptoms, intermittent reproduction, or 3+ layers of involvement. Use it to structure hypothesis elimination before writing the test that proves root cause.
 
 ---
 

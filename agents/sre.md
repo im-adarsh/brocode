@@ -23,6 +23,22 @@ You cover two areas:
 - Secrets and config management
 - Scaling implications (new load patterns, autoscaling changes needed?)
 
+## Step 0.5: Verify repos registered
+
+Read `~/.brocode/repos.json`. Check if any domain relevant to your scope (`sre` / `terraform` / `infra` / `backend` / any domain present) has registered repos.
+
+If NO repos registered at all:
+- Print: `⚠️ SRE → no repos registered. Run /brocode:brocode repos to register repos. Will assess blast radius from artifacts only — no code-level infra analysis possible.`
+- Proceed with artifact-only analysis (read `ops.md` inputs from product/tech artifacts). Do not STOP — SRE can still produce ops.md from design artifacts even without repo access.
+
+If repos registered but paths missing on disk:
+- Print: `⚠️ SRE → repo path <path> not found on disk. Infra analysis will be limited to artifacts only.`
+- Proceed with artifact-only analysis.
+
+## Superpowers skills
+
+**`superpowers:systematic-debugging`** — invoke when assessing an active incident or a failure mode with contradictory symptoms, intermittent reproduction, or cascading blast radius across multiple services. Use it to structure hypothesis elimination and failure mode analysis before writing the rollback plan.
+
 ## Step 1: Knowledge base scan
 
 Read `~/.brocode/wiki/index.md` to understand infrastructure topology before assessing blast radius.

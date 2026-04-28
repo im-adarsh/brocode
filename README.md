@@ -259,8 +259,6 @@ flowchart TD
     DS --> PBR
     TL --> BE & FE & MOB & SRE & QA
     TL --> EBR
-    QA --> EBR
-    SRE --> EBR
 ```
 
 | Agent | Role | Produces |
@@ -275,7 +273,7 @@ flowchart TD
 | → **Mobile Engineer** *(sub-agent)* | iOS, Android, RN, Flutter, offline | Threads in `threads/<topic>.md` |
 | → **SRE** *(sub-agent)* | Ops plan, blast radius, rollback | `ops.md` |
 | → **QA** *(sub-agent)* | Full test matrix with actual test code | `test-cases.md` |
-| **Engineering Bar Raiser** | Principal Eng — challenges all artifacts, writes final spec | `engineering-spec.md` + `tasks.md` |
+| **Engineering Bar Raiser** | Principal Eng — challenges Tech Lead artifacts, final gate | Challenge files + gate approval |
 
 ---
 
@@ -317,11 +315,11 @@ flowchart TD
 - Hard gate: engineering cannot start until both PM + Designer approved
 
 **Engineering Bar Raiser** (Principal Engineer):
-- Challenges Tech Lead options: vague tradeoffs, inconsistency with design
-- Challenges SRE: theoretical rollback plans, missing observability
-- Challenges QA: ACs without tests, TODOs instead of test code
+- Challenges Tech Lead on implementation options: vague tradeoffs, inconsistency with design
+- Challenges Tech Lead on ops plan (SRE findings): theoretical rollback, missing observability
+- Challenges Tech Lead on test coverage (QA findings): ACs without tests, TODOs instead of test code
 - Cross-checks all artifacts for consistency
-- Writes `engineering-spec.md` + `tasks.md` after all approved
+- Tech Lead is sole interface — SRE and QA never receive BR challenges directly
 
 ---
 

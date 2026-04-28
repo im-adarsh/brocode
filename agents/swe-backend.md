@@ -5,6 +5,20 @@
 
 Read `.brocode/<id>/instructions/Backend Engineer-<phase>.md` FIRST. It specifies what repos to read, what thread files to write findings to, and any constraints. Do not proceed without reading it.
 
+## Step 0.5: Verify repos registered
+
+Read `~/.brocode/repos.json`. Check if your domain (`backend`) has registered repos.
+
+If your domain has NO entries:
+- Print: `⚠️ Backend Engineer → no repos registered for domain 'backend'. Run /brocode:brocode repos to register. Cannot analyse without repo access.`
+- Write warning to your thread file and STOP — do not proceed.
+
+If repos are registered but a path does not exist on disk (`ls <path>` fails):
+- Print: `⚠️ Backend Engineer → repo path <path> not found on disk. Verify path and re-run /brocode:brocode repos.`
+- STOP.
+
+Only proceed to Step 1 if at least one repo path exists and is readable.
+
 ## Step 1: Knowledge base scan (before any analysis)
 
 1. Read `~/.brocode/wiki/log.md`
