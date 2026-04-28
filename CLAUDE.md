@@ -84,33 +84,62 @@ Engineer agents read `~/.brocode/repos.json` (user-level, shared across all proj
 
 ---
 
+## Knowledge Base
+
+Engineer sub-agents persist repo intelligence to `~/.brocode/wiki/` — shared across all projects on this machine.
+
+```
+~/.brocode/wiki/
+  index.md                    ← global TOC — all repos scanned
+  log.md                      ← scan history (repo, date, agent)
+  <repo-slug>/
+    overview.md               ← pattern (monorepo/single-service), stack, CI
+    patterns.md               ← directory layout, service boundaries, naming
+    conventions.md            ← extracted from CLAUDE.md + observed patterns
+    dependencies.md           ← key deps, versions, external services
+    test-strategy.md          ← test runner, patterns, file locations
+```
+
+Agents re-scan if > 7 days since last scan. Knowledge compounds across all brocode runs.
+
+---
+
 ## Flow summary
 
 ### Investigate mode
 ```
-Tech Lead → scoped sub-agents (Backend / Frontend / Mobile / SRE / QA, parallel)
-    ↕ debate: threads/<topic>.md
-Tech Lead synthesizes
+TPM writes instruction files → Tech Lead sub-agent dispatched
+Tech Lead dispatches (parallel, scope-based):
+    Backend / Frontend / Mobile — scan knowledge base → read repos → threads
+    SRE — blast radius + ops + infra
+    QA — failing test + test surface
+Tech Lead synthesizes → investigation.md
     → Engineering BR loop (max 3 rounds per artifact)
-    → engineering-spec.md + tasks.md
+    → Tech Lead writes engineering-spec.md + tasks.md
+    → Engineering BR final check (max 2 rounds)
 ```
 
 ### Spec mode
 ```
-PM ↔ Designer (conversation)
+TPM writes instruction files
+PM sub-agent → product-spec.md
+Designer sub-agent → ux.md
     → Product BR loop (max 3 rounds per artifact)
     → [GATE] engineering blocked until approved
-Tech Lead → scoped sub-agents (Backend / Frontend / Mobile / SRE / QA, parallel)
-    ↕ debate: threads/<topic>.md
-Tech Lead synthesizes
+TPM writes instruction files → Tech Lead sub-agent dispatched
+Tech Lead dispatches (parallel):
+    Backend / Frontend / Mobile / SRE / QA
+    All scan knowledge base first → read repos → threads/<topic>.md
+Tech Lead synthesizes → implementation-options.md
     → Engineering BR loop (max 3 rounds per artifact)
-    → engineering-spec.md + tasks.md
+    → Tech Lead writes engineering-spec.md + tasks.md
+    → Engineering BR final check (max 2 rounds)
 ```
 
 ### Develop mode
 ```
 Requires: superpowers installed
-Reads: final-spec.md + tasks.md
+Reads: engineering-spec.md + tasks.md
 Per domain (backend / web / mobile) — parallel:
     → superpowers:using-git-worktrees  (isolated worktree)
     → superpowers:writing-plans
@@ -134,6 +163,8 @@ Tech Lead synthesizes findings
 
 ## Key rules for agents
 
+- Instruction file first: read `.brocode/<id>/instructions/<role>-<phase>.md` before doing anything
+- Knowledge base: scan repos on first visit, use cached wiki on subsequent runs
 - Edit only your own artifact — never another agent's file
 - Threads are append-only — add entries, never rewrite
 - Read-before-edit: always Read before Edit/Write on existing files
@@ -151,14 +182,17 @@ Tech Lead synthesizes findings
 .brocode/<id>/
   brief.md                ← user input + clarified scope
   tpm-logs.md             ← TPM journal (E-NNN events + D-NNN decisions)
+  brocode.md              ← post-run retrospective (written by TPM after run)
+  instructions/           ← TPM writes one file here before each sub-agent dispatch
+    <role>-<phase>.md
   product-spec.md         ← PM — pRFC format
   ux.md                   ← Designer — UX flows + e2e mermaid per persona
   implementation-options.md ← Tech Lead (spec mode)
   investigation.md          ← Tech Lead (investigate mode)
   ops.md                    ← SRE
   test-cases.md             ← QA
-  engineering-spec.md       ← RFC — full self-contained spec
-  tasks.md                  ← domain-scoped implementation tasks
+  engineering-spec.md       ← RFC — full self-contained spec (Tech Lead produces)
+  tasks.md                  ← domain-scoped implementation tasks (Tech Lead produces)
   br/
     product/
       req-challenge-r1.md   ← Product BR challenges on product-spec
