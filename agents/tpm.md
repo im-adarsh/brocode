@@ -72,30 +72,18 @@ Print BEFORE dispatch (shows intent) and AFTER artifact written (shows completio
 
 ## tpm-logs.md Format
 
-Append-only. Never overwrite. Add E-NNN events and D-NNN decisions as they happen.
+Written at `.brocode/<id>/tpm-logs.md`. Use **only** the block-entry format defined in the **`tpm-logs.md` — The Run Journal** section below.
 
-```markdown
-## Events
-E-001  HH:MM  TPM        → run started: <id>
-E-002  HH:MM  TPM        → instruction written: instructions/pm-phase1.md
-E-003  HH:MM  PM         → dispatched
-E-004  HH:MM  PM         → product-spec.md written (v1)
-E-005  HH:MM  Product BR → dispatched (round 1, artifact: product-spec.md)
-E-006  HH:MM  Product BR → CHALLENGED product-spec.md (3 issues)
-E-007  HH:MM  PM         → dispatched (revision, round 1)
-E-008  HH:MM  PM         → product-spec.md revised (v2)
-E-009  HH:MM  Product BR → APPROVED product-spec.md
+**Never use tables, flat lists, or improvised formats for the Run Log.** Tables flatten decisions into invisible rows. Flat `E-NNN  HH:MM  Agent → note` lines strip the rationale that makes logs useful.
 
-## Decisions
-D-001  HH:MM  Product gate OPEN
-              options: [wait for ux approval | open now]
-              chosen: open now
-              reason: product-spec approved, unblocks TL while ux completes
+Rules:
+- Append-only. Never overwrite.
+- One `### [E-NNN]` or `### [D-NNN]` block per event. Never batch multiple events into one block.
+- Sub-agents dispatched in parallel still get individual entries: 5 parallel dispatches = 5 separate DISPATCH blocks.
+- Sub-agent artifacts get individual entries: Backend findings, SRE ops.md, QA test-cases.md — each its own ARTIFACT block.
+- A full SPEC run produces 40–70 log entries. Fewer than 25 is a sign of under-logging.
 
-## Reviewer Revision Requests
-| ID | Constraint | References | Status |
-|----|-----------|-----------|--------|
-```
+See the Run Journal section for the full format, every entry type, and worked examples.
 
 ---
 
@@ -385,6 +373,23 @@ Run complete.
 - Missing downstream impact
 - Vague "revisit if" like "if something changes"
 
+### Never-collapse rule: one event = one log entry
+
+Parallel execution does not mean one log entry. Never write a single block like "TL dispatched team, all findings written." Each of the following is a separate `### [E-NNN]` block:
+
+- Each instruction file written by TPM
+- Each sub-agent dispatched — even when dispatched in parallel (5 dispatches = 5 DISPATCH blocks)
+- Each thread file opened by any agent (sub-agents open threads; TPM logs each one as THREAD-OPEN)
+- Each thread file resolved (THREAD-RESOLVE + associated D-NNN)
+- Each artifact version produced — v1, v2, v3 are separate ARTIFACT blocks
+- Each BR challenge round on each artifact
+- Each BR approval
+- Each gate transition (gate open, gate closed)
+
+When Tech Lead dispatches Backend / Frontend / Mobile / SRE / QA in parallel, write five DISPATCH entries — one per sub-agent — before logging any of their output.
+
+When those sub-agents produce findings (threads, ops.md, test-cases.md), write one ARTIFACT entry per agent — not one entry for all of them combined.
+
 ### DECISION entries are numbered globally (D-001, D-002, ...) across the entire run.
 ### EVENT entries are numbered globally (E-001, E-002, ...) across the entire run.
 ### Never edit a past entry. If a decision is revisited, write a new DECISION entry that references the original.
@@ -481,6 +486,23 @@ Write: D-NNN for the thread decision (options considered, chose, rationale, down
 Write: E-NNN · THREAD-RESOLVE · [resolver]  — thread file path, references D-NNN
 Print: ✅  ↔️  →  [topic] resolved — [one-line outcome]
 ```
+
+### When Tech Lead dispatches sub-agents (Backend / Frontend / Mobile / SRE / QA)
+Tech Lead dispatches sub-agents internally, but TPM logs each one separately:
+```
+For each sub-agent Tech Lead dispatches:
+  Write: E-NNN · DISPATCH · [sub-agent]  — include instruction file path + what they are investigating
+  Print: 🟢  [emoji] [sub-agent]  →  scanning repos + knowledge base [parallel]
+
+For each thread file a sub-agent opens:
+  Write: E-NNN · THREAD-OPEN · [sub-agent]  — thread file path, topic
+  Print: ↔️  [emoji]  →  opened thread: [topic in 5 words]
+
+For each artifact a sub-agent produces (threads/<topic>.md, ops.md, test-cases.md):
+  Write: E-NNN · ARTIFACT · [sub-agent]  — artifact name, version, brief summary of findings
+  Print: ✅  [emoji] [sub-agent]  →  [artifact] written
+```
+Do not wait until all sub-agents finish to write a single combined entry. Log each completion as it happens.
 
 ### On COMPLETE
 ```

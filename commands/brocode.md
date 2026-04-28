@@ -168,6 +168,9 @@ Analyze input:
 2. Create `.brocode/<id>/`, `.brocode/<id>/threads/`, `.brocode/<id>/br/engineering/`, `.brocode/<id>/instructions/`
 3. Write `.brocode/<id>/brief.md` from user input
 4. Read `~/.brocode/repos.json` for repo paths
+5. TPM logs:
+   - `E-NNN · DISPATCH · TPM` — run started, ID assigned
+   - `E-NNN · ARTIFACT · TPM` — brief.md written from user input
 
 ### Org
 ```
@@ -258,6 +261,18 @@ Each instruction tells the sub-agent:
 - What thread files to write findings to (`threads/<topic>.md` — descriptive names, one per topic)
 - When to invoke `superpowers:systematic-debugging` (2 hypotheses eliminated, intermittent bug, 3+ layers, contradictory symptoms)
 
+TPM logs one entry per sub-agent dispatched (do not batch):
+- `E-NNN · DISPATCH · Backend Engineer` — instruction file path
+- `E-NNN · DISPATCH · Frontend Engineer` — instruction file path (if in scope)
+- `E-NNN · DISPATCH · Mobile Engineer` — instruction file path (if in scope)
+- `E-NNN · DISPATCH · SRE` — instruction file path
+- `E-NNN · DISPATCH · QA` — instruction file path
+
+As each sub-agent produces findings, TPM logs one entry per agent (as they complete, not all at once):
+- `E-NNN · THREAD-OPEN · [sub-agent]` — per thread file the sub-agent creates
+- `E-NNN · ARTIFACT · SRE` — ops.md v1 produced
+- `E-NNN · ARTIFACT · QA` — test-cases.md v1 produced
+
 ### Phase 2: Engineering BR loop
 
 For each artifact (`investigation.md`, `ops.md`, `test-cases.md`):
@@ -267,6 +282,7 @@ round = 1
 loop:
   TPM writes: .brocode/<id>/instructions/eng-br-round<round>-<artifact>.md
   Print: 📋 TPM → instruction written: instructions/eng-br-round<round>-<artifact>.md
+  TPM logs: E-NNN · DISPATCH · Engineering BR  (round <round>, artifact: <artifact>)
 
   Dispatch Engineering BR sub-agent (fresh context):
     - reads artifact + all prior challenge files for this artifact
@@ -276,15 +292,22 @@ loop:
 
   if challenged:
     print: ⚠️  ⚖️ Eng BR  →  [N challenges on <artifact>] (round <round>)
+    TPM logs: E-NNN · CHALLENGE · Engineering BR  (round <round>)  — list each challenge title
     dispatch Tech Lead sub-agent (fresh context) with instruction file containing:
       - the specific BR challenge items
       - which sub-agent to re-dispatch internally (SRE for ops.md, QA for test-cases.md, domain engineers for investigation.md)
       - Tech Lead routes to sub-agent → sub-agent revises artifact → Tech Lead synthesizes → writes response
+    TPM logs: D-NNN per choice made during revision (what changed and why)
+    TPM logs: E-NNN · REVISE · Tech Lead  — what changed, reference D-NNN entries
     print: 🟢  Tech Lead  →  revised <artifact> v<round+1>
     round += 1
 
+  if approved:
+    TPM logs: E-NNN · APPROVE · Engineering BR  — artifact + version approved
+
   if round > 3:
     print: 🚫  ⚖️ Eng BR  →  ESCALATE: unresolved after 3 rounds on <artifact>
+    TPM logs: E-NNN · ESCALATE · TPM  — full 3-round history, unresolved gap, question for user
     surface exact unresolved challenge to user
     wait for user answer before continuing
     break
@@ -306,10 +329,16 @@ Files to write: .brocode/<id>/engineering-spec.md, .brocode/<id>/tasks.md
 Constraints: You are the sole producer. Engineering BR will do a final check after.
 ```
 Print: `🤝 Tech Lead → writing engineering-spec.md + tasks.md`
+TPM logs: `E-NNN · DISPATCH · Tech Lead` — writing final spec + tasks from approved artifacts
 Dispatch Tech Lead sub-agent (fresh context).
+TPM logs (after artifacts written):
+- `E-NNN · ARTIFACT · Tech Lead` — engineering-spec.md v1 written
+- `E-NNN · ARTIFACT · Tech Lead` — tasks.md v1 written, N tasks across N domains
 
 Engineering BR does final check on `engineering-spec.md` + `tasks.md` (max 2 rounds).
+TPM logs for final BR check: `E-NNN · DISPATCH · Engineering BR` + `E-NNN · APPROVE · Engineering BR` per artifact
 Print: `✅ Eng BR → engineering-spec.md APPROVED`
+TPM logs: `E-NNN · COMPLETE · TPM` — run complete, list all produced artifacts + decision index (all D-NNN refs)
 
 ### Iron laws
 1. No fix proposed without confirmed root cause
@@ -328,6 +357,9 @@ Print: `✅ Eng BR → engineering-spec.md APPROVED`
 3. Handle external input: if URL/doc attached, fetch content (Google Drive MCP if available, else ask user to paste). If image, describe it.
 4. Write `.brocode/<id>/brief.md`
 5. Read `~/.brocode/repos.json` for repo paths
+6. TPM logs:
+   - `E-NNN · DISPATCH · TPM` — run started, ID assigned
+   - `E-NNN · ARTIFACT · TPM` — brief.md written from user input
 
 ### Org
 ```
@@ -361,7 +393,9 @@ Threads: create .brocode/<id>/threads/<topic>.md per discussion topic with Desig
 Constraints: All personas covered. Every AC testable and measurable.
 ```
 Print: `🎯 PM → dispatched`
+TPM logs: `E-NNN · DISPATCH · PM` — instruction file written, building product-spec.md
 Dispatch PM sub-agent (reads `agents/pm.md` + its instruction file).
+TPM logs (after PM writes product-spec.md): `E-NNN · ARTIFACT · PM` — product-spec.md v1 written, N personas, N ACs
 
 **Step 1b: Designer** (after PM writes product-spec.md)
 TPM writes `.brocode/<id>/instructions/designer-phase1.md`:
@@ -376,7 +410,9 @@ Threads: append to existing threads or create .brocode/<id>/threads/<topic>.md
 Constraints: Every screen state covered. Every error state defined. API contracts explicit.
 ```
 Print: `🎨 Designer → dispatched`
+TPM logs: `E-NNN · DISPATCH · Designer` — instruction file written, building ux.md
 Dispatch Designer sub-agent (reads `agents/designer.md` + its instruction file).
+TPM logs (after Designer writes ux.md): `E-NNN · ARTIFACT · Designer` — ux.md v1 written, N flows, N screen states
 
 **Step 1c: Product BR loop**
 
@@ -386,6 +422,7 @@ round = 1
 loop:
   TPM writes: .brocode/<id>/instructions/product-br-round<round>-<artifact>.md
   Print: 📋 TPM → instruction written: instructions/product-br-round<round>-<artifact>.md
+  TPM logs: E-NNN · DISPATCH · Product BR  (round <round>, artifact: <artifact>)
 
   Dispatch Product BR sub-agent (fresh context):
     - reads artifact + all prior challenge files for this artifact
@@ -396,15 +433,22 @@ loop:
 
   if challenged:
     print: ⚠️  🔬 Product BR  →  [N challenges on <artifact>] (round <round>)
+    TPM logs: E-NNN · CHALLENGE · Product BR  (round <round>)  — list each challenge title
     dispatch producer sub-agent (PM or Designer, fresh context):
       - reads challenge file + current artifact + their agent file + their original instruction
       - revises artifact (appends ## Changes from Product BR Challenge round <round>)
       - notifies other agent if change affects their artifact (appends to thread)
+    TPM logs: D-NNN per choice the producer made during revision (what changed and why)
+    TPM logs: E-NNN · REVISE · [producer]  — list what changed, reference D-NNN entries
     print: 🟢  [producer]  →  revised <artifact> v<round+1>
     round += 1
 
+  if approved:
+    TPM logs: E-NNN · APPROVE · Product BR  — artifact + version approved
+
   if round > 3:
     print: 🚫  🔬 Product BR  →  ESCALATE: unresolved after 3 rounds on <artifact>
+    TPM logs: E-NNN · ESCALATE · TPM  — full 3-round history, exact unresolved gap, question for user
     surface exact unresolved challenge to user
     wait for user answer before continuing
     break
@@ -412,6 +456,8 @@ loop:
 
 When both `product-spec.md` + `ux.md` approved:
 Write `br/product/gate-approved.md`.
+TPM logs: `D-NNN · DECISION · TPM` — gate open decision (options: wait / open now, chosen, rationale)
+TPM logs: `E-NNN · GATE · Product BR` — product gate OPEN, engineering unblocked
 Print: `🔓 TPM → [D-NNN] product gate OPEN — engineering starts`
 
 **Engineering track does NOT start until Product BR gate is approved.**
@@ -440,9 +486,15 @@ Threads: .brocode/<id>/threads/tech-lead-product-questions.md
 Constraints: Ask before delegating — do not dispatch team until questions resolved.
 ```
 Print: `🤝 Tech Lead → reviewing product artifacts, may ask clarifying questions`
+TPM logs: `E-NNN · DISPATCH · Tech Lead` — reviewing product-spec.md + ux.md, filing clarifying questions
 Dispatch Tech Lead sub-agent.
 
-If Tech Lead has questions, TPM dispatches PM or Designer (fresh context) to answer via the thread, then re-checks with Tech Lead.
+If Tech Lead has questions:
+  TPM logs: `E-NNN · THREAD-OPEN · Tech Lead` — threads/tech-lead-product-questions.md, N questions filed
+  TPM dispatches PM or Designer (fresh context) to answer via the thread.
+  TPM logs: `E-NNN · CONVO · [PM or Designer → Tech Lead]` — answers appended to thread
+  Then re-checks with Tech Lead.
+TPM logs when ready: `E-NNN · ARTIFACT · Tech Lead` — threads/tech-lead-ready.md written, key constraints confirmed
 Print when ready: `🤝 Tech Lead → product artifacts understood, dispatching team`
 
 **Step 2b: Tech Lead team dispatch**
@@ -488,7 +540,25 @@ Each instruction tells the sub-agent:
 - SRE: produce `ops.md` (ops plan + infra/platform impact)
 - QA: produce `test-cases.md` (full test matrix with real test code)
 
-**Step 2b: Engineering BR loop**
+TPM logs one entry per sub-agent dispatched (do not batch — each gets its own block):
+- `E-NNN · DISPATCH · Backend Engineer` — instruction file path
+- `E-NNN · DISPATCH · Frontend Engineer` — instruction file path
+- `E-NNN · DISPATCH · Mobile Engineer` — instruction file path
+- `E-NNN · DISPATCH · SRE` — instruction file path
+- `E-NNN · DISPATCH · QA` — instruction file path
+
+As each sub-agent produces output, TPM logs one entry per event (as they happen, not all at once):
+- `E-NNN · THREAD-OPEN · [sub-agent]` — per thread file created (one entry per file)
+- `E-NNN · ARTIFACT · Backend Engineer` — threads/backend-findings.md written, N findings
+- `E-NNN · ARTIFACT · Frontend Engineer` — threads/web-findings.md written, N findings
+- `E-NNN · ARTIFACT · Mobile Engineer` — threads/mobile-findings.md written, N findings
+- `E-NNN · ARTIFACT · SRE` — ops.md v1 produced
+- `E-NNN · ARTIFACT · QA` — test-cases.md v1 produced
+Then log Tech Lead's synthesis:
+- `D-NNN · DECISION · Tech Lead` — implementation option chosen (options A/B/C, rationale, downstream impact)
+- `E-NNN · ARTIFACT · Tech Lead` — implementation-options.md v1 written
+
+**Step 2c: Engineering BR loop**
 
 For each artifact (`implementation-options.md`, `ops.md`, `test-cases.md`):
 ```
@@ -496,6 +566,7 @@ round = 1
 loop:
   TPM writes: .brocode/<id>/instructions/eng-br-round<round>-<artifact>.md
   Print: 📋 TPM → instruction written: instructions/eng-br-round<round>-<artifact>.md
+  TPM logs: E-NNN · DISPATCH · Engineering BR  (round <round>, artifact: <artifact>)
 
   Dispatch Engineering BR sub-agent (fresh context):
     - reads this artifact + all other eng artifacts (cross-consistency check)
@@ -506,21 +577,28 @@ loop:
 
   if challenged:
     print: ⚠️  ⚖️ Eng BR  →  [N challenges on <artifact>] (round <round>)
+    TPM logs: E-NNN · CHALLENGE · Engineering BR  (round <round>)  — list each challenge title
     dispatch Tech Lead sub-agent (fresh context) with instruction file containing:
       - the specific BR challenge items
       - which sub-agent to re-dispatch internally (SRE for ops.md challenges, QA for test-cases.md challenges, Backend/Frontend/Mobile for impl challenges)
       - Tech Lead routes to sub-agent → sub-agent revises artifact → Tech Lead synthesizes → writes response
+    TPM logs: D-NNN per choice made during revision (what changed and why)
+    TPM logs: E-NNN · REVISE · Tech Lead  — what changed, reference D-NNN entries
     print: 🟢  Tech Lead  →  revised <artifact> v<round+1>
     round += 1
 
+  if approved:
+    TPM logs: E-NNN · APPROVE · Engineering BR  — artifact + version approved
+
   if round > 3:
     print: 🚫  ⚖️ Eng BR  →  ESCALATE: unresolved after 3 rounds on <artifact>
+    TPM logs: E-NNN · ESCALATE · TPM  — full 3-round history, unresolved gap, question for user
     surface exact unresolved challenge to user
     wait for user answer before continuing
     break
 ```
 
-**Step 2c: Tech Lead writes final spec**
+**Step 2d: Tech Lead writes final spec**
 After `implementation-options.md` + `ops.md` + `test-cases.md` all approved:
 
 TPM writes `.brocode/<id>/instructions/tech-lead-final-spec.md`:
@@ -539,10 +617,16 @@ Files to write: .brocode/<id>/engineering-spec.md, .brocode/<id>/tasks.md
 Constraints: Sole producer. Engineering BR will final-check after. Self-contained RFC.
 ```
 Print: `🤝 Tech Lead → writing engineering-spec.md + tasks.md`
+TPM logs: `E-NNN · DISPATCH · Tech Lead` — writing final spec + tasks from approved artifacts
 Dispatch Tech Lead sub-agent (fresh context).
+TPM logs (after artifacts written):
+- `E-NNN · ARTIFACT · Tech Lead` — engineering-spec.md v1 written
+- `E-NNN · ARTIFACT · Tech Lead` — tasks.md v1 written, N tasks across N domains
 
 Engineering BR does final check on `engineering-spec.md` + `tasks.md` (max 2 rounds).
+TPM logs for final BR check: `E-NNN · DISPATCH · Engineering BR` + `E-NNN · APPROVE · Engineering BR` per artifact
 Print after approval: `✅ Eng BR → engineering-spec.md + tasks.md APPROVED`
+TPM logs: `E-NNN · COMPLETE · TPM` — run complete, list all produced artifacts + decision index (all D-NNN refs)
 
 ### Iron laws
 1. Product BR must approve before engineering starts
