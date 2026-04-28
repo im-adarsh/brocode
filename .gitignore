@@ -22,6 +22,9 @@ yarn-error.log
 *.pem
 *.key
 
+# Claude Code internal files (scheduled tasks, session state)
+.claude/
+
 # Claude plugin cache (installed copies live in ~/.claude/plugins/cache/)
 .claude-plugin/marketplace.json.lock
 
