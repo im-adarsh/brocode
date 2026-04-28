@@ -158,21 +158,22 @@ There are two kinds of entries: **Events** (`E-NNN`) and **Decisions** (`D-NNN`)
 ---
 
 ## Stage Progress
-| Stage | Agent(s) | Status | Notes |
-|-------|----------|--------|-------|
-| Input ingestion | TPM | ✅ DONE | |
-| brief.md | TPM | ⏳ PENDING | |
-| product-spec.md | PM | 🔄 IN_PROGRESS | v1 with Product BR |
-| ux.md | Designer | ⏳ PENDING | awaiting PM approval |
-| Product BR gate | Product BR | ⏳ PENDING | |
-| implementation-options.md | Tech Lead | ⏳ PENDING | |
-| architecture.md | Staff SWE | ⏳ PENDING | |
-| ops.md | SRE | ⏳ PENDING | |
-| test-cases.md | QA | ⏳ PENDING | |
-| Engineering BR reviews | Eng BR | ⏳ PENDING | |
-| engineering-spec.md | Eng BR | ⏳ PENDING | |
+| Stage | Agent(s) | Status | Started | Duration | Revisions | Notes |
+|-------|----------|--------|---------|----------|-----------|-------|
+| Input ingestion | TPM | ✅ DONE | HH:MM | N min | — | |
+| brief.md | TPM | ⏳ PENDING | — | — | — | |
+| product-spec.md | PM | 🔄 IN_PROGRESS | HH:MM | — | 0 | v1 with Product BR |
+| ux.md | Designer | ⏳ PENDING | — | — | — | awaiting PM approval |
+| Product BR gate | Product BR | ⏳ PENDING | — | — | — | |
+| implementation-options.md | Tech Lead | ⏳ PENDING | — | — | — | |
+| ops.md | SRE | ⏳ PENDING | — | — | — | |
+| test-cases.md | QA | ⏳ PENDING | — | — | — | |
+| Engineering BR reviews | Eng BR | ⏳ PENDING | — | — | — | |
+| engineering-spec.md | Tech Lead | ⏳ PENDING | — | — | — | |
 
 Status: ⏳ PENDING · 🔄 IN_PROGRESS · 🚫 BLOCKED · ✅ DONE · 🟡 ESCALATED
+Duration = time from agent dispatched to artifact approved (includes all revision rounds).
+Revisions = number of BR challenge rounds the agent went through.
 
 ---
 
@@ -219,6 +220,7 @@ Produced **product-spec.md v1**
 - [N] personas: [list]
 - [N] ACs (AC-1 through AC-N)
 - Key decision baked in: D-001
+**Elapsed:** N min (dispatched HH:MM → artifact HH:MM)
 **→ Next:** Product BR
 
 ---
@@ -248,6 +250,7 @@ Produced **product-spec.md v1**
 Revised to **product-spec.md v2**
 - [What changed]: [see D-002, D-003]
 - [What changed]: [see D-004]
+**Revision elapsed:** N min (challenge received HH:MM → revision submitted HH:MM)
 **→ Next:** Product BR
 
 ---
@@ -326,10 +329,28 @@ Still unresolved: [exact gap in one sentence]
 
 ---
 ### [E-015] HH:MM · COMPLETE · TPM
-Run complete.
+Run complete. **Total duration: N min** (started HH:MM → completed HH:MM)
+
 **Produced:**
-- `final-spec.md` — approved engineering spec
+- `engineering-spec.md` — approved engineering spec
 - `tasks.md` — [N] implementation tasks across [domains]
+
+**Performance Summary:**
+| Agent | Artifact | Dispatched | Done | Duration | Revisions | Revision time |
+|-------|----------|-----------|------|----------|-----------|---------------|
+| PM | product-spec.md | HH:MM | HH:MM | N min | N rounds | N min |
+| Designer | ux.md | HH:MM | HH:MM | N min | N rounds | N min |
+| Tech Lead | implementation-options.md | HH:MM | HH:MM | N min | N rounds | N min |
+| Backend Engineer | threads/backend-findings.md | HH:MM | HH:MM | N min | — | — |
+| Frontend Engineer | threads/web-findings.md | HH:MM | HH:MM | N min | — | — |
+| Mobile Engineer | threads/mobile-findings.md | HH:MM | HH:MM | N min | — | — |
+| SRE | ops.md | HH:MM | HH:MM | N min | N rounds | N min |
+| QA | test-cases.md | HH:MM | HH:MM | N min | N rounds | N min |
+| Tech Lead | engineering-spec.md + tasks.md | HH:MM | HH:MM | N min | N rounds | N min |
+| **Total run** | | **HH:MM** | **HH:MM** | **N min** | | |
+
+Duration = dispatched → artifact approved (includes revision rounds).
+Revision time = sum of time spent responding to BR challenges (excludes drafting time).
 
 **Key decisions made (index):**
 | Ref | Decision | Made by | Artifact |
@@ -419,17 +440,18 @@ When a human reviewer adds a row to **Reviewer Revision Requests**:
 
 ### On DISPATCH
 ```
-Write: E-NNN · DISPATCH · [agent]
+Write: E-NNN · DISPATCH · [agent]  — include Started: HH:MM
 Print: 🟢  [emoji] [Agent]  →  [what they're starting]
-Update: Stage Progress table — set to 🔄 IN_PROGRESS
+Update: Stage Progress table — set to 🔄 IN_PROGRESS, record Started: HH:MM
 ```
 
 ### On ARTIFACT produced
 ```
-Write: E-NNN · ARTIFACT · [agent]  — include version and key outputs
+Write: E-NNN · ARTIFACT · [agent]  — include version, key outputs, and:
+  Elapsed: N min  (dispatched HH:MM → artifact HH:MM)
 Write: D-NNN for every choice the agent made while producing it
-Print: 🟢  [emoji] [Agent]  →  [artifact] v[N] produced
-Update: Stage Progress table
+Print: 🟢  [emoji] [Agent]  →  [artifact] v[N] produced (N min)
+Update: Stage Progress table — record Duration so far
 ```
 
 ### On inter-agent CONVO
@@ -443,21 +465,22 @@ Print: ↔️  [emoji A] ↔️ [emoji B]  →  [topic in 5 words]
 ```
 Write: E-NNN · CHALLENGE · [BR] (Round N on [artifact])  — list every challenge title
 Print: ⚠️  [emoji] [BR]  →  [N] challenges on [artifact] (round N)
-Update: Stage Progress table for that artifact
+Update: Stage Progress table — increment Revisions counter for that artifact
 ```
 
 ### On REVISE
 ```
 Write: D-NNN for each choice made in the revision  — what did they change and why
-Write: E-NNN · REVISE · [agent]  — list what changed, reference D-NNN entries
-Print: 🟢  [emoji] [Agent]  →  revised [artifact] v[N]
+Write: E-NNN · REVISE · [agent]  — list what changed, reference D-NNN entries, and:
+  Revision elapsed: N min  (challenge received HH:MM → revision submitted HH:MM)
+Print: 🟢  [emoji] [Agent]  →  revised [artifact] v[N] (N min)
 ```
 
 ### On APPROVE
 ```
 Write: E-NNN · APPROVE · [BR]
 Print: ✅  [emoji] [BR]  →  [artifact] APPROVED
-Update: Stage Progress table — set to ✅ DONE
+Update: Stage Progress table — set to ✅ DONE, fill in final Duration
 ```
 
 ### On BLOCK
@@ -506,9 +529,10 @@ Do not wait until all sub-agents finish to write a single combined entry. Log ea
 
 ### On COMPLETE
 ```
-Write: E-NNN · COMPLETE · TPM  — list all produced artifacts
+Write: E-NNN · COMPLETE · TPM  — total duration, list all produced artifacts
+Write: Performance Summary table (one row per agent: dispatched, done, duration, revisions, revision time)
 Write: Decision index table (summary of all D-NNN entries)
-Print: ✅  📋 TPM  →  done — [N] decisions logged, spec + tasks written
+Print: ✅  📋 TPM  →  done — N min total, [N] decisions logged, spec + tasks written
 ```
 
 ---
