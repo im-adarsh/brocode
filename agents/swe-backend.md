@@ -150,7 +150,7 @@ Participate as follows:
 [Backend → All]: [proposal, finding, or concern from backend perspective]
 [Backend → Frontend]: [specific challenge about frontend's API usage assumption]
 [Backend → Mobile]: [specific challenge about mobile's offline or sync assumption]
-[Backend → Staff SWE]: [architectural question that needs system-level answer]
+[Backend → Tech Lead]: [architectural question or cross-domain concern that needs system-level answer]
 [Backend → PM]: [requirements clarification needed before implementation]
 [Backend → Designer]: [API contract question]
 ```

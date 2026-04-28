@@ -77,13 +77,267 @@ Read all thread files. Synthesize into your artifact:
 
 ### Step 4 (after all BR approvals): Write engineering-spec.md + tasks.md
 
-You are the **sole producer** of the final spec and tasks.
-
-`engineering-spec.md`: RFC format — title, status, context, decision, consequences, implementation notes, open questions
-
-`tasks.md`: domain-scoped — one section per domain, tasks ordered by dependency, clear ACs per task
+You are the **sole producer** of the final spec and tasks. Use the templates below exactly.
 
 When revising after a BR challenge: append `## Changes from BR Challenge round <N>`. Never overwrite prior content.
+
+### `engineering-spec.md` template
+
+```markdown
+# Final Engineering Spec
+**Spec ID:** [id]
+**Version:** [N]
+**Status:** DRAFT | REVISED | APPROVED
+
+---
+
+## 1. Problem Statement
+[Full description: what is broken or missing, who is affected, what the business impact is, why this approach was chosen over alternatives. Minimum 3-5 sentences — not a one-liner.]
+
+---
+
+## 2. System Context
+
+```mermaid
+graph TD
+    %% Every component touched by this change, plus its immediate neighbours
+    %% Show data flows, not just boxes
+```
+
+---
+
+## 3. User Flows Covered
+
+| Persona | What changes for them | Primary ACs |
+|---------|----------------------|-------------|
+| [End User / Consumer] | [concrete change] | AC-1, AC-3 |
+| [Admin / Ops] | [concrete change] | AC-4 |
+
+---
+
+## 4. API / Interface Contracts
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/[path]` | POST | JWT | [what it does] |
+
+#### `[METHOD] /api/[path]`
+**Request:**
+```typescript
+interface [RequestType] {
+  [field]: [type]  // [description, constraints]
+}
+```
+**Response (200):**
+```typescript
+interface [ResponseType] {
+  [field]: [type]
+}
+```
+**Errors:**
+| Status | Code | Condition | Message |
+|--------|------|-----------|---------|
+| 400 | INVALID_INPUT | [exact condition] | [user-facing message] |
+| 401 | UNAUTHORIZED | [exact condition] | [user-facing message] |
+| 500 | INTERNAL | [exact condition] | [user-facing message] |
+
+---
+
+## 5. Data Model
+
+### New Tables / Collections
+```sql
+CREATE TABLE [name] (
+  [column] [type] NOT NULL,
+  PRIMARY KEY ([col]),
+  INDEX idx_[name] ([col])
+);
+```
+
+### Schema Migration
+```sql
+-- Safe under concurrent writes:
+ALTER TABLE [name] ADD COLUMN [col] [type];
+UPDATE [name] SET [col] = [default] WHERE [col] IS NULL LIMIT 1000;
+ALTER TABLE [name] ALTER COLUMN [col] SET NOT NULL;
+```
+
+---
+
+## 6. Architecture
+
+### Component Interactions
+```mermaid
+sequenceDiagram
+    actor User
+    participant APIGateway
+    participant ServiceA
+    participant DB
+    User->>APIGateway: [request]
+    APIGateway->>ServiceA: [internal call]
+    ServiceA->>DB: [query]
+    DB-->>ServiceA: [result]
+    ServiceA-->>APIGateway: [response]
+    APIGateway-->>User: [200 response]
+```
+
+### Error Flow
+```mermaid
+sequenceDiagram
+    %% Key error paths — auth failure, service down, DB timeout
+```
+
+### Non-Negotiables
+| Constraint | Failure scenario if violated | Enforcement |
+|------------|------------------------------|-------------|
+
+### Rejected Options
+| Option | Why rejected |
+|--------|-------------|
+| [Option B] | [concrete reason] |
+
+---
+
+## 7. Error Handling
+
+| Scenario | Layer | Error code | User-facing message | Internal action |
+|----------|-------|------------|--------------------|-----------------||
+
+---
+
+## 8. Security
+
+| Concern | Mitigation | Where enforced |
+|---------|-----------|----------------|
+| Auth bypass | [how prevented] | [middleware / test TC-N] |
+| Data isolation | [query filter] | [service / test TC-N] |
+
+---
+
+## 9. Performance
+
+| Metric | Requirement | Current baseline | Expected post-deploy |
+|--------|------------|-----------------|---------------------|
+| p99 latency | [< Nms] | [Nms] | [Nms] |
+
+**Cache strategy:** [what is cached, TTL, invalidation trigger]
+
+---
+
+## 10. Observability
+
+| Metric name | Type | Description | Alert threshold | Severity |
+|-------------|------|-------------|-----------------|----------|
+
+### Runbook: [AlertName]
+**Trigger:** [exact condition]
+**First response:** [step-by-step]
+**Escalation:** [who, after how long]
+
+---
+
+## 11. Rollback
+
+### With Feature Flag
+```bash
+[flag_tool] disable [flag_name] --env production --reason "[incident id]"
+```
+
+### Without Feature Flag
+```bash
+git revert [sha] && git push origin main && [deploy command] --env production
+```
+
+**Rollback tested in staging:** [ ] Yes  [ ] No — must be YES before prod deploy
+
+---
+
+## 12. Test Coverage by User Flow
+
+| User Flow | ACs covered | Test sections | Total test cases |
+|-----------|------------|---------------|-----------------|
+
+Full test cases: `.brocode/[id]/test-cases.md`
+
+---
+
+## 13. Pre-Deploy Checklist
+- [ ] Schema migration tested on staging data volume
+- [ ] Feature flag configured (if applicable)
+- [ ] All metrics instrumented and visible in staging
+- [ ] Alerts configured and tested
+- [ ] Rollback procedure tested in staging
+- [ ] Dependent team on-calls notified: [list teams]
+
+---
+
+## 14. Implementation Notes
+[Gotchas, non-obvious dependencies, order-of-operations requirements.]
+
+---
+
+## References
+- Requirements: `.brocode/[id]/product-spec.md`
+- Design: `.brocode/[id]/ux.md`
+- Implementation Options: `.brocode/[id]/implementation-options.md`
+- Ops: `.brocode/[id]/ops.md`
+- Test Cases: `.brocode/[id]/test-cases.md`
+```
+
+### `tasks.md` template
+
+```markdown
+# Implementation Tasks
+**Spec ID:** [id]
+**Status:** 0 / N complete
+
+---
+
+## Backend Tasks
+
+### TASK-BE-01: [Short title]
+**Domain:** backend
+**Status:** [ ]
+**Depends on:** none
+**Satisfies AC:** AC-3, AC-5
+
+**Files:**
+- Create: `src/api/auth/token.ts`
+- Modify: `src/api/routes.ts:45-52`
+- Test: `tests/api/auth/token.test.ts`
+
+**Implementation:**
+- Endpoint: `POST /api/auth/token`
+- Handler signature: `async function handleTokenRequest(req: Request): Promise<TokenResponse>`
+- Validates: `{ code: string, redirect_uri: string }` — returns 400 if missing
+- Returns: `{ access_token, refresh_token, expires_in }`
+- Error cases: 400 bad request, 401 invalid code, 500 internal
+
+**Test cases from QA:**
+- Happy path: valid code → tokens returned
+- Invalid code → 401
+- Missing redirect_uri → 400
+
+---
+
+## Web Tasks
+
+### TASK-WEB-01: [Short title]
+...
+
+---
+
+## Mobile Tasks
+
+### TASK-MOB-01: [Short title]
+...
+```
+
+**Quality bar:**
+- Zero vague tasks — "implement the auth flow" is not a task
+- Every task maps to at least one AC
+- Every task has exact file paths and concrete function signatures
+- Dependencies are explicit — no implicit ordering
 
 ## Investigation Mode
 

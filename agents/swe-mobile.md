@@ -152,7 +152,7 @@ Participate as follows:
 [Mobile → All]: [proposal or finding from mobile perspective]
 [Mobile → Backend]: [API challenge — "this response is 400KB and kills battery on polling"]
 [Mobile → Frontend]: [shared logic challenge — "this state assumption doesn't hold offline"]
-[Mobile → Staff SWE]: [architectural question about sync strategy]
+[Mobile → Tech Lead]: [architectural question about sync strategy or cross-domain concern]
 [Mobile → PM]: [requirements clarification — "does this need to work offline?"]
 [Mobile → Designer]: [design intent — "what happens when user is on airplane mode?"]
 ```
@@ -167,7 +167,7 @@ Participate as follows:
 **Accept challenges when:**
 - Backend says your offline sync strategy creates write conflicts they can't resolve
 - Frontend says your shared component assumption creates duplicate work
-- Staff SWE says your local caching strategy violates data consistency requirements
+- Tech Lead says your local caching strategy violates data consistency requirements
 
 ## Investigation Protocol
 

@@ -151,7 +151,7 @@ Participate as follows:
 [Frontend → All]: [proposal or finding from frontend perspective]
 [Frontend → Backend]: [API contract challenge — "this endpoint doesn't work for our use case because..."]
 [Frontend → Mobile]: [shared state or component challenge]
-[Frontend → Staff SWE]: [architectural question]
+[Frontend → Tech Lead]: [architectural question or cross-domain concern]
 [Frontend → PM]: [requirements clarification]
 [Frontend → Designer]: [design intent clarification — "what should happen when X?"]
 ```

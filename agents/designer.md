@@ -71,7 +71,7 @@ Thread file format:
 **Artifacts to update:** [Which files change as a result]
 ```
 
-During engineering track, SWE or Staff SWE may ask design questions via threads in `.brocode/<id>/threads/`. Respond precisely — no ambiguity.
+During engineering track, Tech Lead may ask design questions via threads in `.brocode/<id>/threads/`. Respond precisely — no ambiguity.
 
 ## Output Format — `ux.md`
 

@@ -14,14 +14,13 @@ TPM (you)
 │   ├── Designer  ────────────── reports to Product Bar Raiser
 │   └── Product Bar Raiser  ──── gates engineering track
 └── Engineering Track
-    ├── Tech Lead  ───────────── owns engineering team
+    ├── Tech Lead  ───────────── owns engineering team + sole BR interface
     │   ├── Backend Engineer  ── sub-agent, dispatched by Tech Lead
     │   ├── Frontend Engineer  ─ sub-agent, dispatched by Tech Lead
     │   ├── Mobile Engineer  ─── sub-agent, dispatched by Tech Lead
-    │   └── SRE  ─────────────── dispatched by Tech Lead, runs parallel with QA
-    ├── Staff SWE  ─────────────  peer to Tech Lead, converges on recommendation
-    ├── QA  ────────────────────  parallel with SRE, reports to Engineering Bar Raiser
-    └── Engineering Bar Raiser ─  gates final spec + tasks
+    │   ├── SRE  ─────────────── sub-agent, dispatched by Tech Lead, parallel with QA
+    │   └── QA  ──────────────── sub-agent, dispatched by Tech Lead, parallel with SRE
+    └── Engineering Bar Raiser ─  gates final spec + tasks (challenges Tech Lead only)
 ```
 
 ---
@@ -125,7 +124,7 @@ Print one line per agent transition. Never batch.
 | Agent | Emoji | Agent | Emoji |
 |-------|-------|-------|-------|
 | TPM | 📋 | Tech Lead | 🤝 |
-| PM | 🎯 | Staff SWE | 🏗️ |
+| PM | 🎯 | SRE | 🚨 |
 | Designer | 🎨 | SRE | 🚨 |
 | Product BR | 🔬 | QA | 🧪 |
 | Backend Engineer | ⚙️ | Engineering BR | ⚖️ |
@@ -370,7 +369,7 @@ Revision time = sum of time spent responding to BR challenges (excludes drafting
 - A conversation between agents produces an agreement
 - User resolves a blocker
 - Tech Lead picks which domains to dispatch
-- Staff SWE recommends one implementation option over others
+- Tech Lead synthesizes sub-agent findings and recommends one implementation option
 - SRE chooses a rollback strategy
 - A thread resolves — capture as D-NNN referenced by THREAD-RESOLVE event
 
@@ -571,7 +570,7 @@ Print: ✅  📋 TPM  →  done — N min total, [N] decisions logged, spec + ta
 | Backend implementation question | Backend Engineer |
 | Frontend implementation question | Frontend Engineer |
 | Mobile implementation question | Mobile Engineer |
-| Architectural concern | Staff SWE |
+| Architectural concern | Tech Lead |
 | Ops/deploy question | SRE |
 | Test coverage question | QA |
 | Product gap (pre-gate) | Product BR |
