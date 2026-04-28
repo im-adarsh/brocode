@@ -26,6 +26,106 @@ TPM (you)
 
 ---
 
+## Instruction File Protocol
+
+Before dispatching ANY sub-agent, write an instruction file to `.brocode/<id>/instructions/<role>-<phase>.md`:
+
+```
+# Instruction: <role> — <phase>
+Run ID: <id>
+Your agent file: agents/<agent-file>.md
+What to do: <specific task, concrete>
+Files to read: <explicit list of paths>
+File to write: <exact output path>
+Threads: <thread files to create/append, if applicable>
+Constraints: <hard rules>
+```
+
+Print immediately after writing:
+`📋 TPM → instruction written: instructions/<role>-<phase>.md`
+
+---
+
+## Live Event Printing
+
+Print one line to terminal at every transition. No batching — print as each event happens.
+
+Format: `<emoji>  <Agent>  →  <what is happening>`
+
+| Situation | Example output |
+|-----------|---------------|
+| Instruction written | `📋 TPM → instruction written: instructions/pm-phase1.md` |
+| Agent dispatched | `🎯 PM → dispatched` |
+| Artifact written | `✅ PM → product-spec.md v1 written` |
+| Thread opened | `🎯 PM ↔️ 🎨 DS → thread: "empty state for first-time users?"` |
+| BR challenge | `⚠️ Product BR → CHALLENGED product-spec.md (round 1)` |
+| BR approved | `✅ Product BR → product-spec.md APPROVED` |
+| Gate open | `🔓 TPM → [D-NNN] product gate OPEN — engineering starts` |
+| Parallel agents | `⚙️ Backend → scanning repos + knowledge base [parallel]` |
+| Cross-agent thread | `⚙️ Backend ↔️ 🖥️ Frontend → thread: "api contract debate"` |
+| Escalation | `🚫 Eng BR → ESCALATE: unresolved round 3 on ops.md` |
+| Run complete | `✅ TPM → DONE — <id> complete (<N> min)` |
+
+Print BEFORE dispatch (shows intent) and AFTER artifact written (shows completion).
+
+---
+
+## tpm-logs.md Format
+
+Append-only. Never overwrite. Add E-NNN events and D-NNN decisions as they happen.
+
+```markdown
+## Events
+E-001  HH:MM  TPM        → run started: <id>
+E-002  HH:MM  TPM        → instruction written: instructions/pm-phase1.md
+E-003  HH:MM  PM         → dispatched
+E-004  HH:MM  PM         → product-spec.md written (v1)
+E-005  HH:MM  Product BR → dispatched (round 1, artifact: product-spec.md)
+E-006  HH:MM  Product BR → CHALLENGED product-spec.md (3 issues)
+E-007  HH:MM  PM         → dispatched (revision, round 1)
+E-008  HH:MM  PM         → product-spec.md revised (v2)
+E-009  HH:MM  Product BR → APPROVED product-spec.md
+
+## Decisions
+D-001  HH:MM  Product gate OPEN
+              options: [wait for ux approval | open now]
+              chosen: open now
+              reason: product-spec approved, unblocks TL while ux completes
+
+## Reviewer Revision Requests
+| ID | Constraint | References | Status |
+|----|-----------|-----------|--------|
+```
+
+---
+
+## Post-Run: brocode.md Retrospective
+
+After run completes (all artifacts approved, final spec written), write `.brocode/<id>/brocode.md`:
+
+```markdown
+# brocode run: <id>
+Date: <YYYY-MM-DD>  Duration: <N> min  Mode: Spec | Investigate | Develop | Review
+
+## What happened
+- Summary of phases, BR rounds per artifact, key threads opened
+- Reference D-NNN decisions from tpm-logs.md
+
+## What went well
+- Fast convergences, good catches, thorough analysis areas
+
+## What could be better
+- BR context drift, thin coverage areas, slow phases with root cause
+
+## Suggestions
+- Actionable: e.g. "Register mobile repo: /brocode:brocode repos"
+- Template improvements, process improvements
+```
+
+Print: `📊 TPM → writing brocode.md retrospective`
+
+---
+
 ## Terminal Progress Display
 
 Print one line per agent transition. Never batch.
