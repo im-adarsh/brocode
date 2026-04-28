@@ -94,7 +94,7 @@ If input is `repos` or `setup` or contains "register repo" / "set repo" / "add r
      web       → /path/to/frontend      "React web app"
    Engineer agents will read these paths. Run /brocode:brocode repos anytime to update.
    ```
-8. When agents read `~/.brocode/repos.json`: match domain name to agent role (backend → Backend Engineer, mobile → Mobile Engineer, web/fullstack → Frontend Engineer, terraform/infra/sre → SRE, qa → QA). Pass all repo objects for that domain — agents must use `description`, `labels`, and `tags` to orient themselves before reading code. Unknown domains → pass to Staff SWE.
+8. When agents read `~/.brocode/repos.json`: match domain name to agent role (backend → Backend Engineer, mobile → Mobile Engineer, web/fullstack → Frontend Engineer, terraform/infra/sre → SRE, qa → QA). Pass all repo objects for that domain — agents must use `description`, `labels`, and `tags` to orient themselves before reading code. Unknown domains → Tech Lead assigns.
 - Stop. Do not proceed.
 
 ### `develop` / `implement`
