@@ -197,7 +197,29 @@ Constraints: <hard rules>
 Print immediately after writing:
 `📋 TPM → instruction written: instructions/<role>-<phase>.md`
 
-### Phase 1: Tech Lead dispatch
+### Phase 1: Tech Lead triage + clarifying questions
+
+TPM writes `.brocode/<id>/instructions/tech-lead-triage.md`:
+```
+# Instruction: Tech Lead — triage
+Run ID: <id>
+Your agent file: agents/tech-lead.md
+What to do:
+  1. Read brief.md in full.
+  2. Identify any ambiguities that would block investigation — missing reproduction steps,
+     unclear scope, unknown domain, missing environment info.
+  3. Write clarifying questions to threads/tech-lead-brief-questions.md.
+     Format: [Tech Lead → TPM]: <question>
+  4. Once satisfied (or no questions), signal ready: write threads/tech-lead-ready.md
+     with confirmed domain scope (Backend / Frontend / Mobile / cross-domain) and key constraints.
+Files to read: .brocode/<id>/brief.md
+Threads: .brocode/<id>/threads/tech-lead-brief-questions.md
+Constraints: Ask before delegating — do not dispatch team until scope confirmed.
+```
+Print: `🤝 Tech Lead → triaging brief, may ask clarifying questions`
+Dispatch Tech Lead sub-agent. If questions arise, TPM surfaces them to user, gets answers, appends to thread, re-checks with Tech Lead.
+Print when ready: `🤝 Tech Lead → scope confirmed, dispatching team`
+
 TPM writes `.brocode/<id>/instructions/tech-lead-investigate.md`:
 ```
 # Instruction: Tech Lead — investigate
@@ -205,20 +227,22 @@ Run ID: <id>
 Your agent file: agents/tech-lead.md
 What to do:
   1. Read ~/.brocode/wiki/index.md — understand full system topology.
-  2. Triage domain from brief.md. Determine which of Backend/Frontend/Mobile are involved.
+  2. Read threads/tech-lead-ready.md for confirmed domain scope.
   3. Write instruction files for each relevant engineer sub-agent, plus SRE and QA.
   4. Dispatch all in parallel. Each scans knowledge base first, then reads repos.
   5. Read all findings from threads/. Synthesize into investigation.md.
   6. After all artifacts BR-approved, write engineering-spec.md + tasks.md.
-Files to read: .brocode/<id>/brief.md, ~/.brocode/repos.json, ~/.brocode/wiki/index.md
+Files to read: .brocode/<id>/brief.md, .brocode/<id>/threads/tech-lead-ready.md,
+               ~/.brocode/repos.json, ~/.brocode/wiki/index.md
 Files to write: .brocode/<id>/investigation.md (then later) .brocode/<id>/engineering-spec.md, .brocode/<id>/tasks.md
 Constraints:
   - No fix without confirmed root cause
   - No fix without failing test case
   - You are the sole producer of engineering-spec.md and tasks.md
   - Engineering BR challenges but never writes the spec
+  - You are the sole interface to Engineering BR — SRE and QA never talk to BR directly
 ```
-Print: `🤝 Tech Lead → dispatched`
+Print: `🤝 Tech Lead → dispatching team`
 Dispatch Tech Lead sub-agent (reads `agents/tech-lead.md` + its instruction file).
 
 Tech Lead internally writes instruction files for each engineer before dispatching:
@@ -252,10 +276,11 @@ loop:
 
   if challenged:
     print: ⚠️  ⚖️ Eng BR  →  [N challenges on <artifact>] (round <round>)
-    dispatch producer sub-agent (fresh context):
-      - reads challenge file + current artifact + their agent file
-      - revises artifact (appends ## Changes from BR Challenge round <round>)
-    print: 🟢  [producer]  →  revised <artifact> v<round+1>
+    dispatch Tech Lead sub-agent (fresh context) with instruction file containing:
+      - the specific BR challenge items
+      - which sub-agent to re-dispatch internally (SRE for ops.md, QA for test-cases.md, domain engineers for investigation.md)
+      - Tech Lead routes to sub-agent → sub-agent revises artifact → Tech Lead synthesizes → writes response
+    print: 🟢  Tech Lead  →  revised <artifact> v<round+1>
     round += 1
 
   if round > 3:
@@ -393,7 +418,34 @@ Print: `🔓 TPM → [D-NNN] product gate OPEN — engineering starts`
 
 ### Phase 2 — Engineering Track
 
-**Step 2a: Tech Lead dispatch**
+**Step 2a: Tech Lead review + clarifying questions**
+
+After product gate opens, TPM writes `.brocode/<id>/instructions/tech-lead-review-product.md`:
+```
+# Instruction: Tech Lead — review product artifacts
+Run ID: <id>
+Your agent file: agents/tech-lead.md
+What to do:
+  1. Read product-spec.md and ux.md in full.
+  2. Identify any ambiguities, missing technical details, or constraints that would
+     block engineering (e.g. unclear API contracts, missing error states, undefined
+     scalability requirements, conflicting personas).
+  3. Write clarifying questions to threads/tech-lead-product-questions.md.
+     Format: [Tech Lead → PM]: <question> or [Tech Lead → Designer]: <question>
+  4. TPM routes questions to PM/Designer sub-agents who append answers to the thread.
+  5. Once satisfied (or no questions), signal ready: write threads/tech-lead-ready.md
+     with a one-line summary of key engineering constraints understood.
+Files to read: .brocode/<id>/product-spec.md, .brocode/<id>/ux.md
+Threads: .brocode/<id>/threads/tech-lead-product-questions.md
+Constraints: Ask before delegating — do not dispatch team until questions resolved.
+```
+Print: `🤝 Tech Lead → reviewing product artifacts, may ask clarifying questions`
+Dispatch Tech Lead sub-agent.
+
+If Tech Lead has questions, TPM dispatches PM or Designer (fresh context) to answer via the thread, then re-checks with Tech Lead.
+Print when ready: `🤝 Tech Lead → product artifacts understood, dispatching team`
+
+**Step 2b: Tech Lead team dispatch**
 TPM writes `.brocode/<id>/instructions/tech-lead-phase2.md`:
 ```
 # Instruction: Tech Lead — phase 2 (spec)
@@ -401,12 +453,14 @@ Run ID: <id>
 Your agent file: agents/tech-lead.md
 What to do:
   1. Read ~/.brocode/wiki/index.md — understand full system topology.
-  2. Write instruction files for Backend, Frontend, Mobile, SRE, QA sub-agents.
-  3. Dispatch all 5 in parallel. Each scans knowledge base first, then reads repos.
-  4. Read all findings from threads/. Synthesize into implementation-options.md (3 options
+  2. Read threads/tech-lead-ready.md for key engineering constraints from product review.
+  3. Write instruction files for Backend, Frontend, Mobile, SRE, QA sub-agents.
+  4. Dispatch all 5 in parallel. Each scans knowledge base first, then reads repos.
+  5. Read all findings from threads/. Synthesize into implementation-options.md (3 options
      with real code sketches, tradeoffs, and a clear recommendation).
-  5. After all artifacts BR-approved, write engineering-spec.md + tasks.md.
+  6. After all artifacts BR-approved, write engineering-spec.md + tasks.md.
 Files to read: .brocode/<id>/product-spec.md, .brocode/<id>/ux.md,
+               .brocode/<id>/threads/tech-lead-ready.md,
                ~/.brocode/repos.json, ~/.brocode/wiki/index.md
 Files to write: .brocode/<id>/implementation-options.md (then later)
                 .brocode/<id>/engineering-spec.md, .brocode/<id>/tasks.md
@@ -414,8 +468,9 @@ Constraints:
   - You are the sole producer of engineering-spec.md and tasks.md
   - Engineering BR challenges but never writes the spec
   - 3 implementation options required with real code sketches
+  - You are the sole interface to Engineering BR — SRE and QA never talk to BR directly
 ```
-Print: `🤝 Tech Lead → dispatched`
+Print: `🤝 Tech Lead → dispatching team`
 Dispatch Tech Lead sub-agent (reads `agents/tech-lead.md` + its instruction file).
 
 Tech Lead internally writes and dispatches instruction files for:
@@ -451,10 +506,11 @@ loop:
 
   if challenged:
     print: ⚠️  ⚖️ Eng BR  →  [N challenges on <artifact>] (round <round>)
-    dispatch producer sub-agent (Tech Lead / SRE / QA, fresh context):
-      - reads challenge file + current artifact + their agent file
-      - revises artifact (appends ## Changes from BR Challenge round <round>)
-    print: 🟢  [producer]  →  revised <artifact> v<round+1>
+    dispatch Tech Lead sub-agent (fresh context) with instruction file containing:
+      - the specific BR challenge items
+      - which sub-agent to re-dispatch internally (SRE for ops.md challenges, QA for test-cases.md challenges, Backend/Frontend/Mobile for impl challenges)
+      - Tech Lead routes to sub-agent → sub-agent revises artifact → Tech Lead synthesizes → writes response
+    print: 🟢  Tech Lead  →  revised <artifact> v<round+1>
     round += 1
 
   if round > 3:
