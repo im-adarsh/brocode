@@ -481,7 +481,7 @@ Print: 🟢  [emoji] [Agent]  →  [what they're starting]
 Update: Stage Progress table — set to 🔄 IN_PROGRESS, record Started: HH:MM
 ```
 TodoWrite: mark the dispatched agent's todo item as `in_progress`
-  Item format: `[emoji] [Agent] → [artifact they're producing]`
+  Each dispatched agent gets its own item: `[emoji] [Agent] → [artifact they're producing]`
 
 ### On ARTIFACT produced
 ```
