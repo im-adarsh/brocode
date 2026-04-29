@@ -347,7 +347,9 @@ TPM logs (after artifacts written):
 
 Engineering BR does final check on `engineering-spec.md` + `tasks.md` (max 2 rounds).
 TPM logs for final BR check: `E-NNN · DISPATCH · Engineering BR` + `E-NNN · APPROVE · Engineering BR` per artifact
-Print: `✅ Eng BR → engineering-spec.md APPROVED`
+Print: `✅ Eng BR → engineering-spec.md + tasks.md APPROVED`
+Print: `📊 TPM → writing brocode.md retrospective`
+Write `.brocode/<id>/brocode.md` (see Post-Run section in `agents/tpm.md` for format).
 Run ADR extraction (see ADR Extraction Procedure above).
 Print: `📋 TPM → [N] ADRs written to .brocode/<id>/adrs/`
 TPM logs: `E-NNN · ARTIFACT · TPM` — adrs/ written, N decisions exported
@@ -639,6 +641,8 @@ TPM logs (after artifacts written):
 Engineering BR does final check on `engineering-spec.md` + `tasks.md` (max 2 rounds).
 TPM logs for final BR check: `E-NNN · DISPATCH · Engineering BR` + `E-NNN · APPROVE · Engineering BR` per artifact
 Print after approval: `✅ Eng BR → engineering-spec.md + tasks.md APPROVED`
+Print: `📊 TPM → writing brocode.md retrospective`
+Write `.brocode/<id>/brocode.md` (see Post-Run section in `agents/tpm.md` for format).
 Run ADR extraction (see ADR Extraction Procedure above).
 Print: `📋 TPM → [N] ADRs written to .brocode/<id>/adrs/`
 TPM logs: `E-NNN · ARTIFACT · TPM` — adrs/ written, N decisions exported
@@ -701,6 +705,7 @@ When instructed to run ADR extraction for a given run ID:
    - Missing "Revisit if" field → write `Revisit conditions not recorded.`
    - Missing options table → write `Options not recorded.`
    - Missing Rationale → write `Context not recorded.`
+   - Missing "Downstream impact" field → write `Consequences not recorded.`
    - Malformed / truncated block (missing title or Chose line) → skip the block; record in index as `⚠️ ADR-NNN: incomplete block, skipped`
    - Zero D-NNN blocks found → write index only, with note: `No decisions recorded in this run.`
 8. Write `.brocode/<id>/adrs/index.md`:

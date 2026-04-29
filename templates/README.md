@@ -72,6 +72,9 @@ Every template has YAML frontmatter with fields agents can parse:
   test-cases.md             ← from templates/test-cases.md
   engineering-spec.md       ← from templates/engineering-spec.md
   tasks.md                  ← from templates/tasks.md
+  adrs/
+    index.md               ← ADR index (auto-generated at run end)
+    ADR-001-<slug>.md      ← one per D-NNN decision in tpm-logs.md
   br/
     product/
       req-challenge-r1.md   ← from templates/br-challenge.md
