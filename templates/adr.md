@@ -5,10 +5,12 @@ producer: TPM
 mode: spec_or_investigate
 version_field: false
 status_values: [Accepted, Superseded, Deprecated]
+required_sections: [context, decision, options_considered, consequences, revisit_if]
 ai_instructions: >
   Extract fields directly from the D-NNN block in tpm-logs.md.
   Do not invent or infer content beyond what is in the source block.
   Slug: decision title lowercased, spaces to hyphens, max 6 words, strip non-alphanumeric.
+  Deciders: extract the agent role from the D-NNN block header line (e.g. "· DECISION · PM" → PM).
   If a field is missing from the D-NNN block, use the fallback value specified per field.
   Write one ADR file per D-NNN block. Never merge two D-NNN blocks into one ADR.
 ---
@@ -43,4 +45,4 @@ deciders: [agent from D-NNN header — PM | Tech Lead | TPM | User | Designer | 
 [From D-NNN "Downstream impact" field. What changes as a result of this decision — which agents, artifacts, or systems are affected. If missing, write: "Consequences not recorded."]
 
 ## Revisit If
-[From D-NNN "Revisit if" field — exact condition. If missing, write: "Not specified."]
+[From D-NNN "Revisit if" field — exact condition. If missing, write: "Revisit conditions not recorded."]
