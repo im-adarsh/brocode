@@ -111,6 +111,15 @@ Date: <YYYY-MM-DD>  Duration: <N> min  Mode: Spec | Investigate | Develop | Revi
 
 Print: `📊 TPM → writing brocode.md retrospective`
 
+After writing `brocode.md`, run ADR extraction:
+- Read `tpm-logs.md` — find all `### [D-NNN]` blocks
+- Write one `.brocode/<id>/adrs/ADR-NNN-<slug>.md` per block using `templates/adr.md`
+- Write `.brocode/<id>/adrs/index.md` — table of all ADRs
+- Print: `📋 TPM → [N] ADRs written to .brocode/<id>/adrs/`
+- Log: `E-NNN · ARTIFACT · TPM` — adrs/ written, N decisions exported
+
+Full extraction rules: see "ADR Extraction Procedure" in `commands/brocode.md`.
+
 ---
 
 ## Terminal Progress Display
