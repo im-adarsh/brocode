@@ -188,6 +188,16 @@ Analyze input:
 5. TPM logs:
    - `E-NNN · DISPATCH · TPM` — run started, ID assigned
    - `E-NNN · ARTIFACT · TPM` — brief.md written from user input
+6. TodoWrite: initialize run todo list — all items `pending`:
+   - `📋 TPM → brief.md written` (mark `completed` immediately)
+   - `🤝 Tech Lead → triage`
+   - `🤝 Tech Lead → dispatching team`
+   - `⚙️ Engineers → parallel investigation`
+   - `🤝 Tech Lead → investigation.md`
+   - `⚖️ Engineering BR → review`
+   - `🤝 Tech Lead → final spec + tasks`
+   - `⚖️ Engineering BR → final check`
+   - `📋 TPM → ADR extraction + brocode.md`
 
 ### Org
 ```
@@ -212,6 +222,9 @@ What to do: <specific task, concrete>
 Files to read: <explicit list of paths>
 File to write: <exact output path>
 Threads: <thread files to create/append, if applicable>
+Thread reading rule: For any thread file > 50 lines, read the `## Summary` section only
+  unless you are doing a revision or the Summary says "open question: [your domain]".
+  Full thread content preserved below summary for audit.
 Constraints: <hard rules>
 ```
 Print immediately after writing:
@@ -386,6 +399,20 @@ TPM logs: `E-NNN · COMPLETE · TPM` — run complete, list all produced artifac
 6. TPM logs:
    - `E-NNN · DISPATCH · TPM` — run started, ID assigned
    - `E-NNN · ARTIFACT · TPM` — brief.md written from user input
+7. TodoWrite: initialize run todo list — all items `pending`:
+   - `📋 TPM → brief.md written` (mark `completed` immediately)
+   - `🎯 PM → product-spec.md`
+   - `🎨 Designer → ux.md`
+   - `🔬 Product BR → review`
+   - `🔓 Product gate → engineering unlocked`
+   - `🤝 Tech Lead → reviewing product artifacts`
+   - `🤝 Tech Lead → dispatching team`
+   - `⚙️ Engineers → parallel investigation`
+   - `🤝 Tech Lead → implementation-options.md`
+   - `⚖️ Engineering BR → review`
+   - `🤝 Tech Lead → final spec + tasks`
+   - `⚖️ Engineering BR → final check`
+   - `📋 TPM → ADR extraction + brocode.md`
 
 ### Org
 ```
