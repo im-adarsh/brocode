@@ -277,8 +277,8 @@ Each instruction tells the sub-agent:
 - Where to find the knowledge base (`~/.brocode/wiki/<repo-slug>/`)
 - What thread files to write findings to (`threads/<topic>.md` — descriptive names, one per topic)
 - When to invoke `superpowers:systematic-debugging` (2 hypotheses eliminated, intermittent bug, 3+ layers, contradictory symptoms)
-- SRE instruction: include only `brief.md` blast-radius section + `implementation-options.md` architecture decision section. Do NOT include full product-spec.md or ux.md.
-- QA instruction: include only `brief.md` acceptance-criteria section + `implementation-options.md` test surface section. Do NOT include full product-spec.md or ux.md.
+- SRE instruction: include only `brief.md` blast-radius section + relevant domain thread files. Do NOT include product-spec.md or ux.md — not applicable in investigate mode.
+- QA instruction: include only `brief.md` acceptance-criteria section + relevant domain thread files. Do NOT include product-spec.md or ux.md — not applicable in investigate mode.
 - Backend / Frontend / Mobile instructions: include only their domain section of `brief.md` + their domain's thread files + `~/.brocode/wiki/<their-repo-slug>/` only.
 - Engineering BR instruction: include the one artifact being challenged only. Do NOT include all three eng artifacts at once.
 
@@ -432,8 +432,8 @@ Run ID: <id>
 Your agent file: agents/designer.md
 What to do: Read product-spec.md. Converse with PM via threads (append to existing thread files or create new ones). Produce ux.md with e2e mermaid diagram per persona.
 Files to read: .brocode/<id>/product-spec.md
-  Threads: read .brocode/<id>/threads/ (Summary sections only if thread > 50 lines)
   (Do NOT read ux.md — not yet written. Do NOT read ops.md, test-cases.md — not your scope)
+Threads to read: .brocode/<id>/threads/ (Summary sections only if thread > 50 lines)
 File to write: .brocode/<id>/ux.md
 Threads: append to existing threads or create .brocode/<id>/threads/<topic>.md
 Constraints: Every screen state covered. Every error state defined. API contracts explicit.
@@ -573,7 +573,7 @@ Each instruction tells the sub-agent:
 - SRE instruction: include only `brief.md` blast-radius section + `implementation-options.md` architecture decision section. Do NOT include full product-spec.md or ux.md.
 - QA instruction: include only `brief.md` acceptance-criteria section + `implementation-options.md` test surface section. Do NOT include full product-spec.md or ux.md.
 - Backend / Frontend / Mobile instructions: include only their domain section of `brief.md` + their domain's thread files + `~/.brocode/wiki/<their-repo-slug>/` only.
-- Engineering BR instruction: include the one artifact being challenged only. Do NOT include all three eng artifacts at once.
+- Engineering BR instruction: include this artifact + all other eng artifacts (cross-consistency check). Include all prior challenge files for this artifact.
 
 TPM logs one entry per sub-agent dispatched (do not batch — each gets its own block):
 - `E-NNN · DISPATCH · Backend Engineer` — instruction file path
