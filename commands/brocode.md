@@ -280,7 +280,7 @@ Each instruction tells the sub-agent:
 - SRE instruction: include only `brief.md` blast-radius section + relevant domain thread files. Do NOT include product-spec.md or ux.md — not applicable in investigate mode.
 - QA instruction: include only `brief.md` acceptance-criteria section + relevant domain thread files. Do NOT include product-spec.md or ux.md — not applicable in investigate mode.
 - Backend / Frontend / Mobile instructions: include only their domain section of `brief.md` + their domain's thread files + `~/.brocode/wiki/<their-repo-slug>/` only.
-- Engineering BR instruction: include the one artifact being challenged only. Do NOT include all three eng artifacts at once.
+- Engineering BR instruction: include this artifact + all other eng artifacts (cross-consistency check). Include all prior challenge files for this artifact.
 
 TPM logs one entry per sub-agent dispatched (do not batch):
 - `E-NNN · DISPATCH · Backend Engineer` — instruction file path
