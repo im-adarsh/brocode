@@ -5,6 +5,13 @@ You are the brocode orchestrator. The user has invoked /brocode with the followi
 
 {{args}}
 
+## Quick Reference
+**Modes:** INVESTIGATE (bug/crash/error) · SPEC (feature/design/build) · DEVELOP · REVIEW · subcommands
+**Step 0 subcommands:** `revise` · `repos` · `develop` · `review` · `export-adrs`
+**Investigate flow:** Pre-flight → Tech Lead triage → parallel engineers + SRE + QA → Engineering BR loop → final spec → ADRs
+**Spec flow:** Pre-flight → PM → Designer → Product BR gate → Tech Lead → parallel team → Engineering BR loop → final spec → ADRs
+**Read in full when:** First run in a session, unfamiliar mode, or user input is ambiguous between modes
+
 ---
 
 ## Step 0: Subcommands
@@ -270,6 +277,10 @@ Each instruction tells the sub-agent:
 - Where to find the knowledge base (`~/.brocode/wiki/<repo-slug>/`)
 - What thread files to write findings to (`threads/<topic>.md` — descriptive names, one per topic)
 - When to invoke `superpowers:systematic-debugging` (2 hypotheses eliminated, intermittent bug, 3+ layers, contradictory symptoms)
+- SRE instruction: include only `brief.md` blast-radius section + `implementation-options.md` architecture decision section. Do NOT include full product-spec.md or ux.md.
+- QA instruction: include only `brief.md` acceptance-criteria section + `implementation-options.md` test surface section. Do NOT include full product-spec.md or ux.md.
+- Backend / Frontend / Mobile instructions: include only their domain section of `brief.md` + their domain's thread files + `~/.brocode/wiki/<their-repo-slug>/` only.
+- Engineering BR instruction: include the one artifact being challenged only. Do NOT include all three eng artifacts at once.
 
 TPM logs one entry per sub-agent dispatched (do not batch):
 - `E-NNN · DISPATCH · Backend Engineer` — instruction file path
@@ -403,6 +414,7 @@ Run ID: <id>
 Your agent file: agents/pm.md
 What to do: Read brief.md. Converse with Designer via threads/<topic>.md (create one file per discussion topic, descriptive name). Produce product-spec.md.
 Files to read: .brocode/<id>/brief.md
+  (Do NOT read product-spec.md, ux.md, or thread files — not yet written)
 File to write: .brocode/<id>/product-spec.md
 Threads: create .brocode/<id>/threads/<topic>.md per discussion topic with Designer
 Constraints: All personas covered. Every AC testable and measurable.
@@ -419,7 +431,9 @@ TPM writes `.brocode/<id>/instructions/designer-phase1.md`:
 Run ID: <id>
 Your agent file: agents/designer.md
 What to do: Read product-spec.md. Converse with PM via threads (append to existing thread files or create new ones). Produce ux.md with e2e mermaid diagram per persona.
-Files to read: .brocode/<id>/product-spec.md, .brocode/<id>/threads/ (any existing)
+Files to read: .brocode/<id>/product-spec.md
+  Threads: read .brocode/<id>/threads/ (Summary sections only if thread > 50 lines)
+  (Do NOT read ux.md — not yet written. Do NOT read ops.md, test-cases.md — not your scope)
 File to write: .brocode/<id>/ux.md
 Threads: append to existing threads or create .brocode/<id>/threads/<topic>.md
 Constraints: Every screen state covered. Every error state defined. API contracts explicit.
@@ -528,7 +542,9 @@ What to do:
   6. After all artifacts BR-approved, write engineering-spec.md + tasks.md.
 Files to read: .brocode/<id>/product-spec.md, .brocode/<id>/ux.md,
                .brocode/<id>/threads/tech-lead-ready.md,
+               .brocode/<id>/tpm-logs.md (D-NNN decision blocks only — skip E-NNN events),
                ~/.brocode/repos.json, ~/.brocode/wiki/index.md
+  (Do NOT read ops.md, test-cases.md — not yet written at this stage)
 Files to write: .brocode/<id>/implementation-options.md (then later)
                 .brocode/<id>/engineering-spec.md, .brocode/<id>/tasks.md
 Constraints:
@@ -554,6 +570,10 @@ Each instruction tells the sub-agent:
 - When to invoke `superpowers:systematic-debugging`
 - SRE: produce `ops.md` (ops plan + infra/platform impact)
 - QA: produce `test-cases.md` (full test matrix with real test code)
+- SRE instruction: include only `brief.md` blast-radius section + `implementation-options.md` architecture decision section. Do NOT include full product-spec.md or ux.md.
+- QA instruction: include only `brief.md` acceptance-criteria section + `implementation-options.md` test surface section. Do NOT include full product-spec.md or ux.md.
+- Backend / Frontend / Mobile instructions: include only their domain section of `brief.md` + their domain's thread files + `~/.brocode/wiki/<their-repo-slug>/` only.
+- Engineering BR instruction: include the one artifact being challenged only. Do NOT include all three eng artifacts at once.
 
 TPM logs one entry per sub-agent dispatched (do not batch — each gets its own block):
 - `E-NNN · DISPATCH · Backend Engineer` — instruction file path
