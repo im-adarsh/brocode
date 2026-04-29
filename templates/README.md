@@ -58,6 +58,7 @@ Every template has YAML frontmatter with fields agents can parse:
 |----------|------|---------|
 | BR Challenge | [br-challenge.md](br-challenge.md) | Product BR, Engineering BR |
 | BR Approval | [br-approval.md](br-approval.md) | Product BR, Engineering BR |
+| Architecture Decision Record | [adr.md](adr.md) | TPM (auto-generated at run end) |
 
 ## Context Directory Layout
 
