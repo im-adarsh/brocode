@@ -639,6 +639,9 @@ TPM logs (after artifacts written):
 Engineering BR does final check on `engineering-spec.md` + `tasks.md` (max 2 rounds).
 TPM logs for final BR check: `E-NNN · DISPATCH · Engineering BR` + `E-NNN · APPROVE · Engineering BR` per artifact
 Print after approval: `✅ Eng BR → engineering-spec.md + tasks.md APPROVED`
+Run ADR extraction (see ADR Extraction Procedure above).
+Print: `📋 TPM → [N] ADRs written to .brocode/<id>/adrs/`
+TPM logs: `E-NNN · ARTIFACT · TPM` — adrs/ written, N decisions exported
 TPM logs: `E-NNN · COMPLETE · TPM` — run complete, list all produced artifacts + decision index (all D-NNN refs)
 
 ### Iron laws
