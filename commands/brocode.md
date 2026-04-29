@@ -145,6 +145,16 @@ If input is `review` or `code-review` or contains "review this PR" / "review thi
 - Print: `✅ Tech Lead → review posted — <N> inline comments on <url>`
 - Stop.
 
+### `export-adrs`
+If input is `export-adrs` or contains "export adrs" / "generate adrs" / "export decisions":
+
+1. If a run ID is provided in the input (e.g. `/brocode export-adrs spec-20260429-oauth`): use `.brocode/<id>/tpm-logs.md`
+2. If no ID: scan `.brocode/` for all subdirectories containing `tpm-logs.md`. If exactly one found, use it. If multiple, list them and ask: "Which run? (paste the ID)"
+3. Confirm `tpm-logs.md` exists at the path. If not: print `❌ No tpm-logs.md found at .brocode/<id>/tpm-logs.md` and stop.
+4. Run ADR extraction (see ADR Extraction Procedure below).
+5. Print: `📋 TPM → [N] ADRs written to .brocode/<id>/adrs/`
+6. Stop.
+
 ---
 
 ## Step 1: Route
