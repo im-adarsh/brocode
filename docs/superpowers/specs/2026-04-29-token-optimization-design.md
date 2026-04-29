@@ -2,7 +2,7 @@
 
 **Goal:** Reduce tokens consumed per brocode run by 40–60% without losing information agents need to do their job.
 
-**Architecture:** Four mechanisms applied at different layers — instruction file compression (runtime, per-dispatch), Quick Reference headers (static, per-agent-file), thread summarization (runtime, post-BR-round), wiki compaction (runtime, post-run). No new commands. No new files except compacted wiki versions written in place.
+**Architecture:** Five mechanisms applied at different layers — instruction file compression (runtime, per-dispatch), Quick Reference headers (static, per-agent-file), thread summarization (runtime, post-BR-round), wiki compaction (runtime, post-run), live TodoWrite tracking (runtime, every phase transition). No new commands. No new files except compacted wiki versions written in place.
 
 **Tech Stack:** Markdown edits to existing agent files and commands/brocode.md. TPM enforces all runtime mechanisms inline. No new dependencies.
 
@@ -113,6 +113,58 @@ On next agent dispatch, instruction file tells agent: "Read threads/<topic>.md S
 
 ---
 
+## Mechanism 5: Live TodoWrite Tracking
+
+**Location:** `agents/tpm.md` — every phase transition; `commands/brocode.md` — flow steps.
+
+**Current state:** No live progress visibility. User has no way to see what brocode is doing mid-run without reading terminal output.
+
+**New rule:** TPM calls `TodoWrite` at every phase transition to maintain a live task list visible in the IDE. One todo item per active agent/artifact. States: `pending` → `in_progress` → `completed`.
+
+**INVESTIGATE flow todos:**
+```
+[ ] Tech Lead — dispatched: reading repos
+[ ] Backend — investigating [domain]
+[ ] SRE — blast radius assessment
+[ ] QA — failing test identification
+[ ] Tech Lead — synthesizing investigation.md
+[ ] Engineering BR — review round N
+[ ] Tech Lead — writing engineering-spec.md + tasks.md
+[ ] Engineering BR — final check
+[ ] ADR extraction
+```
+
+**SPEC flow todos:**
+```
+[ ] PM — writing product-spec.md
+[ ] Designer — writing ux.md
+[ ] Product BR — review round N
+[ ] [GATE] Engineering track unlocked
+[ ] Tech Lead — dispatched: implementation options
+[ ] Backend / Frontend / Mobile / SRE / QA — parallel investigation
+[ ] Tech Lead — synthesizing implementation-options.md
+[ ] Engineering BR — review round N
+[ ] Tech Lead — writing engineering-spec.md + tasks.md
+[ ] Engineering BR — final check
+[ ] ADR extraction
+```
+
+**DEVELOP flow todos:**
+```
+[ ] [domain] — worktree setup
+[ ] [domain] — writing plan
+[ ] Task N: [task name] — implementing
+[ ] Task N: [task name] — spec review
+[ ] Task N: [task name] — quality review
+[ ] [domain] — finishing branch + PR
+```
+
+TPM marks each item `in_progress` immediately before dispatching that agent, `completed` immediately after artifact confirmed written. Items added dynamically as BR rounds are added (e.g., `Engineering BR — review round 2` added only if round 1 is challenged).
+
+**Files changed:** `agents/tpm.md` — every dispatch block; `commands/brocode.md` — every flow step.
+
+---
+
 ## Edge Cases
 
 | Scenario | Handling |
@@ -137,6 +189,8 @@ On next agent dispatch, instruction file tells agent: "Read threads/<topic>.md S
 | `agents/tpm.md` | Modify | Add thread summarization step in Post-BR-Round section (Mechanism 3) |
 | `agents/tpm.md` | Modify | Add wiki compaction step in Post-Run section after ADR extraction (Mechanism 4) |
 | `agents/tech-lead.md` | Modify | Add Quick Reference header (Mechanism 2) |
+| `agents/tpm.md` | Modify | Add TodoWrite calls at every dispatch/completion point (Mechanism 5) |
+| `commands/brocode.md` | Modify | Add TodoWrite calls at every flow step for all three modes (Mechanism 5) |
 
 No new agent files. No new commands. No new dependencies.
 
