@@ -46,6 +46,8 @@ What to do: <specific task, concrete>
 Files to read: <explicit list of paths>
 File to write: <exact output path>
 Threads: <thread files to create/append, if applicable>
+Thread reading rule: For any thread file > 50 lines, read the `## Summary` section only
+  unless you are doing a revision or the Summary says "open question: [your domain]".
 Constraints: <hard rules>
 ```
 
@@ -130,7 +132,7 @@ After writing `brocode.md`, run ADR extraction:
 Full extraction rules: see "ADR Extraction Procedure" in `commands/brocode.md`.
 
 **Wiki Compaction (fires after ADR extraction):**
-After writing ADRs, check each `~/.brocode/wiki/<repo-slug>/` directory:
+After writing ADRs, for each subdirectory (not files) under `~/.brocode/wiki/`:
 1. Count total lines in `overview.md` + `patterns.md` + `conventions.md` combined
 2. If combined > 300 lines:
    a. Read all three files
@@ -515,7 +517,7 @@ After logging the CHALLENGE entry, check all thread files touched in this round:
      - 5–8 bullet points: key positions stated, blockers raised, decisions made, open questions
      - Tag with: `<!-- summarized by TPM after BR round N -->`
   3. Preserve all thread content below the summary — never delete
-- On next dispatch, instruction file tells the agent: "Read threads/<topic>.md Summary section only unless you need full context for a revision."
+- On next dispatch, instruction file tells the agent: "Read threads/<topic>.md Summary section only unless you are doing a revision or the Summary says 'open question: [your domain]'."
 
 ### On REVISE
 ```

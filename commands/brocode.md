@@ -293,7 +293,6 @@ Each instruction tells the sub-agent:
 - SRE instruction: include only `brief.md` blast-radius section + relevant domain thread files. Do NOT include product-spec.md or ux.md — not applicable in investigate mode.
 - QA instruction: include only `brief.md` acceptance-criteria section + relevant domain thread files. Do NOT include product-spec.md or ux.md — not applicable in investigate mode.
 - Backend / Frontend / Mobile instructions: include only their domain section of `brief.md` + their domain's thread files + `~/.brocode/wiki/<their-repo-slug>/` only.
-- Engineering BR instruction: include this artifact + all other eng artifacts (cross-consistency check). Include all prior challenge files for this artifact.
 
 TPM logs one entry per sub-agent dispatched (do not batch):
 - `E-NNN · DISPATCH · Backend Engineer` — instruction file path
@@ -597,10 +596,9 @@ Each instruction tells the sub-agent:
 - When to invoke `superpowers:systematic-debugging`
 - SRE: produce `ops.md` (ops plan + infra/platform impact)
 - QA: produce `test-cases.md` (full test matrix with real test code)
-- SRE instruction: include only `brief.md` blast-radius section + `implementation-options.md` architecture decision section. Do NOT include full product-spec.md or ux.md.
-- QA instruction: include only `brief.md` acceptance-criteria section + `implementation-options.md` test surface section. Do NOT include full product-spec.md or ux.md.
+- SRE instruction: include only `brief.md` blast-radius section + `product-spec.md` technical requirements section + relevant domain thread files. Do NOT include ux.md or implementation-options.md — not yet written.
+- QA instruction: include only `brief.md` acceptance-criteria section + `product-spec.md` acceptance criteria section + relevant domain thread files. Do NOT include ux.md or implementation-options.md — not yet written.
 - Backend / Frontend / Mobile instructions: include only their domain section of `brief.md` + their domain's thread files + `~/.brocode/wiki/<their-repo-slug>/` only.
-- Engineering BR instruction: include this artifact + all other eng artifacts (cross-consistency check). Include all prior challenge files for this artifact.
 
 TPM logs one entry per sub-agent dispatched (do not batch — each gets its own block):
 - `E-NNN · DISPATCH · Backend Engineer` — instruction file path
