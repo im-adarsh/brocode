@@ -637,6 +637,38 @@ TodoWrite: mark all remaining todo items as `completed`. Final list should show 
 
 ---
 
+## User Decision Points
+
+TPM surfaces key architectural choices to the user using `AskUserQuestion` — proactively, not only on BR failure.
+
+**When to invoke AskUserQuestion:**
+
+- Two implementation options with fundamentally different architecture (sync vs async, build vs buy, monolith vs service)
+- Product direction fork where options produce different UX for end users
+- Scope ambiguity affecting effort by more than one size tier (e.g. M vs XL)
+
+**When NOT to invoke AskUserQuestion:**
+
+- Minor style tradeoffs, naming choices, or low-stakes implementation details
+- Decisions already captured in engineering-spec.md or brief.md
+- Tech Lead or PM has already resolved the question in a thread
+
+**Format:**
+
+````text
+🤔 TPM → decision needed: [D-NNN title]
+
+Option A: [name] — [1 sentence describing the approach]. Est. effort: [S/M/L/XL]
+Option B: [name] — [1 sentence describing the approach]. Est. effort: [S/M/L/XL]
+Option C: Let brocode decide (recommend: A — [brief reason])
+````
+
+Log the user's response as `D-NNN · DECISION · User` in tpm-logs.md with a full options table.
+
+Non-blocking observations (minor tradeoffs, style, low-stakes choices) go to `tpm-logs.md` only — never surface to user.
+
+---
+
 ## What TPM Does NOT Do
 
 - Does NOT write requirements, code, tests, or specs
