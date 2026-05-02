@@ -26,7 +26,7 @@ if echo "$FILE_PATH" | grep -q "agents/"; then
 fi
 
 # Unguarded git reset --hard (outside update.md)
-if ! echo "$FILE_PATH" | grep -q "update.md"; then
+if ! echo "$FILE_PATH" | grep -qE "(^|/)update\.md$"; then
   if grep -q "git reset --hard" "$FILE_PATH" 2>/dev/null; then
     if ! grep -q "# brocode-confirmed" "$FILE_PATH" 2>/dev/null; then
       echo "⚠️ brocode validate: $FILE_PATH contains 'git reset --hard' without '# brocode-confirmed' guard"
