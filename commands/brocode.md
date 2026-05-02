@@ -147,9 +147,38 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
         Print on fail: `❌ TPM → QA failed: <TASK-ID> — <N> missing test cases. Re-dispatching implementer.`
      d. Spec compliance review
      e. Code quality review
-  4. Invoke `superpowers:finishing-a-development-branch` — run tests, push branch, create PR
-  5. Delete the worktree after PR is created: `git worktree remove --force <worktree-path>`
-  6. Print: `📋 TPM → <domain> PR raised, worktree cleaned up`
+  4. Generate PR description from spec artifacts before finishing:
+     - Read `.brocode/<id>/engineering-spec.md` sections 1 (Problem Statement) and 11 (Rollback)
+     - Read completed tasks for this domain from `.brocode/<id>/tasks.md`
+     - Read test cases for this domain from `.brocode/<id>/test-cases.md`
+     - Read `git log --oneline` in worktree
+     - Compose description with required sections:
+       ```
+       ## Summary
+       [engineering-spec.md section 1 — problem statement]
+
+       ## Changes
+       [one bullet per completed task for this domain]
+
+       ## Test plan
+       [test cases for this domain from test-cases.md]
+
+       ## Rollback
+       [engineering-spec.md section 11]
+
+       ## References
+       Spec: .brocode/<id>/engineering-spec.md
+       brocode run: <spec-id>
+       ```
+     - If any section source is missing: fill with `[NOT PROVIDED — update before merge]` and print: `⚠️ TPM → PR section missing: <section-name> — filled with placeholder`
+     - Detect platform: `git remote get-url origin` — if contains `github.com` use `gh`, if contains `gitlab` use `glab`
+     - Print: `📋 TPM → PR description generated from spec artifacts`
+     - Print: `🏷️ TPM → label applied: tool::brocode`
+  5. Invoke `superpowers:finishing-a-development-branch` — run tests, push branch, create PR using the generated description above and label `tool::brocode`:
+     - GitHub: `gh pr create --label "tool::brocode" --body "<description>"`
+     - GitLab: `glab mr create --label "tool::brocode" --description "<description>"`
+  6. Delete the worktree after PR is created: `git worktree remove --force <worktree-path>`
+  7. Print: `✅ TPM → <domain> PR raised, worktree cleaned up`
 - Run domains in parallel where possible (independent repos).
 - Stop.
 
