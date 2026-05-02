@@ -135,16 +135,16 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
         If any check fails: re-dispatch implementer with specific failure. Log retry to `tpm-logs.md` as `E-NNN  [time]  TPM  → DoD retry <N>/2: <TASK-ID> — <reason>`. Max 2 retries → escalate to user.
         Print on pass: `✅ TPM → DoD gate passed: <TASK-ID>`
         Print on fail: `❌ TPM → DoD gate failed: <TASK-ID> — <reason>. Re-dispatching implementer.`
-     c. **QA gate** — dispatch QA sub-agent (`agents/qa.md`) with:
+     c. **QA gate** — write `.brocode/<id>/instructions/qa-develop-<task-id>.md` with: worktree path, full task block, test cases, test command. Then dispatch QA sub-agent (`agents/qa.md`) with:
         - Worktree path
         - Full task block from `tasks.md` (the task being verified)
         - Relevant test cases from `.brocode/<id>/test-cases.md` for this task (match by task ID or domain)
         - Test command from `~/.brocode/wiki/<repo-slug>/test-strategy.md`
         QA runs tests, cross-checks coverage against `test-cases.md`, identifies missing test cases.
         QA reports PASS (all test cases covered, suite green) or FAIL (missing tests listed, failures quoted).
-        On FAIL: re-dispatch implementer with QA findings. Max 2 retries → escalate to user.
+        On FAIL: re-dispatch implementer with QA findings. Log retry to `tpm-logs.md` as `E-NNN  [time]  TPM  → QA retry <N>/2: <TASK-ID> — <reason>`. Max 2 retries → escalate to user.
         Print on pass: `✅ TPM → QA passed: <TASK-ID> — <N>/<N> test cases covered, suite green`
-        Print on fail: `❌ TPM → QA failed: <TASK-ID> — <N> missing test cases. Routing back to implementer.`
+        Print on fail: `❌ TPM → QA failed: <TASK-ID> — <N> missing test cases. Re-dispatching implementer.`
      d. Spec compliance review
      e. Code quality review
   4. Invoke `superpowers:finishing-a-development-branch` — run tests, push branch, create PR
