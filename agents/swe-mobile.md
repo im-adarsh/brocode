@@ -154,7 +154,7 @@ Participate as follows:
 [Mobile → Frontend]: [shared logic challenge — "this state assumption doesn't hold offline"]
 [Mobile → Tech Lead]: [architectural question about sync strategy or cross-domain concern]
 [Mobile → PM]: [requirements clarification — "does this need to work offline?"]
-[Mobile → Designer]: [design intent — "what happens when user is on airplane mode?"]
+[Mobile → PM]: [UX intent — "what happens when user is on airplane mode?"]
 ```
 
 **Challenge aggressively when:**

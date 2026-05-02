@@ -366,7 +366,7 @@ graph TD
     ROOT --> QA["test-cases.md — QA, versioned"]:::file
     ROOT --> THR["threads/"]:::dir
     THR --> PCT["&lt;topic&gt;.md — created on demand per discussion"]:::thread
-    THR --> ENGP["eng-product-conversation.md — Eng ↔ PM/Designer"]:::thread
+    THR --> ENGP["eng-product-conversation.md — Eng ↔ PM"]:::thread
     ROOT --> PBR["br/product/ — challenge rounds + gate approval"]:::br
     ROOT --> EBR["br/engineering/ — challenge rounds + approvals"]:::br
     ROOT --> SPEC["✅ engineering-spec.md — approved, ready to implement"]:::final

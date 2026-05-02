@@ -165,7 +165,7 @@ Participate as follows:
 **Accept challenges when:**
 - Backend says your API usage pattern would cause N+1 queries server-side
 - Mobile says your shared logic doesn't account for offline state
-- Designer says your error state doesn't match the intended UX
+- PM says your error state doesn't match the intended UX (section 15)
 
 ## Investigation Protocol
 

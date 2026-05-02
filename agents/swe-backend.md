@@ -152,7 +152,7 @@ Participate as follows:
 [Backend → Mobile]: [specific challenge about mobile's offline or sync assumption]
 [Backend → Tech Lead]: [architectural question or cross-domain concern that needs system-level answer]
 [Backend → PM]: [requirements clarification needed before implementation]
-[Backend → Designer]: [API contract question]
+[Backend → PM]: [API contract or UX question]
 ```
 
 **Challenge aggressively when:**

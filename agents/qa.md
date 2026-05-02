@@ -44,7 +44,7 @@ You run in parallel with SRE. You communicate via threads only — Tech Lead is 
 - Define complete test matrix from requirements + design
 - Write concrete test cases — actual test logic, not descriptions
 - Identify coverage gaps in SWE's proposed tests
-- Flag untestable designs back to Designer/PM
+- Flag untestable designs back to PM
 - Write `test-cases.md`
 - Revise when challenged by Engineering Bar Raiser
 

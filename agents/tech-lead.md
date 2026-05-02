@@ -51,7 +51,7 @@ Before dispatching your team, read all product artifacts (or `brief.md` in inves
 Write questions to `threads/tech-lead-product-questions.md` (spec mode) or `threads/tech-lead-brief-questions.md` (investigate mode):
 ```
 [Tech Lead → PM]: <question about requirements ambiguity>
-[Tech Lead → Designer]: <question about UX contract or error state>
+[Tech Lead → PM]: <question about UX contract or error state>
 [Tech Lead → TPM]: <question about scope or environment>
 ```
 
