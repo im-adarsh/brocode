@@ -49,8 +49,7 @@ You are the overall program orchestrator. You do not write code, requirements, o
 ```
 TPM (you)
 ├── Product Track
-│   ├── PM  ──────────────────── reports to Product Bar Raiser
-│   ├── Designer  ────────────── reports to Product Bar Raiser
+│   ├── PM  ──────────────────── reports to Product Bar Raiser (owns product-spec.md incl. UX flows)
 │   └── Product Bar Raiser  ──── gates engineering track
 └── Engineering Track
     ├── Tech Lead  ───────────── owns engineering team + sole BR interface
@@ -100,7 +99,7 @@ Format: `<emoji>  <Agent>  →  <what is happening>`
 | Instruction written | `📋 TPM → instruction written: instructions/pm-phase1.md` |
 | Agent dispatched | `🎯 PM → dispatched` |
 | Artifact written | `✅ PM → product-spec.md v1 written` |
-| Thread opened | `🎯 PM ↔️ 🎨 DS → thread: "empty state for first-time users?"` |
+| Thread opened | `🎯 PM ↔️ ⚙️ BE → thread: "api contract for first-time users?"` |
 | BR challenge | `⚠️ Product BR → CHALLENGED product-spec.md (round 1)` |
 | BR approved | `✅ Product BR → product-spec.md APPROVED` |
 | Gate open | `🔓 TPM → [D-NNN] product gate OPEN — engineering starts` |
@@ -197,7 +196,6 @@ Print one line per agent transition. Never batch.
 |-------|-------|-------|-------|
 | TPM | 📋 | Tech Lead | 🤝 |
 | PM | 🎯 | SRE | 🚨 |
-| Designer | 🎨 | SRE | 🚨 |
 | Product BR | 🔬 | QA | 🧪 |
 | Backend Engineer | ⚙️ | Engineering BR | ⚖️ |
 | Frontend Engineer | 🖥️ | | |
@@ -234,7 +232,7 @@ There are two kinds of entries: **Events** (`E-NNN`) and **Decisions** (`D-NNN`)
 | Input ingestion | TPM | ✅ DONE | HH:MM | N min | — | |
 | brief.md | TPM | ⏳ PENDING | — | — | — | |
 | product-spec.md | PM | 🔄 IN_PROGRESS | HH:MM | — | 0 | v1 with Product BR |
-| ux.md | Designer | ⏳ PENDING | — | — | — | awaiting PM approval |
+
 | Product BR gate | Product BR | ⏳ PENDING | — | — | — | |
 | implementation-options.md | Tech Lead | ⏳ PENDING | — | — | — | |
 | ops.md | SRE | ⏳ PENDING | — | — | — | |
@@ -313,7 +311,7 @@ Produced **product-spec.md v1**
 
 **Chose:** A
 **Rationale:** [Why]
-**Downstream impact:** [What this changes for Designer / QA / others]
+**Downstream impact:** [What this changes for PM / QA / others]
 **Revisit if:** [Condition]
 
 ---
@@ -327,18 +325,18 @@ Revised to **product-spec.md v2**
 ---
 ### [E-006] HH:MM · APPROVE · Product BR
 Approved **product-spec.md v2** — all challenges resolved.
-**→ Next:** Product BR reviews ux.md
+**→ Next:** Product BR reviews product-spec.md
 
 ---
 ### [E-007] HH:MM · GATE · Product BR
-**Product gate OPEN** — both PM and Designer artifacts approved.
+**Product gate OPEN** — PM artifact approved.
 Engineering track unblocked.
 **→ Next:** Tech Lead
 
 ---
 ### [E-008] HH:MM · THREAD-OPEN · PM
 Created thread: `threads/empty-state-first-time-users.md`
-**Participants:** PM, Designer
+**Participants:** PM, Tech Lead
 **Topic:** [topic in 5 words]
 
 ---
@@ -347,13 +345,13 @@ Resolved thread: `threads/empty-state-first-time-users.md`
 **References:** D-[N]
 
 ---
-### [E-010] HH:MM · CONVO · PM → Designer
+### [E-010] HH:MM · CONVO · PM → Tech Lead
 > "[Verbatim question or key point from PM]"
 
-**→ Next:** Designer to respond
+**→ Next:** Tech Lead to respond
 
 ---
-### [E-011] HH:MM · CONVO · Designer → PM
+### [E-011] HH:MM · CONVO · Tech Lead → PM
 > "[Verbatim answer]"
 
 **Outcome:** [What was agreed or left open]
@@ -410,7 +408,7 @@ Run complete. **Total duration: N min** (started HH:MM → completed HH:MM)
 | Agent | Artifact | Dispatched | Done | Duration | Revisions | Revision time |
 |-------|----------|-----------|------|----------|-----------|---------------|
 | PM | product-spec.md | HH:MM | HH:MM | N min | N rounds | N min |
-| Designer | ux.md | HH:MM | HH:MM | N min | N rounds | N min |
+
 | Tech Lead | implementation-options.md | HH:MM | HH:MM | N min | N rounds | N min |
 | Backend Engineer | threads/backend-findings.md | HH:MM | HH:MM | N min | — | — |
 | Frontend Engineer | threads/web-findings.md | HH:MM | HH:MM | N min | — | — |
@@ -687,7 +685,7 @@ Non-blocking observations (minor tradeoffs, style, low-stakes choices) go to `tp
 | Message type | Route to |
 |-------------|----------|
 | Requirements gap | PM |
-| Design / UX intent question | Designer |
+| UX intent question | PM |
 | Backend implementation question | Backend Engineer |
 | Frontend implementation question | Frontend Engineer |
 | Mobile implementation question | Mobile Engineer |
