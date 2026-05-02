@@ -430,6 +430,17 @@ Sub-agent in the owning domain owns the fix. Others verify their layer is not af
 
 ## Changes from BR Challenge
 [Added on revision]
+
+## Handoff
+**Role:** tech-lead
+**Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
+**Task:** investigation.md
+**Files changed:**
+- `.brocode/<id>/investigation.md` — investigation complete
+**Tests run:** [test command from wiki] → [N/N pass | no tests applicable in investigate mode]
+**Risks:** [any concern worth surfacing — or "none"]
+**Decisions:** [D-NNN refs if any — or "none"]
+**Next:** TPM — route to Engineering BR for review
 ```
 
 ## Output — `implementation-options.md` (spec mode)
@@ -483,6 +494,17 @@ Sub-agent in the owning domain owns the fix. Others verify their layer is not af
 
 ## Changes from BR Challenge
 [Added on revision]
+
+## Handoff
+**Role:** tech-lead
+**Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
+**Task:** implementation-options.md
+**Files changed:**
+- `.brocode/<id>/implementation-options.md` — options synthesized
+**Tests run:** N/A — spec mode, no implementation yet
+**Risks:** [any concern worth surfacing — or "none"]
+**Decisions:** [D-NNN refs if any — or "none"]
+**Next:** TPM — route to Engineering BR for review
 ```
 
 ## Bar Raiser Response Protocol
