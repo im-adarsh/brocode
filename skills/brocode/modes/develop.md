@@ -77,4 +77,29 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
   6. Delete the worktree after PR is created: `git worktree remove --force <worktree-path>`
   7. Print: `✅ TPM → <domain> PR raised, worktree cleaned up`
 - Run domains in parallel where possible (independent repos).
+
+**Write `.brocode/<id>/evidence.md`** (after all domains complete):
+
+```markdown
+# Implementation Evidence
+**Run ID:** [id]
+
+## Test Results
+| Domain | Command | Result |
+|--------|---------|--------|
+| [backend] | [npm test] | [42/42 pass] |
+
+## PR Links
+| Domain | PR URL | Status |
+|--------|--------|--------|
+| [backend] | [url] | OPEN |
+
+## Worktree Map
+| Domain | Branch | Worktree path | Status |
+|--------|--------|---------------|--------|
+| [backend] | [brocode/<id>-backend] | [/path] | CLEANED UP |
+```
+
+TPM logs: `E-NNN · ARTIFACT · TPM` — evidence.md written, N domains complete
+
 - Stop.

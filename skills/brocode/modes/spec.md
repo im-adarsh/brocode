@@ -284,6 +284,22 @@ Write `.brocode/<id>/brocode.md` (see Post-Run section in `agents/tpm.md` for fo
 Run ADR extraction (see ADR Extraction Procedure above).
 Print: `📋 TPM → [N] ADRs written to .brocode/<id>/adrs/`
 TPM logs: `E-NNN · ARTIFACT · TPM` — adrs/ written, N decisions exported
+
+**Write `.brocode/<id>/decisions.md`** (extracted from tpm-logs.md):
+
+Read all `### [D-NNN]` blocks from `tpm-logs.md`. Write to `.brocode/<id>/decisions.md`:
+
+```markdown
+# Decision Log
+**Run ID:** [id]
+
+[All D-NNN blocks from tpm-logs.md — copy each block in full]
+```
+
+This provides a standalone decisions reference without requiring tpm-logs.md traversal.
+
+TPM logs: `E-NNN · ARTIFACT · TPM` — decisions.md written, N decisions extracted
+
 TPM logs: `E-NNN · COMPLETE · TPM` — run complete, list all produced artifacts + decision index (all D-NNN refs)
 
 ### Iron laws
