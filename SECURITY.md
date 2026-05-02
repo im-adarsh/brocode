@@ -12,7 +12,7 @@
 
 **Do not open a public GitHub issue for security vulnerabilities.**
 
-Report security issues by emailing **adarshkumar9416@gmail.com** with:
+Report security issues by opening a [GitHub Security Advisory](https://github.com/im-adarsh/brocode/security/advisories/new) with:
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact

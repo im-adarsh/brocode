@@ -608,7 +608,7 @@ flowchart TD
         <div class="flow-diagram">
           <div class="mermaid">
 flowchart TD
-    A(["/brocode &lt;bug&gt;"]):::entry
+    A(["/brocode bug-or-incident"]):::entry
     TPM["📋 TPM\norchestrator"]:::tpm
     TL["🤝 Tech Lead"]:::node
 
@@ -682,7 +682,7 @@ flowchart TD
         <div class="flow-diagram">
           <div class="mermaid">
 flowchart TD
-    A(["/brocode &lt;feature&gt;"]):::entry
+    A(["/brocode feature-or-design"]):::entry
     TPM["📋 TPM\norchestrator"]:::tpm
 
     subgraph PROD["Product Track"]
@@ -852,7 +852,7 @@ flowchart TD
         <div class="flow-diagram">
           <div class="mermaid">
 flowchart TD
-    A(["/brocode review &lt;url&gt;"]):::entry
+    A(["/brocode review PR-URL"]):::entry
     TPM["📋 TPM\norchestrator"]:::tpm
     TL["🤝 Tech Lead\nscopes diff by domain"]:::node
 
@@ -1171,7 +1171,7 @@ graph TD
     ROOT --> OPS["ops.md\nSRE, versioned"]:::file
     ROOT --> QA["test-cases.md\nQA, versioned"]:::file
     ROOT --> THR["threads/"]:::dir
-    THR --> PCT["&lt;topic&gt;.md\ncreated on demand per discussion"]:::thread
+    THR --> PCT["topic.md\ncreated on demand per discussion"]:::thread
     ROOT --> PBR["br/product/\nchallenge rounds + gate approval"]:::br
     ROOT --> EBR["br/engineering/\nchallenge rounds + approvals"]:::br
     ROOT --> SPEC["✅ engineering-spec.md\napproved, ready to implement"]:::final
