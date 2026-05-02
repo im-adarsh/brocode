@@ -43,7 +43,9 @@ All orchestration lives in `commands/brocode.md`. Agents use superpowers skills 
 
 | File | Triggers |
 |------|---------|
-| `commands/brocode.md` | `/brocode:brocode <bug or feature>` · `/brocode:brocode repos` · `/brocode:brocode develop` · `/brocode:brocode review <url>` · `/brocode:brocode revise` |
+| `skills/brocode/SKILL.md` | `/brocode:brocode <bug or feature>` · `/brocode:brocode repos` · `/brocode:brocode develop` · `/brocode:brocode review <url>` · `/brocode:brocode revise` |
+
+> `commands/brocode.md` is a backwards-compatibility redirect stub — points to `skills/brocode/SKILL.md`.
 
 ## Repo Config
 
