@@ -173,10 +173,10 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
      - If any section source is missing: fill with `[NOT PROVIDED — update before merge]` and print: `⚠️ TPM → PR section missing: <section-name> — filled with placeholder`
      - Detect platform: `git remote get-url origin` — if contains `github.com` use `gh`, if contains `gitlab` use `glab`
      - Print: `📋 TPM → PR description generated from spec artifacts`
-     - Print: `🏷️ TPM → label applied: tool::brocode`
   5. Invoke `superpowers:finishing-a-development-branch` — run tests, push branch, create PR using the generated description above and label `tool::brocode`:
      - GitHub: `gh pr create --label "tool::brocode" --body "<description>"`
      - GitLab: `glab mr create --label "tool::brocode" --description "<description>"`
+     - Print: `🏷️ TPM → label applied: tool::brocode`
   6. Delete the worktree after PR is created: `git worktree remove --force <worktree-path>`
   7. Print: `✅ TPM → <domain> PR raised, worktree cleaned up`
 - Run domains in parallel where possible (independent repos).
