@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 ERRORS=0
 
 # 1. plugin.json parseable
@@ -23,11 +22,10 @@ for f in agents/*.md commands/*.md; do
 done
 
 # 4. Broken internal agent references
-grep -rh "agents/[a-z-]*\.md" agents/ commands/ CLAUDE.md 2>/dev/null \
-  | grep -oE "agents/[a-z-]+\.md" | sort -u \
-  | while read ref; do
-    [ -f "$ref" ] || { echo "❌ broken reference: $ref"; ERRORS=$((ERRORS+1)); }
-  done
+while read ref; do
+  [ -f "$ref" ] || { echo "❌ broken reference: $ref"; ERRORS=$((ERRORS+1)); }
+done < <(grep -rh "agents/[a-z-]*\.md" agents/ commands/ CLAUDE.md 2>/dev/null \
+  | grep -oE "agents/[a-z-]+\.md" | sort -u)
 
 # 5. .brocode/ in .gitignore
 grep -q "^\.brocode/" .gitignore 2>/dev/null \
