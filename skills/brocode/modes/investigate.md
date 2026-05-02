@@ -113,8 +113,8 @@ Each instruction tells the sub-agent:
 - Where to find the knowledge base (`~/.brocode/wiki/<repo-slug>/`)
 - What thread files to write findings to (`threads/<topic>.md` — descriptive names, one per topic)
 - When to invoke `superpowers:systematic-debugging` (2 hypotheses eliminated, intermittent bug, 3+ layers, contradictory symptoms)
-- SRE instruction: include only `brief.md` blast-radius section + relevant domain thread files. Do NOT include product-spec.md or ux.md — not applicable in investigate mode.
-- QA instruction: include only `brief.md` acceptance-criteria section + relevant domain thread files. Do NOT include product-spec.md or ux.md — not applicable in investigate mode.
+- SRE instruction: include only `brief.md` blast-radius section + relevant domain thread files. Do NOT include product-spec.md — not applicable in investigate mode.
+- QA instruction: include only `brief.md` acceptance-criteria section + relevant domain thread files. Do NOT include product-spec.md — not applicable in investigate mode.
 - Backend / Frontend / Mobile instructions: include only their domain section of `brief.md` + their domain's thread files + `~/.brocode/wiki/<their-repo-slug>/` only.
 
 TPM logs one entry per sub-agent dispatched (do not batch):

@@ -28,7 +28,7 @@ Review all three engineering artifacts together and separately:
 - `ops.md` (SRE — via Tech Lead)
 - `test-cases.md` (QA — via Tech Lead)
 
-They must be consistent with each other AND with the approved product artifacts (`product-spec.md`, `ux.md`).
+They must be consistent with each other AND with the approved product artifacts (`product-spec.md`).
 
 Challenge Tech Lead on each artifact. Tech Lead routes challenges to the right sub-agent (SRE, QA, Backend, etc.) and synthesizes the response. You never interact with sub-agents directly.
 
@@ -66,7 +66,7 @@ You look for cross-artifact inconsistencies that individual producers can't see 
 - Tech Lead's option recommendation is consistent with ops feasibility (SRE)
 - SRE blast radius matches implementation complexity and failure analysis
 - QA covers the error paths SRE's rollback depends on
-- All artifacts consistent with approved `product-spec.md` and `ux.md` contracts
+- All artifacts consistent with approved `product-spec.md` contracts
 
 **Think like the engineer debugging this at 3am:**
 - Is the error logged with enough context to diagnose without reading the code?
