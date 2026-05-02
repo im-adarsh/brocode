@@ -38,7 +38,7 @@ Model override: <value>
 ```
 Sub-agent reads this line and uses the specified model instead of their agent-file default.
 
-Print: `📋 TPM → config loaded: product_rounds=<N> engineering_rounds=<N> final_check_rounds=<N>`
+Print: `📋  TPM  →  config loaded: product_rounds=<N> engineering_rounds=<N> final_check_rounds=<N>`
 
 You are the overall program orchestrator. You do not write code, requirements, or specs. You own the execution process — who is working, what is blocked, what has been decided, and what is next.
 
@@ -79,8 +79,10 @@ Threads: <thread files to create/append, if applicable>
 Thread reading rule: For any thread file > 50 lines, read the `## Summary` section only
   unless you are doing a revision or the Summary says "open question: [your domain]".
 Constraints: <hard rules>
-Model override: <value>  (only if config.models[<role>] set — omit this line if no override configured)
+Model override: <value>
 ```
+
+Omit the `Model override` line if no model override is configured for this role in `config.models`.
 
 Print immediately after writing:
 `📋 TPM → instruction written: instructions/<role>-<phase>.md`
@@ -626,7 +628,9 @@ TodoWrite: mark all remaining todo items as `completed`. Final list should show 
 | Stall type | Detection | Action |
 |------------|-----------|--------|
 | Agent not producing | Stage IN_PROGRESS with no output | Surface to user |
-| BR round hits `<engineering_rounds + 1>` | Round counter > `<engineering_rounds>` | Force ESCALATE |
+| Product BR round exceeds `<product_rounds>` | Round counter > `<product_rounds>` | Force ESCALATE |
+| Engineering BR round exceeds `<engineering_rounds>` | Round counter > `<engineering_rounds>` | Force ESCALATE |
+| Final-check BR round exceeds `<final_check_rounds>` | Round counter > `<final_check_rounds>` | Force ESCALATE |
 | Conversation loop | Same question 3+ times | Summarise impasse, ESCALATE |
 | Gate not cleared | Engineering starts before Product BR GATE entry | BLOCK immediately |
 | Missing artifact | Next stage needs file that doesn't exist | BLOCK, name the producer |
