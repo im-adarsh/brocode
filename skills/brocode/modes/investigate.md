@@ -171,6 +171,33 @@ loop:
 
 When `investigation.md` + `ops.md` + `test-cases.md` all approved:
 
+**Write `.brocode/<id>/evidence.md`:**
+
+Tech Lead writes this file immediately after investigation phase completes (before writing engineering-spec.md):
+
+```markdown
+# Evidence Log
+**Run ID:** [id]
+
+## Reproduction
+[Exact steps, commands, environment state used to reproduce the bug]
+[Reproducibility: always / flaky N% / condition X]
+
+## Logs / Stack Traces
+[Verbatim output — no paraphrasing]
+
+## Timeline
+| Time | Event |
+|------|-------|
+| [HH:MM] | [what happened] |
+
+## Hypotheses Ruled Out
+| Hypothesis | Why ruled out | Evidence |
+|-----------|--------------|---------|
+```
+
+TPM logs: `E-NNN · ARTIFACT · Tech Lead` — evidence.md written
+
 TPM writes `.brocode/<id>/instructions/tech-lead-final-spec.md`:
 ```
 # Instruction: Tech Lead — write final spec
