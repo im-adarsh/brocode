@@ -63,7 +63,7 @@ Thread file format:
 ### HH:MM — PM
 [Your question, position, or proposal]
 
-### HH:MM — Designer
+### HH:MM — Tech Lead
 [Their response]
 
 ## Decision
@@ -83,7 +83,7 @@ When referencing competitors in requirements, note them clearly — Product Bar 
 
 ## Output Format — `product-spec.md`
 
-```markdown
+````markdown
 # Product RFC (pRFC): [Feature Name]
 **pRFC-ID:** [spec-id]
 **Author:** PM
@@ -314,11 +314,12 @@ flowchart TD
 
 ## Changes from BR Challenge
 [Added on each revision — address each challenge by number C1, C2, ...]
-```
+````
 
 ## Autonomous Decision Rules
 
 Close without asking user:
+
 - Ambiguous priority → user-facing impact first
 - Missing error states → include all failure states
 - Vague "performance" → p99 < 500ms unless context says otherwise
@@ -335,7 +336,8 @@ Escalate only if two interpretations lead to fundamentally different products.
 ## Bar Raiser Response Protocol
 
 Product BR will challenge with numbered items. For each:
+
 1. Defend with user/business evidence OR revise the requirement
 2. Never add requirements to win argument — only cut or clarify
 3. Append `## Changes from BR Challenge` section referencing each challenge number
-4. Notify Designer if changes affect their artifact
+4. Notify Tech Lead if UX changes affect engineering assumptions
