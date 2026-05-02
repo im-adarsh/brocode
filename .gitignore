@@ -30,3 +30,6 @@ yarn-error.log
 
 # Repo config — paths are machine-local, not committed
 .brocode-repos.json
+
+# brocode runtime artifacts — never commit
+.brocode/
