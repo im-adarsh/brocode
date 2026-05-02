@@ -116,10 +116,27 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
   Stop.
 - Scan `.brocode/` for dirs with `engineering-spec.md` + `tasks.md`. If multiple, list and ask which.
 - Read `~/.brocode/repos.json` for repo paths.
+- Read `tasks.md`. Tally `**Effort:**` fields and print:
+  ```
+  📋 TPM → effort summary: <N>S <N>M <N>L <N>XL — est. <range>h across <N> tasks
+  ```
+  Effort ranges: S = 0.5–1h · M = 1–3h · L = 3–8h · XL = 8h+. Sum low ends for min, high ends for max.
+  If any XL task found, print: `⚠️  TPM → XL task detected: <TASK-ID> — consider breaking down before starting`
 - For each domain with tasks (backend / web / mobile):
   1. Invoke `superpowers:using-git-worktrees` — create isolated worktree in that domain's repo for branch `brocode/<spec-id>-<domain>`
   2. Invoke `superpowers:writing-plans` — convert domain tasks from `tasks.md` into a superpowers plan at `docs/superpowers/plans/<spec-id>-<domain>.md` inside the worktree
-  3. Invoke `superpowers:subagent-driven-development` — execute plan task by task inside the worktree with 2-stage review (spec compliance + code quality) per task
+  3. Invoke `superpowers:subagent-driven-development` — execute plan task by task inside the worktree. Per-task loop:
+     a. Implementer subagent implements + self-reviews
+     b. **DoD gate** — before spec compliance review, verify:
+        - At least one commit exists for this task (`git log --oneline -1` non-empty)
+        - Tests pass: run command from `~/.brocode/wiki/<repo-slug>/test-strategy.md`; fall back to repo tags in `~/.brocode/repos.json` (node → `npm test`, python → `pytest`, go → `go test ./...`)
+        - No TODO/FIXME in changed files: `git diff HEAD~1 -- . | grep -E "TODO|FIXME"`
+        - All `**DoD:**` per-task items confirmed by implementer in DONE report
+        If any check fails: re-dispatch implementer with specific failure. Max 2 retries → escalate to user.
+        Print on pass: `✅ TPM → DoD gate passed: <TASK-ID>`
+        Print on fail: `❌ TPM → DoD gate failed: <TASK-ID> — <reason>. Re-dispatching implementer.`
+     c. Spec compliance review
+     d. Code quality review
   4. Invoke `superpowers:finishing-a-development-branch` — run tests, push branch, create PR
   5. Delete the worktree after PR is created: `git worktree remove --force <worktree-path>`
   6. Print: `📋 TPM → <domain> PR raised, worktree cleaned up`
