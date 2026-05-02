@@ -1,7 +1,7 @@
 {
   "name": "brocode",
   "description": "Multi-agent SDLC plugin for Claude Code. One command. Full engineering org in your terminal — investigates bugs, produces engineering specs, and implements features with PM, Designer, Tech Lead, Backend, Frontend, Mobile, Staff SWE, SRE, QA, and two Bar Raisers.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "Adarsh Kumar"
   },
@@ -24,6 +24,18 @@
       "marketplace": "claude-plugins-official",
       "reason": "Required for /brocode develop and /brocode review — subagent-driven implementation, systematic debugging, plan execution, git worktrees, and PR creation",
       "installHint": "claude plugin install superpowers@claude-plugins-official --scope user"
+    }
+  ],
+  "hooks": [
+    {
+      "event": "PreToolUse",
+      "tool": "Bash",
+      "command": "hooks/pre-tool-use-guard.sh"
+    },
+    {
+      "event": "PostToolUse",
+      "tool": "Write,Edit",
+      "command": "hooks/post-write-validate.sh"
     }
   ]
 }
