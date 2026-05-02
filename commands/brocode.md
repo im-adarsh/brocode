@@ -28,18 +28,22 @@ Type 'done' when finished, or 'skip' to proceed without repos (investigate/spec 
 Parse input line by line. For each line matching `<domain>: <path> — <description> (<tags>)`:
 1. Extract: domain (string before `:`), path (string between `:` and `—`), description (string between `—` and `(`), tags (comma-separated string inside `()`)
 2. Validate path: run `ls <path>`. If not found: print `⚠️ path not found: <path> — re-enter or skip` and ask again.
-3. Append to repos list.
+3. Append to repos list. Labels default to `[]` — run `/brocode repos` after setup to add labels.
+
+Before writing any file: run `mkdir -p ~/.brocode`.
 
 After user types `done`:
 - Write `~/.brocode/repos.json` in standard format (see `repos` subcommand for schema)
 - Write `~/.brocode/config.json` with defaults (see Pre-flight: Config Read in agents/tpm.md)
 - Print: `✅ brocode ready. Repos saved. Run /brocode <feature or bug> to start.`
-- Continue with the original user input — do not re-prompt.
+- Continue from Step 1: Route with the original user input — do not re-evaluate the First-Run Check.
 
 If user types `skip`:
+
+- Run `mkdir -p ~/.brocode`
 - Write `~/.brocode/config.json` with defaults only
 - Print: `⚠️ brocode: no repos registered. Develop mode will not work. Run /brocode repos to add repos later.`
-- Continue with the original user input.
+- Continue from Step 1: Route with the original user input — do not re-evaluate the First-Run Check.
 
 ## Quick Reference
 **Modes:** INVESTIGATE (bug/crash/error) · SPEC (feature/design/build) · DEVELOP · REVIEW · subcommands
