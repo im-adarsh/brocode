@@ -114,7 +114,7 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
   Then restart Claude Code.
   ```
   Stop.
-- Scan `.brocode/` for dirs with `engineering-spec.md` + `tasks.md`. If multiple, list and ask which.
+- Scan `.brocode/` for dirs with `engineering-spec.md` + `tasks.md`. If multiple, list and ask which. Record the directory name as `<id>` (e.g. `spec-20260429-oauth`) — all subsequent file paths use this value.
 - Read `~/.brocode/repos.json` for repo paths.
 - Read `tasks.md`. Tally `**Effort:**` fields. If no `**Effort:**` fields found in any task, print: `⚠️ TPM → no Effort fields in tasks.md — effort summary unavailable` and skip. Otherwise print:
   ```
@@ -130,7 +130,7 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
      b. **DoD gate** — before spec compliance review, verify:
         - At least one commit exists for this task (`git log --oneline -1` non-empty)
         - Tests pass: run command from `~/.brocode/wiki/<repo-slug>/test-strategy.md`; fall back to repo tags in `~/.brocode/repos.json` (node → `npm test`, python → `pytest`, go → `go test ./...`)
-        - No TODO/FIXME introduced by this task: `git diff $(git merge-base HEAD origin/main) HEAD -- . | grep -E "TODO|FIXME"`
+        - No TODO/FIXME introduced by this task: `git diff HEAD~1 HEAD -- . | grep -E "TODO|FIXME"`
         - All `**DoD:**` per-task items confirmed: implementer must list each item explicitly in their DONE/DONE_WITH_CONCERNS message (e.g. "DoD: feature flag tested off ✅")
         If any check fails: re-dispatch implementer with specific failure. Log retry to `tpm-logs.md` as `E-NNN  [time]  TPM  → DoD retry <N>/2: <TASK-ID> — <reason>`. Max 2 retries → escalate to user.
         Print on pass: `✅ TPM → DoD gate passed: <TASK-ID>`
@@ -172,11 +172,10 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
        ```
      - If any section source is missing: fill with `[NOT PROVIDED — update before merge]` and print: `⚠️ TPM → PR section missing: <section-name> — filled with placeholder`
      - Detect platform: `git remote get-url origin` — if contains `github.com` use `gh`, if contains `gitlab` use `glab`
+     - Apply label `tool::brocode` at PR creation: `gh pr create --label "tool::brocode" --body "<description>"` or `glab mr create --label "tool::brocode" --description "<description>"`
      - Print: `📋 TPM → PR description generated from spec artifacts`
-  5. Invoke `superpowers:finishing-a-development-branch` — run tests, push branch, create PR using the generated description above and label `tool::brocode`:
-     - GitHub: `gh pr create --label "tool::brocode" --body "<description>"`
-     - GitLab: `glab mr create --label "tool::brocode" --description "<description>"`
      - Print: `🏷️ TPM → label applied: tool::brocode`
+  5. Invoke `superpowers:finishing-a-development-branch` — run tests and push branch only (PR already created in step 4 with generated description and label)
   6. Delete the worktree after PR is created: `git worktree remove --force <worktree-path>`
   7. Print: `✅ TPM → <domain> PR raised, worktree cleaned up`
 - Run domains in parallel where possible (independent repos).

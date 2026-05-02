@@ -348,7 +348,14 @@ Full test cases: `.brocode/[id]/test-cases.md`
 - Every task has exact file paths and concrete function signatures
 - Dependencies are explicit — no implicit ordering
 - Every task has `**Effort:**` — use: S (< 1h, 1–2 files) · M (1–3h, multi-file) · L (3–8h, cross-service/schema) · XL (8h+, needs breakdown first)
-- Every task has `**DoD:**` — list any requirements beyond the fixed baseline (tests pass, commit exists, no TODO/FIXME in diff). Omit the field if no extras needed.
+- Every task has `**DoD:**` — list any requirements beyond the fixed baseline (tests pass, commit exists, no TODO/FIXME in diff). Omit the field if no extras needed. Format when used:
+
+  ```markdown
+  **DoD:**
+  - [ ] feature flag wired and tested off
+  - [ ] API contract matches engineering-spec.md section 4
+  ```
+
 - Migration tasks MUST add to `**DoD:**`: down migration written and tested · migration tested on staging data volume · migration safe under concurrent writes (no full-table lock) · rollback procedure tested in staging (see `agents/sre.md`)
 
 ## Investigation Mode
