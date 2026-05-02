@@ -25,7 +25,7 @@ Single entry point: `/brocode`
 
 ## Skills
 
-All orchestration lives in `commands/brocode.md`. Agents use superpowers skills directly:
+All orchestration lives in `skills/brocode/SKILL.md`. Agents use superpowers skills directly:
 
 | When | Skill | Who |
 |------|-------|-----|
@@ -219,7 +219,7 @@ Tech Lead synthesizes findings
 
 1. Create `agents/<role>.md`
 2. Add to roster table above
-3. Add dispatch step to relevant phase in `commands/brocode.md`
+3. Add dispatch step to relevant mode file in `skills/brocode/modes/`
 
 ## Modifying BR challenge standards
 
