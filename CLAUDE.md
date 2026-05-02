@@ -14,7 +14,6 @@ Single entry point: `/brocode`
 |------|------|-------|
 | `agents/tpm.md` | TPM — program orchestrator, logs all transitions | Cross-cutting |
 | `agents/pm.md` | Product Manager | Product |
-| `agents/designer.md` | Designer (UX / UI) — user flows, screen states, interaction design | Product |
 | `agents/product-bar-raiser.md` | Principal PM / Head of Product — gates engineering | Product gate |
 | `agents/tech-lead.md` | Tech Lead — owns engineering team (Backend, Frontend, Mobile, SRE) | Engineering |
 | `agents/swe-backend.md` | Backend Engineer sub-agent | Engineering |
@@ -124,8 +123,7 @@ Tech Lead synthesizes → investigation.md
 ### Spec mode
 ```
 TPM writes instruction files
-PM sub-agent → product-spec.md
-Designer sub-agent → ux.md
+PM sub-agent → product-spec.md (sections 1–15, includes UX flows)
     → Product BR loop (max 3 rounds per artifact)
     → [GATE] engineering blocked until approved
 TPM writes instruction files → Tech Lead sub-agent dispatched
@@ -187,8 +185,7 @@ Tech Lead synthesizes findings
   brocode.md              ← post-run retrospective (written by TPM after run)
   instructions/           ← TPM writes one file here before each sub-agent dispatch
     <role>-<phase>.md
-  product-spec.md         ← PM — pRFC format
-  ux.md                   ← Designer — UX flows + e2e mermaid per persona
+  product-spec.md         ← PM — pRFC format incl. section 15 UX flows
   implementation-options.md ← Tech Lead (spec mode)
   investigation.md          ← Tech Lead (investigate mode)
   ops.md                    ← SRE
@@ -199,8 +196,6 @@ Tech Lead synthesizes findings
     product/
       req-challenge-r1.md   ← Product BR challenges on product-spec
       req-approved.md
-      ux-challenge-r1.md    ← Product BR challenges on ux
-      ux-approved.md
       gate-approved.md      ← product gate opened
     engineering/
       impl-challenge-r1.md  ← Eng BR challenges per artifact
