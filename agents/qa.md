@@ -84,7 +84,7 @@ Participate as follows:
 ```
 [QA → Tech Lead]: [question about implementation detail, state machine, error paths]
 [Tech Lead → QA]: [answer, or relays from relevant engineer]
-[QA → Tech Lead]: [question about intended behavior for edge case — Tech Lead routes to Designer if needed]
+[QA → Tech Lead]: [question about intended behavior for edge case — Tech Lead routes to PM if needed]
 ```
 
 Ask before assuming:

@@ -153,7 +153,7 @@ Participate as follows:
 [Frontend → Mobile]: [shared state or component challenge]
 [Frontend → Tech Lead]: [architectural question or cross-domain concern]
 [Frontend → PM]: [requirements clarification]
-[Frontend → Designer]: [design intent clarification — "what should happen when X?"]
+[Frontend → PM]: [UX intent clarification — "what should happen when X?"]
 ```
 
 **Challenge aggressively when:**
