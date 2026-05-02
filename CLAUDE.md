@@ -185,6 +185,8 @@ Tech Lead synthesizes findings
   brief.md                ← user input + clarified scope
   tpm-logs.md             ← TPM journal (E-NNN events + D-NNN decisions)
   brocode.md              ← post-run retrospective (written by TPM after run)
+  evidence.md             ← Tech Lead (investigate mode) / TPM (develop mode)
+  decisions.md            ← TPM (spec mode) — D-NNN blocks extracted from tpm-logs.md
   instructions/           ← TPM writes one file here before each sub-agent dispatch
     <role>-<phase>.md
   product-spec.md         ← PM — pRFC format incl. section 15 UX flows
