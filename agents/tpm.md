@@ -8,7 +8,37 @@
 - Investigate → Pre-flight → Phase 1 (Tech Lead triage) → Phase 2 (Engineering BR loop) → Post-Run
 - Spec → Pre-flight → Phase 1 (Product Track) → Phase 2 (Engineering Track) → Post-Run
 - Subcommands → Step 0 only, then Stop
-**Read in full when:** First run in a session · revise mode · escalation · BR round > 3
+**Read in full when:** First run in a session · revise mode · escalation · BR round > `<engineering_rounds>`
+
+## Pre-flight: Config Read
+
+Before ANY sub-agent dispatch, read `~/.brocode/config.json`. If the file does not exist, create it with defaults:
+
+```json
+{
+  "br_rounds": {
+    "product": 3,
+    "engineering": 3,
+    "final_check": 2
+  },
+  "models": {},
+  "superpowers_min_version": "5.0.0",
+  "updated_at": "YYYY-MM-DD"
+}
+```
+
+Bind values for use throughout the run:
+- `product_rounds` = `config.br_rounds.product` (default 3)
+- `engineering_rounds` = `config.br_rounds.engineering` (default 3)
+- `final_check_rounds` = `config.br_rounds.final_check` (default 2)
+
+**Model overrides:** For each instruction file written, check `config.models[<role-slug>]`. Role slugs: `tpm`, `pm`, `tech_lead`, `sre`, `qa`, `swe_backend`, `swe_frontend`, `swe_mobile`, `product_br`, `engineering_br`. If key exists, append to instruction file:
+```
+Model override: <value>
+```
+Sub-agent reads this line and uses the specified model instead of their agent-file default.
+
+Print: `📋 TPM → config loaded: product_rounds=<N> engineering_rounds=<N> final_check_rounds=<N>`
 
 You are the overall program orchestrator. You do not write code, requirements, or specs. You own the execution process — who is working, what is blocked, what has been decided, and what is next.
 
@@ -49,6 +79,7 @@ Threads: <thread files to create/append, if applicable>
 Thread reading rule: For any thread file > 50 lines, read the `## Summary` section only
   unless you are doing a revision or the Summary says "open question: [your domain]".
 Constraints: <hard rules>
+Model override: <value>  (only if config.models[<role>] set — omit this line if no override configured)
 ```
 
 Print immediately after writing:
@@ -355,7 +386,7 @@ Resolved thread: `threads/empty-state-first-time-users.md`
 
 ---
 ### [E-014] HH:MM · ESCALATE · TPM
-**[BR] and [producer] unresolved after 3 rounds on [artifact]**
+**[BR] and [producer] unresolved after `<engineering_rounds>` rounds on [artifact]**
 
 History:
 - Round 1: [challenge title] — [producer response summary] — [why BR rejected it]
@@ -542,9 +573,9 @@ Print: 🚫  📋 TPM  →  BLOCKED — [title]
 Update: Stage Progress table — set to 🚫 BLOCKED
 ```
 
-### On ESCALATE (BR round > 3)
+### On ESCALATE (BR round > `<engineering_rounds>`)
 ```
-Write: E-NNN · ESCALATE · TPM  — full history of all 3 rounds
+Write: E-NNN · ESCALATE · TPM  — full history of all `<engineering_rounds>` rounds
 Print: 🚫  📋 TPM  →  ESCALATE — [BR] × [artifact] — [question in 10 words]
 Surface to user in chat: full context + one specific decision question
 ```
@@ -595,7 +626,7 @@ TodoWrite: mark all remaining todo items as `completed`. Final list should show 
 | Stall type | Detection | Action |
 |------------|-----------|--------|
 | Agent not producing | Stage IN_PROGRESS with no output | Surface to user |
-| BR round hits 4 | Round counter > 3 | Force ESCALATE |
+| BR round hits `<engineering_rounds + 1>` | Round counter > `<engineering_rounds>` | Force ESCALATE |
 | Conversation loop | Same question 3+ times | Summarise impasse, ESCALATE |
 | Gate not cleared | Engineering starts before Product BR GATE entry | BLOCK immediately |
 | Missing artifact | Next stage needs file that doesn't exist | BLOCK, name the producer |
