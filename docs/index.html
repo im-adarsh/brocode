@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>brocode — Multi-Agent SDLC for Claude Code</title>
-  <meta name="description" content="One command. Full engineering org. Multi-agent SDLC plugin for Claude Code — investigates bugs, produces engineering specs, and implements features with PM, Designer, Tech Lead, Backend, Frontend, Mobile, SRE, QA, and two Bar Raisers." />
+  <meta name="description" content="One command. Full engineering org. Multi-agent SDLC plugin for Claude Code — investigates bugs, produces engineering specs, and implements features with PM, Tech Lead, Backend, Frontend, Mobile, SRE, QA, and two Bar Raisers." />
   <style>
     :root {
       --bg: #0d1117;
@@ -464,7 +464,7 @@
   <div class="hero-badge"><div class="dot"></div>Claude Code Plugin · Open Source · MIT</div>
   <h1>One command.<br><span class="accent">Full engineering org.</span></h1>
   <p class="hero-sub">
-    brocode spins up <strong>11 specialised agents</strong> — PM, Designer, Tech Lead, Backend, Frontend, Mobile, SRE, QA, and two adversarial Bar Raisers — to investigate bugs, produce specs, and implement features right in your terminal.
+    brocode spins up <strong>10 specialised agents</strong> — PM, Tech Lead, Backend, Frontend, Mobile, SRE, QA, and two adversarial Bar Raisers — to investigate bugs, produce specs, and implement features right in your terminal.
   </p>
 
   <div class="hero-terminal">
@@ -521,7 +521,6 @@ flowchart TD
 
     subgraph PROD["Product Track"]
       PM["🎯 PM\nSenior PM"]:::prod
-      DS["🎨 Designer\nUX / UI"]:::prod
       PBR["🔬 Product Bar Raiser\nPrincipal PM — GATE"]:::gate
     end
 
@@ -537,7 +536,6 @@ flowchart TD
 
     TPM --> PROD & ENG
     PM --> PBR
-    DS --> PBR
     TL --> BE & FE & MOB & SRE2 & QA
     TL --> EBR
 
@@ -648,15 +646,15 @@ flowchart TD
           <div class="flow-step">
             <div class="flow-step-num">1</div>
             <div class="flow-step-body">
-              <div class="flow-step-title">PM + Designer converse <span class="flow-badge badge-parallel">free conversation</span></div>
-              <div class="flow-step-sub">PM writes requirements with all personas + journeys. Designer designs UX flows, screen states, and interactions per persona. Both converse freely.</div>
+              <div class="flow-step-title">PM produces requirements + UX flows <span class="flow-badge badge-parallel">free conversation</span></div>
+              <div class="flow-step-sub">PM writes requirements with all personas + journeys, UX flows, screen states, and interactions per persona (section 15).</div>
             </div>
           </div>
           <div class="flow-step">
             <div class="flow-step-num">2</div>
             <div class="flow-step-body">
               <div class="flow-step-title">Product BR loop <span class="flow-badge badge-gate">GATE · max 3 rounds</span></div>
-              <div class="flow-step-sub">Web-searches competitor references. Hard gate — engineering cannot start until both PM + Designer approved.</div>
+              <div class="flow-step-sub">Web-searches competitor references. Hard gate — engineering cannot start until PM approved.</div>
             </div>
           </div>
           <div class="flow-step">
@@ -689,8 +687,6 @@ flowchart TD
 
     subgraph PROD["Product Track"]
       PM["🎯 PM"]:::node
-      DS["🎨 Designer"]:::node
-      PM <-->|"converse"| DS
     end
 
     PBR["🔬 Product BR\nmax 3 rounds — GATE"]:::gate
@@ -708,8 +704,8 @@ flowchart TD
     OUT(["engineering-spec.md\ntasks.md"]):::output
 
     A --> TPM
-    TPM --> PM & DS
-    PM & DS --> PBR
+    TPM --> PM
+    PM --> PBR
     PBR -->|"gate open"| TL
     TL --> TL_TEAM
     TL_TEAM -->|"threads/<topic>.md"| TL
@@ -905,8 +901,6 @@ flowchart TD
       <div class="progress-demo-body">
         <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">📋 TPM</span><span class="pl-sep">→</span><span class="pl-action">kicked off spec-20260426-oauth, tracking stages</span></div>
         <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎯 PM</span><span class="pl-sep">→</span><span class="pl-action">reading brief, building requirements</span></div>
-        <div><span class="pl-convo">↔️</span>&nbsp;&nbsp; <span class="pl-agent">🎯 PM ↔️ 🎨 Designer</span><span class="pl-sep">→</span><span class="pl-action">PM asked: "empty state for first-time users?"</span></div>
-        <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎨 Designer</span><span class="pl-sep">→</span><span class="pl-action">designing UX flows and screen states per persona</span></div>
         <div><span class="pl-warn">⚠️</span>&nbsp;&nbsp; <span class="pl-agent">🔬 Product BR</span><span class="pl-sep">→</span><span class="pl-action">challenge round 1: ops interface missing, AC-4 untestable</span></div>
         <div><span class="pl-working">🟢</span>&nbsp; <span class="pl-agent">🎯 PM</span><span class="pl-sep">→</span><span class="pl-action">revising requirements v2</span></div>
         <div><span class="pl-ok">✅</span>&nbsp;&nbsp; <span class="pl-agent">🔬 Product BR</span><span class="pl-sep">→</span><span class="pl-action">APPROVED — product gate OPEN</span></div>
@@ -947,16 +941,7 @@ flowchart TD
           <div class="agent-icon" style="background:rgba(88,166,255,.1)">🎯</div>
           <div class="agent-meta"><h3>Product Manager</h3><div class="agent-model"><span class="model-opus">claude-opus</span></div></div>
         </div>
-        <div class="agent-desc">Turns any input into requirements — full user journeys for end users, ops/admin, and support teams. Closes ambiguity gaps. References competitors. Converses with Designer.</div>
-        <div class="agent-tags"><span class="tag tag-product">Product</span></div>
-      </div>
-
-      <div class="agent-card track-product">
-        <div class="agent-header">
-          <div class="agent-icon" style="background:rgba(88,166,255,.1)">🎨</div>
-          <div class="agent-meta"><h3>Designer</h3><div class="agent-model"><span class="model-sonnet">claude-sonnet</span></div></div>
-        </div>
-        <div class="agent-desc">Designs UX flows, screen states, and interactions for every persona (end user, ops/admin, support). Covers happy path, error, empty, and loading states. Converses with PM. Answers SWE questions about intended UX behavior.</div>
+        <div class="agent-desc">Turns any input into requirements — full user journeys for end users, ops/admin, and support teams. Closes ambiguity gaps. References competitors. Owns UX flows (section 15).</div>
         <div class="agent-tags"><span class="tag tag-product">Product</span></div>
       </div>
 
@@ -965,7 +950,7 @@ flowchart TD
           <div class="agent-icon" style="background:rgba(188,140,255,.1)">🔬</div>
           <div class="agent-meta"><h3>Product Bar Raiser</h3><div class="agent-model"><span class="model-opus">claude-opus</span></div></div>
         </div>
-        <div class="agent-desc">Principal PM. Challenges every untestable AC, missing persona, and unresolved assumption. Web-searches competitors to verify claims. Hard gate — engineering blocked until both PM + Designer approved.</div>
+        <div class="agent-desc">Principal PM. Challenges every untestable AC, missing persona, and unresolved assumption. Web-searches competitors to verify claims. Hard gate — engineering blocked until PM approved.</div>
         <div class="agent-tags"><span class="tag tag-gate-product">Product Gate</span></div>
       </div>
 
@@ -1048,7 +1033,7 @@ flowchart TD
       <div class="br-card br-product">
         <div class="br-eyebrow">Product Track</div>
         <h3>Product Bar Raiser</h3>
-        <p class="br-subtitle">Principal PM / Head of Product. Hard gate — engineering cannot start until PM and Designer are both approved.</p>
+        <p class="br-subtitle">Principal PM / Head of Product. Hard gate — engineering cannot start until PM approved.</p>
         <ul class="br-checks">
           <li>Challenges every AC that is untestable or unmeasurable</li>
           <li>Verifies all personas: end user, ops/admin, support team</li>
@@ -1182,7 +1167,6 @@ graph TD
     ROOT --> TPM["📋 tpm-logs.md\nTPM master log, live throughout"]:::tpm
     ROOT --> BRIEF["brief.md\nuser input + clarified scope"]:::file
     ROOT --> REQ["product-spec.md\nPM, versioned"]:::file
-    ROOT --> DES["ux.md\nDesigner, versioned"]:::file
     ROOT --> IMPL["implementation-options.md\nTech Lead"]:::file
     ROOT --> OPS["ops.md\nSRE, versioned"]:::file
     ROOT --> QA["test-cases.md\nQA, versioned"]:::file
@@ -1222,7 +1206,7 @@ graph TD
       <div class="input-card">
         <div class="input-icon">🖼️</div>
         <h4>Image / Screenshot</h4>
-        <p>Attach Figma exports, error screens, or mockups — PM and Designer analyze via vision</p>
+        <p>Attach Figma exports, error screens, or mockups — PM analyzes via vision</p>
       </div>
       <div class="input-card">
         <div class="input-icon">📄</div>
