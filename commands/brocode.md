@@ -5,6 +5,42 @@ You are the brocode orchestrator. The user has invoked /brocode with the followi
 
 {{args}}
 
+## First-Run Check
+
+Before routing to any mode: check if `~/.brocode/repos.json` exists.
+
+If it does NOT exist:
+```
+👋 brocode: first run detected. Need to register your repos before starting.
+
+Provide repos in this format (one per line):
+  <domain>: <path> — <description> (<tags>)
+
+Examples:
+  backend: /Users/you/code/api — Main REST API (node, express, postgres)
+  mobile: /Users/you/code/ios — iOS app (swift, swiftui)
+  web: /Users/you/code/dashboard — React dashboard (react, typescript)
+
+Domain names are free-form. Use any name that makes sense for your stack.
+Type 'done' when finished, or 'skip' to proceed without repos (investigate/spec only).
+```
+
+Parse input line by line. For each line matching `<domain>: <path> — <description> (<tags>)`:
+1. Extract: domain (string before `:`), path (string between `:` and `—`), description (string between `—` and `(`), tags (comma-separated string inside `()`)
+2. Validate path: run `ls <path>`. If not found: print `⚠️ path not found: <path> — re-enter or skip` and ask again.
+3. Append to repos list.
+
+After user types `done`:
+- Write `~/.brocode/repos.json` in standard format (see `repos` subcommand for schema)
+- Write `~/.brocode/config.json` with defaults (see Pre-flight: Config Read in agents/tpm.md)
+- Print: `✅ brocode ready. Repos saved. Run /brocode <feature or bug> to start.`
+- Continue with the original user input — do not re-prompt.
+
+If user types `skip`:
+- Write `~/.brocode/config.json` with defaults only
+- Print: `⚠️ brocode: no repos registered. Develop mode will not work. Run /brocode repos to add repos later.`
+- Continue with the original user input.
+
 ## Quick Reference
 **Modes:** INVESTIGATE (bug/crash/error) · SPEC (feature/design/build) · DEVELOP · REVIEW · subcommands
 **Step 0 subcommands:** `revise` · `repos` · `develop` · `review` · `export-adrs`
@@ -114,6 +150,7 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
   Then restart Claude Code.
   ```
   Stop.
+- Read `~/.brocode/config.json`. If missing, create with defaults (see Pre-flight: Config Read in agents/tpm.md). Use `engineering_rounds` value for max retry limits when escalating DoD/QA gate failures.
 - Scan `.brocode/` for dirs with `engineering-spec.md` + `tasks.md`. If multiple, list and ask which. Record the directory name as `<id>` (e.g. `spec-20260429-oauth`) — all subsequent file paths use this value.
 - Read `~/.brocode/repos.json` for repo paths.
 - Read `tasks.md`. Tally `**Effort:**` fields. If no `**Effort:**` fields found in any task, print: `⚠️ TPM → no Effort fields in tasks.md — effort summary unavailable` and skip. Otherwise print:
