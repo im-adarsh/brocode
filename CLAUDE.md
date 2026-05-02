@@ -2,7 +2,7 @@
 
 ## What this is
 
-brocode is a multi-agent SDLC plugin. It simulates a full engineering org — PM, Designer, Tech Lead, SRE, QA, and two Bar Raisers — to investigate bugs, produce engineering specs, and implement approved work.
+brocode is a multi-agent SDLC plugin. It simulates a full engineering org — PM, Tech Lead, SRE, QA, and two Bar Raisers — to investigate bugs, produce engineering specs, and implement approved work.
 
 Single entry point: `/brocode`
 
