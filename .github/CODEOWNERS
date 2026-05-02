@@ -1,0 +1,12 @@
+# Global owner — reviews all PRs
+* @im-adarsh
+
+# Agent prompts — maintainer review required
+/agents/ @im-adarsh
+
+# Core orchestration
+/skills/ @im-adarsh
+/commands/ @im-adarsh
+
+# Hooks — security-sensitive
+/hooks/ @im-adarsh
