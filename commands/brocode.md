@@ -49,7 +49,7 @@ If user types `skip`:
 **Modes:** INVESTIGATE (bug/crash/error) · SPEC (feature/design/build) · DEVELOP · REVIEW · subcommands
 **Step 0 subcommands:** `revise` · `repos` · `develop` · `review` · `export-adrs`
 **Investigate flow:** Pre-flight → Tech Lead triage → parallel engineers + SRE + QA → Engineering BR loop → final spec → ADRs
-**Spec flow:** Pre-flight → PM → Designer → Product BR gate → Tech Lead → parallel team → Engineering BR loop → final spec → ADRs
+**Spec flow:** Pre-flight → PM → Product BR gate → Tech Lead → parallel team → Engineering BR loop → final spec → ADRs
 **Read in full when:** First run in a session, unfamiliar mode, or user input is ambiguous between modes
 
 ---
@@ -66,7 +66,7 @@ This is a **revision run** — the user has reviewed the output artifacts and wa
 3. If the user provided new constraints in the input (e.g. "/brocode revise: make payment idempotent, scope to mobile only"), add a row to the Reviewer Revision Requests table referencing the most relevant D-NNN decision.
 4. For each OPEN row in Reviewer Revision Requests:
    - Find the referenced D-NNN entry in the log
-   - Determine which stage produced that decision (PM → product-spec.md, Designer → ux.md, Tech Lead → implementation-options.md, etc.)
+   - Determine which stage produced that decision (PM → product-spec.md, Tech Lead → implementation-options.md, etc.)
    - Write a new D-NNN entry: `[D-NNN] HH:MM · DECISION · [Producer] (revision of D-NNN per reviewer)` with the constraint captured in the options table
    - Mark the revision request row as RESOLVED
    - Rerun from that stage forward — all downstream agents must re-read the updated artifact and revise if affected
@@ -497,7 +497,6 @@ TPM logs: `E-NNN · COMPLETE · TPM` — run complete, list all produced artifac
 7. TodoWrite: initialize run todo list — all items `pending`:
    - `📋 TPM → brief.md written` (mark `completed` immediately)
    - `🎯 PM → product-spec.md`
-   - `🎨 Designer → ux.md`
    - `🔬 Product BR → review`
    - `🔓 Product gate → engineering unlocked`
    - `🤝 Tech Lead → reviewing product artifacts`
@@ -513,9 +512,8 @@ TPM logs: `E-NNN · COMPLETE · TPM` — run complete, list all produced artifac
 ```
 TPM (you) — orchestrator, logs all transitions, writes instruction files before every dispatch
 ├── Product Track (gates engineering)
-│   ├── PM sub-agent — requirements, personas, journeys, ACs
-│   ├── Designer sub-agent — UX flows, screen states, e2e mermaid diagram
-│   └── Product BR sub-agent (fresh per round) — challenges both, gates engineering
+│   ├── PM sub-agent — requirements, personas, journeys, ACs, UX flows (section 15)
+│   └── Product BR sub-agent (fresh per round) — challenges product-spec.md, gates engineering
 └── Engineering Track (starts only after Product BR gate open)
     ├── Tech Lead sub-agent — dispatches team, synthesizes, writes engineering-spec + tasks
     │   ├── Backend Engineer sub-agent (parallel)
@@ -534,11 +532,11 @@ TPM writes `.brocode/<id>/instructions/pm-phase1.md`:
 # Instruction: PM — phase 1
 Run ID: <id>
 Your agent file: agents/pm.md
-What to do: Read brief.md. Converse with Designer via threads/<topic>.md (create one file per discussion topic, descriptive name). Produce product-spec.md.
+What to do: Read brief.md. Produce product-spec.md including UX flows (section 15) with e2e mermaid diagram per persona, screen states, and error states.
 Files to read: .brocode/<id>/brief.md
-  (Do NOT read product-spec.md, ux.md, or thread files — not yet written)
+  (Do NOT read product-spec.md or thread files — not yet written)
 File to write: .brocode/<id>/product-spec.md
-Threads: create .brocode/<id>/threads/<topic>.md per discussion topic with Designer
+Threads: create .brocode/<id>/threads/<topic>.md per discussion topic as needed
 Constraints: All personas covered. Every AC testable and measurable.
 ```
 Print: `🎯 PM → dispatched`
@@ -546,28 +544,9 @@ TPM logs: `E-NNN · DISPATCH · PM` — instruction file written, building produ
 Dispatch PM sub-agent (reads `agents/pm.md` + its instruction file).
 TPM logs (after PM writes product-spec.md): `E-NNN · ARTIFACT · PM` — product-spec.md v1 written, N personas, N ACs
 
-**Step 1b: Designer** (after PM writes product-spec.md)
-TPM writes `.brocode/<id>/instructions/designer-phase1.md`:
-```
-# Instruction: Designer — phase 1
-Run ID: <id>
-Your agent file: agents/designer.md
-What to do: Read product-spec.md. Converse with PM via threads (append to existing thread files or create new ones). Produce ux.md with e2e mermaid diagram per persona.
-Files to read: .brocode/<id>/product-spec.md
-  (Do NOT read ux.md — not yet written. Do NOT read ops.md, test-cases.md — not your scope)
-Threads to read: .brocode/<id>/threads/ (Summary sections only if thread > 50 lines)
-File to write: .brocode/<id>/ux.md
-Threads: append to existing threads or create .brocode/<id>/threads/<topic>.md
-Constraints: Every screen state covered. Every error state defined. API contracts explicit.
-```
-Print: `🎨 Designer → dispatched`
-TPM logs: `E-NNN · DISPATCH · Designer` — instruction file written, building ux.md
-Dispatch Designer sub-agent (reads `agents/designer.md` + its instruction file).
-TPM logs (after Designer writes ux.md): `E-NNN · ARTIFACT · Designer` — ux.md v1 written, N flows, N screen states
+**Step 1b: Product BR loop**
 
-**Step 1c: Product BR loop**
-
-For each artifact (`product-spec.md`, `ux.md`):
+For each artifact (`product-spec.md` only):
 ```
 round = 1
 loop:
@@ -585,7 +564,7 @@ loop:
   if challenged:
     print: ⚠️  🔬 Product BR  →  [N challenges on <artifact>] (round <round>)
     TPM logs: E-NNN · CHALLENGE · Product BR  (round <round>)  — list each challenge title
-    dispatch producer sub-agent (PM or Designer, fresh context):
+    dispatch producer sub-agent (PM, fresh context):
       - reads challenge file + current artifact + their agent file + their original instruction
       - revises artifact (appends ## Changes from Product BR Challenge round <round>)
       - notifies other agent if change affects their artifact (appends to thread)
@@ -605,7 +584,7 @@ loop:
     break
 ```
 
-When both `product-spec.md` + `ux.md` approved:
+When `product-spec.md` approved:
 Write `br/product/gate-approved.md`.
 TPM logs: `D-NNN · DECISION · TPM` — gate open decision (options: wait / open now, chosen, rationale)
 TPM logs: `E-NNN · GATE · Product BR` — product gate OPEN, engineering unblocked
@@ -623,27 +602,27 @@ After product gate opens, TPM writes `.brocode/<id>/instructions/tech-lead-revie
 Run ID: <id>
 Your agent file: agents/tech-lead.md
 What to do:
-  1. Read product-spec.md and ux.md in full.
+  1. Read product-spec.md in full.
   2. Identify any ambiguities, missing technical details, or constraints that would
      block engineering (e.g. unclear API contracts, missing error states, undefined
      scalability requirements, conflicting personas).
   3. Write clarifying questions to threads/tech-lead-product-questions.md.
-     Format: [Tech Lead → PM]: <question> or [Tech Lead → Designer]: <question>
-  4. TPM routes questions to PM/Designer sub-agents who append answers to the thread.
+     Format: [Tech Lead → PM]: <question>
+  4. TPM routes questions to PM sub-agent who appends answers to the thread.
   5. Once satisfied (or no questions), signal ready: write threads/tech-lead-ready.md
      with a one-line summary of key engineering constraints understood.
-Files to read: .brocode/<id>/product-spec.md, .brocode/<id>/ux.md
+Files to read: .brocode/<id>/product-spec.md
 Threads: .brocode/<id>/threads/tech-lead-product-questions.md
 Constraints: Ask before delegating — do not dispatch team until questions resolved.
 ```
 Print: `🤝 Tech Lead → reviewing product artifacts, may ask clarifying questions`
-TPM logs: `E-NNN · DISPATCH · Tech Lead` — reviewing product-spec.md + ux.md, filing clarifying questions
+TPM logs: `E-NNN · DISPATCH · Tech Lead` — reviewing product-spec.md, filing clarifying questions
 Dispatch Tech Lead sub-agent.
 
 If Tech Lead has questions:
   TPM logs: `E-NNN · THREAD-OPEN · Tech Lead` — threads/tech-lead-product-questions.md, N questions filed
-  TPM dispatches PM or Designer (fresh context) to answer via the thread.
-  TPM logs: `E-NNN · CONVO · [PM or Designer → Tech Lead]` — answers appended to thread
+  TPM dispatches PM (fresh context) to answer via the thread.
+  TPM logs: `E-NNN · CONVO · [PM → Tech Lead]` — answers appended to thread
   Then re-checks with Tech Lead.
 TPM logs when ready: `E-NNN · ARTIFACT · Tech Lead` — threads/tech-lead-ready.md written, key constraints confirmed
 Print when ready: `🤝 Tech Lead → product artifacts understood, dispatching team`
@@ -662,7 +641,7 @@ What to do:
   5. Read all findings from threads/. Synthesize into implementation-options.md (3 options
      with real code sketches, tradeoffs, and a clear recommendation).
   6. After all artifacts BR-approved, write engineering-spec.md + tasks.md.
-Files to read: .brocode/<id>/product-spec.md, .brocode/<id>/ux.md,
+Files to read: .brocode/<id>/product-spec.md,
                .brocode/<id>/threads/tech-lead-ready.md,
                .brocode/<id>/tpm-logs.md (D-NNN decision blocks only — skip E-NNN events),
                ~/.brocode/repos.json, ~/.brocode/wiki/index.md
@@ -692,8 +671,8 @@ Each instruction tells the sub-agent:
 - When to invoke `superpowers:systematic-debugging`
 - SRE: produce `ops.md` (ops plan + infra/platform impact)
 - QA: produce `test-cases.md` (full test matrix with real test code)
-- SRE instruction: include only `brief.md` blast-radius section + `product-spec.md` technical requirements section + relevant domain thread files. Do NOT include ux.md or implementation-options.md — not yet written.
-- QA instruction: include only `brief.md` acceptance-criteria section + `product-spec.md` acceptance criteria section + relevant domain thread files. Do NOT include ux.md or implementation-options.md — not yet written.
+- SRE instruction: include only `brief.md` blast-radius section + `product-spec.md` technical requirements section + relevant domain thread files. Do NOT include implementation-options.md — not yet written.
+- QA instruction: include only `brief.md` acceptance-criteria section + `product-spec.md` acceptance criteria section + relevant domain thread files. Do NOT include implementation-options.md — not yet written.
 - Backend / Frontend / Mobile instructions: include only their domain section of `brief.md` + their domain's thread files + `~/.brocode/wiki/<their-repo-slug>/` only.
 
 TPM logs one entry per sub-agent dispatched (do not batch — each gets its own block):
@@ -766,7 +745,7 @@ What to do: Read all approved artifacts. Write engineering-spec.md (RFC format �
   title, status, context, decision, consequences, implementation plan, open questions).
   Write tasks.md (domain-scoped task list — one section per domain, clear ACs per task,
   ordered by dependency).
-Files to read: .brocode/<id>/product-spec.md, .brocode/<id>/ux.md,
+Files to read: .brocode/<id>/product-spec.md,
                .brocode/<id>/implementation-options.md, .brocode/<id>/ops.md,
                .brocode/<id>/test-cases.md, all br/engineering/*-approved.md
 Files to write: .brocode/<id>/engineering-spec.md, .brocode/<id>/tasks.md
@@ -806,7 +785,7 @@ You are the overall program orchestrator. Invoke `superpowers:using-superpowers`
 ```
 🟢  📋 TPM        →  kicked off spec-20260426-oauth
 🟢  🎯 PM         →  reading brief, building requirements
-🎯  PM  ↔️  🎨 Designer  →  PM asked: "empty state for first-time users?"
+🎯  PM  →  drafting product-spec.md with UX flows
 ⚠️  🔬 Product BR →  gap: ops interface missing — routing back to PM
 ✅  🔬 Product BR →  APPROVED — product gate OPEN
 🟢  🤝 Tech Lead  →  dispatching Backend + Frontend in parallel
