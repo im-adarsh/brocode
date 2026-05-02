@@ -231,3 +231,17 @@ Engineering BR challenges frontend findings:
 1. Root cause challenged → provide DevTools screenshots, network trace, or component test as evidence
 2. Implementation option challenged → defend with concrete UX/performance tradeoff
 3. Append `## Changes from BR Challenge` on revision, routed through SWE Coordinator
+
+## Handoff
+
+**Role:** swe-frontend
+**Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
+**Task:** [thread file name or TASK-ID]
+**Files changed:**
+
+- [list each file changed with one-line description — or "none" for investigation mode]
+
+**Tests run:** `[test command]` → [N/N pass | FAIL: reason]
+**Risks:** [any concern worth surfacing — or "none"]
+**Decisions:** [D-NNN refs if any — or "none"]
+**Next:** Tech Lead — incorporate into synthesis

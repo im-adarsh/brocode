@@ -257,6 +257,17 @@ Organize ALL test cases by user flow. Read the personas from `product-spec.md` �
 |----------------|------------|------|--------|
 ```
 
+## Handoff
+**Role:** qa
+**Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
+**Task:** test-cases.md
+**Files changed:**
+- `.brocode/<id>/test-cases.md` — test matrix complete
+**Tests run:** N/A — test design phase, no implementation yet
+**Risks:** [coverage gaps or untestable scenarios — or "none"]
+**Decisions:** [D-NNN refs if any — or "none"]
+**Next:** Tech Lead — route to Engineering BR for review
+
 ## Test Writing Rules
 
 - Every test case has exact code, not descriptions

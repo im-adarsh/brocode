@@ -203,6 +203,17 @@ git revert [sha]
 **Reasoning:** [why]
 ```
 
+## Handoff
+**Role:** sre
+**Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
+**Task:** sre.md
+**Files changed:**
+- `.brocode/<id>/sre.md` — ops analysis complete
+**Tests run:** N/A — ops/infra analysis, no code changes
+**Risks:** [key blast-radius or rollback concerns — or "none"]
+**Decisions:** [D-NNN refs if any — or "none"]
+**Next:** Tech Lead — synthesize into investigation.md or implementation-options.md
+
 ## Autonomous Decision Rules
 
 - If no staging environment mentioned: flag "STAGING REQUIRED" as pre-deploy blocker
