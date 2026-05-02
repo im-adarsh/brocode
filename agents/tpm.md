@@ -517,6 +517,11 @@ TodoWrite: mark the dispatched agent's todo item as `in_progress`
   Each dispatched agent gets its own item: `[emoji] [Agent] → [artifact they're producing]`
 
 ### On ARTIFACT produced
+Before marking artifact complete, verify DONE report contains ## Handoff block.
+If ## Handoff block missing:
+  Re-dispatch sub-agent with: "Include ## Handoff block in your DONE report per agents/[role].md"
+  Max 1 retry — if still missing after retry, accept artifact and note in E-NNN ARTIFACT entry.
+
 ```
 Write: E-NNN · ARTIFACT · [agent]  — include version, key outputs, and:
   Elapsed: N min  (dispatched HH:MM → artifact HH:MM)
