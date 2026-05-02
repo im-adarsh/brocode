@@ -345,7 +345,7 @@ Full test cases: `.brocode/[id]/test-cases.md`
 
 ## References
 - Requirements: `.brocode/[id]/product-spec.md`
-- Design: `.brocode/[id]/ux.md`
+- Design: `.brocode/[id]/product-spec.md (section 15 UX flows)`
 - Implementation Options: `.brocode/[id]/implementation-options.md`
 - Ops: `.brocode/[id]/ops.md`
 - Test Cases: `.brocode/[id]/test-cases.md`

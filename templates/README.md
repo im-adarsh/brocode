@@ -39,7 +39,6 @@ Every template has YAML frontmatter with fields agents can parse:
 | Template | File | Producer | Challenger |
 |----------|------|---------|-----------|
 | Product RFC (pRFC) | [product-spec.md](product-spec.md) | PM | Product Bar Raiser |
-| UX / UI Design | [ux.md](ux.md) | Designer | Product Bar Raiser |
 
 ### Engineering Track
 
@@ -65,7 +64,6 @@ Every template has YAML frontmatter with fields agents can parse:
 ```
 .brocode/<id>/
   product-spec.md          ← from templates/product-spec.md
-  ux.md                    ← from templates/ux.md
   implementation-options.md ← from templates/implementation-options.md
   investigation.md          ← from templates/investigation.md (investigate mode)
   ops.md                    ← from templates/ops.md
@@ -79,8 +77,6 @@ Every template has YAML frontmatter with fields agents can parse:
     product/
       req-challenge-r1.md   ← from templates/br-challenge.md
       req-approved.md       ← from templates/br-approval.md
-      ux-challenge-r1.md    ← from templates/br-challenge.md
-      ux-approved.md        ← from templates/br-approval.md
       gate-approved.md      ← from templates/br-approval.md
     engineering/
       impl-challenge-r1.md  ← from templates/br-challenge.md
@@ -104,8 +100,7 @@ Every template has YAML frontmatter with fields agents can parse:
 ```
 Spec mode:
   PM → product-spec.md
-  Designer → ux.md
-  Product BR challenges each (max 3 rounds)
+  Product BR challenges (max 3 rounds)
   [GATE: engineering blocked until gate-approved.md written]
   Tech Lead → implementation-options.md
   SRE → ops.md  (parallel)

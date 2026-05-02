@@ -11,7 +11,7 @@ ai_instructions: >
   Fill every [bracketed] placeholder with real content.
   Every test must have exact setup code, action code, and assertion code — no descriptions without code.
   Every AC from product-spec.md must have at least one test, traced to the persona it belongs to.
-  Every error path from ux.md must have a test with exact assertion.
+  Every error path from product-spec.md (section 15 UX flows) must have a test with exact assertion.
   No TODO comments in test code — write the actual test or explicitly move it to coverage_gaps.
   Load tests must use realistic data volumes, not 1-row toy data.
   Security tests must cover auth boundaries and data isolation between personas.

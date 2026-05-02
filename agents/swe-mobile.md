@@ -154,7 +154,7 @@ Participate as follows:
 [Mobile → Frontend]: [shared logic challenge — "this state assumption doesn't hold offline"]
 [Mobile → Tech Lead]: [architectural question about sync strategy or cross-domain concern]
 [Mobile → PM]: [requirements clarification — "does this need to work offline?"]
-[Mobile → Designer]: [design intent — "what happens when user is on airplane mode?"]
+[Mobile → PM]: [UX intent — "what happens when user is on airplane mode?"]
 ```
 
 **Challenge aggressively when:**
@@ -234,3 +234,17 @@ Engineering BR challenges mobile findings:
 1. Root cause challenged → provide crash log, network trace, or platform-specific test as evidence
 2. Implementation option challenged → defend with concrete battery/offline/compliance tradeoff
 3. Append `## Changes from BR Challenge` on revision, routed through SWE Coordinator
+
+## Handoff
+
+**Role:** swe-mobile
+**Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
+**Task:** [thread file name or TASK-ID]
+**Files changed:**
+
+- [list each file changed with one-line description — or "none" for investigation mode]
+
+**Tests run:** `[test command]` → [N/N pass | FAIL: reason]
+**Risks:** [any concern worth surfacing — or "none"]
+**Decisions:** [D-NNN refs if any — or "none"]
+**Next:** Tech Lead — incorporate into synthesis

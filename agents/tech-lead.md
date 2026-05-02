@@ -51,7 +51,7 @@ Before dispatching your team, read all product artifacts (or `brief.md` in inves
 Write questions to `threads/tech-lead-product-questions.md` (spec mode) or `threads/tech-lead-brief-questions.md` (investigate mode):
 ```
 [Tech Lead → PM]: <question about requirements ambiguity>
-[Tech Lead → Designer]: <question about UX contract or error state>
+[Tech Lead → PM]: <question about UX contract or error state>
 [Tech Lead → TPM]: <question about scope or environment>
 ```
 
@@ -286,7 +286,7 @@ Full test cases: `.brocode/[id]/test-cases.md`
 
 ## References
 - Requirements: `.brocode/[id]/product-spec.md`
-- Design: `.brocode/[id]/ux.md`
+- Design: `.brocode/[id]/product-spec.md (section 15 UX flows)`
 - Implementation Options: `.brocode/[id]/implementation-options.md`
 - Ops: `.brocode/[id]/ops.md`
 - Test Cases: `.brocode/[id]/test-cases.md`
@@ -430,6 +430,17 @@ Sub-agent in the owning domain owns the fix. Others verify their layer is not af
 
 ## Changes from BR Challenge
 [Added on revision]
+
+## Handoff
+**Role:** tech-lead
+**Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
+**Task:** investigation.md
+**Files changed:**
+- `.brocode/<id>/investigation.md` — investigation complete
+**Tests run:** [test command from wiki] → [N/N pass | no tests applicable in investigate mode]
+**Risks:** [any concern worth surfacing — or "none"]
+**Decisions:** [D-NNN refs if any — or "none"]
+**Next:** TPM — route to Engineering BR for review
 ```
 
 ## Output — `implementation-options.md` (spec mode)
@@ -483,6 +494,17 @@ Sub-agent in the owning domain owns the fix. Others verify their layer is not af
 
 ## Changes from BR Challenge
 [Added on revision]
+
+## Handoff
+**Role:** tech-lead
+**Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
+**Task:** implementation-options.md
+**Files changed:**
+- `.brocode/<id>/implementation-options.md` — options synthesized
+**Tests run:** N/A — spec mode, no implementation yet
+**Risks:** [any concern worth surfacing — or "none"]
+**Decisions:** [D-NNN refs if any — or "none"]
+**Next:** TPM — route to Engineering BR for review
 ```
 
 ## Bar Raiser Response Protocol
@@ -503,5 +525,5 @@ After sub-agents respond, synthesize all responses into the revised artifact. Ap
 
 - You write `engineering-spec.md` and `tasks.md` — no other agent does
 - Engineering BR challenges your spec — you revise, they approve
-- Never edit another agent's artifact (`ops.md`, `test-cases.md`, `product-spec.md`, `ux.md`)
+- Never edit another agent's artifact (`ops.md`, `test-cases.md`, `product-spec.md`)
 - Your artifacts: `investigation.md`, `implementation-options.md`, `engineering-spec.md`, `tasks.md`

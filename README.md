@@ -123,8 +123,7 @@ flowchart TD
     A(["/brocode &lt;feature or doc&gt;"])
 
     subgraph PROD["Product Track"]
-        PM["🎯 PM\nrequirements + personas"]
-        DS["🎨 Designer\nAPI contracts + flows"]
+        PM["🎯 PM\nrequirements + personas + UX flows"]
         PBR["🔬 Product Bar Raiser\nPrincipal PM — gates engineering"]
     end
 
@@ -145,10 +144,8 @@ flowchart TD
     OUT(["engineering-spec.md + tasks.md"])
 
     A --> PM
-    PM <-->|"threads/<topic>.md"| DS
     PM --> PBR
-    DS --> PBR
-    PBR -->|"challenged"| PM & DS
+    PBR -->|"challenged"| PM
     PBR --> GATE
     GATE -->|"yes"| TL
     GATE -->|"no"| PM
@@ -240,7 +237,6 @@ flowchart TD
 
     subgraph PROD["Product Track"]
         PM["🎯 PM"]
-        DS["🎨 Designer"]
         PBR["🔬 Product Bar Raiser\nPrincipal PM"]
     end
 
@@ -256,7 +252,6 @@ flowchart TD
 
     TPM --> PROD & ENG
     PM --> PBR
-    DS --> PBR
     TL --> BE & FE & MOB & SRE & QA
     TL --> EBR
 ```
@@ -264,9 +259,8 @@ flowchart TD
 | Agent | Role | Produces |
 |-------|------|---------|
 | **TPM** | Program orchestrator, logs all transitions, prints live progress | `tpm-logs.md` |
-| **PM** | Senior Product Manager | `product-spec.md` |
-| **Designer** | Senior Designer (UX / UI) | `ux.md` |
-| **Product Bar Raiser** | Principal PM — challenges PM + Designer, gates engineering | Challenge files + gate approval |
+| **PM** | Senior Product Manager | `product-spec.md` (incl. UX flows) |
+| **Product Bar Raiser** | Principal PM — challenges PM, gates engineering | Challenge files + gate approval |
 | **Tech Lead** | Owns engineering team, dispatches sub-agents, synthesizes debate | `investigation.md` or `implementation-options.md` |
 | → **Backend Engineer** *(sub-agent)* | APIs, DB, services, queues | Threads in `threads/<topic>.md` |
 | → **Frontend Engineer** *(sub-agent)* | Web UI, state, browser, SSR/CSR | Threads in `threads/<topic>.md` |
@@ -312,7 +306,7 @@ flowchart TD
 - Challenges requirements: missing personas, untestable ACs, unresolved assumptions
 - Challenges design: missing error states, undefined API contracts, missing ops/support interfaces
 - Uses web search to verify competitor claims
-- Hard gate: engineering cannot start until both PM + Designer approved
+- Hard gate: engineering cannot start until PM approved
 
 **Engineering Bar Raiser** (Principal Engineer):
 - Challenges Tech Lead on implementation options: vague tradeoffs, inconsistency with design
@@ -330,8 +324,6 @@ TPM prints a live status line at every agent transition:
 ```
 📋  TPM          →  kicked off spec-20260426-oauth, logging stages
 🎯  PM           →  reading brief, building requirements
-🎯  PM      ↔️  🎨  Designer    →  PM asked: "empty state for first-time users?"
-🎨  Designer      →  writing API contracts and user flows
 🔬  Product BR    →  challenging PM requirements (round 1)
 ⚠️  Product BR    →  found gap: ops interface missing — routing back to PM
 ✅  Product BR    →  requirements APPROVED — product gate OPEN
@@ -353,7 +345,6 @@ Agents talk to each other. All exchanges logged in thread files.
 | Thread | Who talks |
 |--------|-----------|
 | `threads/<topic>.md` | Created on demand per discussion topic |
-| `threads/product-conversation.md` | PM ↔ Designer (default) |
 | `threads/swe-debate.md` | Backend ↔ Frontend ↔ Mobile (default) |
 | `threads/eng-conversation.md` | Tech Lead ↔ SRE ↔ QA (default) |
 
@@ -369,14 +360,13 @@ graph TD
 
     ROOT --> TPM["📋 tpm-logs.md — TPM master log, live"]:::tpm
     ROOT --> BRIEF["brief.md — user input + clarified scope"]:::file
-    ROOT --> REQ["product-spec.md — PM, versioned"]:::file
-    ROOT --> DES["ux.md — Designer, versioned"]:::file
+    ROOT --> REQ["product-spec.md — PM, versioned (incl. UX flows)"]:::file
     ROOT --> IMPL["implementation-options.md / investigation.md — Tech Lead"]:::file
     ROOT --> OPS["ops.md — SRE, versioned"]:::file
     ROOT --> QA["test-cases.md — QA, versioned"]:::file
     ROOT --> THR["threads/"]:::dir
     THR --> PCT["&lt;topic&gt;.md — created on demand per discussion"]:::thread
-    THR --> ENGP["eng-product-conversation.md — Eng ↔ PM/Designer"]:::thread
+    THR --> ENGP["eng-product-conversation.md — Eng ↔ PM"]:::thread
     ROOT --> PBR["br/product/ — challenge rounds + gate approval"]:::br
     ROOT --> EBR["br/engineering/ — challenge rounds + approvals"]:::br
     ROOT --> SPEC["✅ engineering-spec.md — approved, ready to implement"]:::final
@@ -454,7 +444,7 @@ Re-scanned automatically if > 7 days old. No manual action needed.
 | Input | How brocode handles it |
 |-------|----------------------|
 | Plain text | Used directly by PM |
-| Attached image / screenshot | PM and Designer analyze via vision |
+| Attached image / screenshot | PM analyzes via vision |
 | Google Doc URL | Fetched via Google Drive MCP (if connected) |
 | Notion / Confluence URL | Ask user to paste |
 | Figma URL | Ask user to export PNG |
@@ -471,7 +461,6 @@ brocode/
   agents/
     tpm.md                   # TPM
     pm.md
-    designer.md
     product-bar-raiser.md
     tech-lead.md             # Tech Lead (owns engineering team)
     swe-backend.md           # Backend sub-agent

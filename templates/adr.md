@@ -22,7 +22,7 @@ adr-id: ADR-[NNN]
 spec-id: [run id — e.g. spec-20260429-oauth]
 status: Accepted
 date: [YYYY-MM-DD — date from D-NNN timestamp]
-deciders: [agent from D-NNN header — PM | Tech Lead | TPM | User | Designer | SRE | QA]
+deciders: [agent from D-NNN header — PM | Tech Lead | TPM | User | SRE | QA]
 ---
 
 ## Context

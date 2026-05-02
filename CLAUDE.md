@@ -2,7 +2,7 @@
 
 ## What this is
 
-brocode is a multi-agent SDLC plugin. It simulates a full engineering org — PM, Designer, Tech Lead, SRE, QA, and two Bar Raisers — to investigate bugs, produce engineering specs, and implement approved work.
+brocode is a multi-agent SDLC plugin. It simulates a full engineering org — PM, Tech Lead, SRE, QA, and two Bar Raisers — to investigate bugs, produce engineering specs, and implement approved work.
 
 Single entry point: `/brocode`
 
@@ -14,7 +14,6 @@ Single entry point: `/brocode`
 |------|------|-------|
 | `agents/tpm.md` | TPM — program orchestrator, logs all transitions | Cross-cutting |
 | `agents/pm.md` | Product Manager | Product |
-| `agents/designer.md` | Designer (UX / UI) — user flows, screen states, interaction design | Product |
 | `agents/product-bar-raiser.md` | Principal PM / Head of Product — gates engineering | Product gate |
 | `agents/tech-lead.md` | Tech Lead — owns engineering team (Backend, Frontend, Mobile, SRE) | Engineering |
 | `agents/swe-backend.md` | Backend Engineer sub-agent | Engineering |
@@ -26,7 +25,7 @@ Single entry point: `/brocode`
 
 ## Skills
 
-All orchestration lives in `commands/brocode.md`. Agents use superpowers skills directly:
+All orchestration lives in `skills/brocode/SKILL.md`. Agents use superpowers skills directly:
 
 | When | Skill | Who |
 |------|-------|-----|
@@ -44,7 +43,9 @@ All orchestration lives in `commands/brocode.md`. Agents use superpowers skills 
 
 | File | Triggers |
 |------|---------|
-| `commands/brocode.md` | `/brocode:brocode <bug or feature>` · `/brocode:brocode repos` · `/brocode:brocode develop` · `/brocode:brocode review <url>` · `/brocode:brocode revise` |
+| `skills/brocode/SKILL.md` | `/brocode:brocode <bug or feature>` · `/brocode:brocode repos` · `/brocode:brocode develop` · `/brocode:brocode review <url>` · `/brocode:brocode revise` |
+
+> `commands/brocode.md` is a backwards-compatibility redirect stub — points to `skills/brocode/SKILL.md`.
 
 ## Repo Config
 
@@ -124,8 +125,7 @@ Tech Lead synthesizes → investigation.md
 ### Spec mode
 ```
 TPM writes instruction files
-PM sub-agent → product-spec.md
-Designer sub-agent → ux.md
+PM sub-agent → product-spec.md (sections 1–15, includes UX flows)
     → Product BR loop (max 3 rounds per artifact)
     → [GATE] engineering blocked until approved
 TPM writes instruction files → Tech Lead sub-agent dispatched
@@ -185,10 +185,11 @@ Tech Lead synthesizes findings
   brief.md                ← user input + clarified scope
   tpm-logs.md             ← TPM journal (E-NNN events + D-NNN decisions)
   brocode.md              ← post-run retrospective (written by TPM after run)
+  evidence.md             ← Tech Lead (investigate mode) / TPM (develop mode)
+  decisions.md            ← TPM (spec mode) — D-NNN blocks extracted from tpm-logs.md
   instructions/           ← TPM writes one file here before each sub-agent dispatch
     <role>-<phase>.md
-  product-spec.md         ← PM — pRFC format
-  ux.md                   ← Designer — UX flows + e2e mermaid per persona
+  product-spec.md         ← PM — pRFC format incl. section 15 UX flows
   implementation-options.md ← Tech Lead (spec mode)
   investigation.md          ← Tech Lead (investigate mode)
   ops.md                    ← SRE
@@ -199,8 +200,6 @@ Tech Lead synthesizes findings
     product/
       req-challenge-r1.md   ← Product BR challenges on product-spec
       req-approved.md
-      ux-challenge-r1.md    ← Product BR challenges on ux
-      ux-approved.md
       gate-approved.md      ← product gate opened
     engineering/
       impl-challenge-r1.md  ← Eng BR challenges per artifact
@@ -222,7 +221,7 @@ Tech Lead synthesizes findings
 
 1. Create `agents/<role>.md`
 2. Add to roster table above
-3. Add dispatch step to relevant phase in `commands/brocode.md`
+3. Add dispatch step to relevant mode file in `skills/brocode/modes/`
 
 ## Modifying BR challenge standards
 

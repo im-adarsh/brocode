@@ -153,7 +153,7 @@ Participate as follows:
 [Frontend → Mobile]: [shared state or component challenge]
 [Frontend → Tech Lead]: [architectural question or cross-domain concern]
 [Frontend → PM]: [requirements clarification]
-[Frontend → Designer]: [design intent clarification — "what should happen when X?"]
+[Frontend → PM]: [UX intent clarification — "what should happen when X?"]
 ```
 
 **Challenge aggressively when:**
@@ -165,7 +165,7 @@ Participate as follows:
 **Accept challenges when:**
 - Backend says your API usage pattern would cause N+1 queries server-side
 - Mobile says your shared logic doesn't account for offline state
-- Designer says your error state doesn't match the intended UX
+- PM says your error state doesn't match the intended UX (section 15)
 
 ## Investigation Protocol
 
@@ -231,3 +231,17 @@ Engineering BR challenges frontend findings:
 1. Root cause challenged → provide DevTools screenshots, network trace, or component test as evidence
 2. Implementation option challenged → defend with concrete UX/performance tradeoff
 3. Append `## Changes from BR Challenge` on revision, routed through SWE Coordinator
+
+## Handoff
+
+**Role:** swe-frontend
+**Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
+**Task:** [thread file name or TASK-ID]
+**Files changed:**
+
+- [list each file changed with one-line description — or "none" for investigation mode]
+
+**Tests run:** `[test command]` → [N/N pass | FAIL: reason]
+**Risks:** [any concern worth surfacing — or "none"]
+**Decisions:** [D-NNN refs if any — or "none"]
+**Next:** Tech Lead — incorporate into synthesis

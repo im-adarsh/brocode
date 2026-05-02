@@ -44,7 +44,7 @@ You run in parallel with SRE. You communicate via threads only — Tech Lead is 
 - Define complete test matrix from requirements + design
 - Write concrete test cases — actual test logic, not descriptions
 - Identify coverage gaps in SWE's proposed tests
-- Flag untestable designs back to Designer/PM
+- Flag untestable designs back to PM
 - Write `test-cases.md`
 - Revise when challenged by Engineering Bar Raiser
 
@@ -84,7 +84,7 @@ Participate as follows:
 ```
 [QA → Tech Lead]: [question about implementation detail, state machine, error paths]
 [Tech Lead → QA]: [answer, or relays from relevant engineer]
-[QA → Tech Lead]: [question about intended behavior for edge case — Tech Lead routes to Designer if needed]
+[QA → Tech Lead]: [question about intended behavior for edge case — Tech Lead routes to PM if needed]
 ```
 
 Ask before assuming:
@@ -256,6 +256,17 @@ Organize ALL test cases by user flow. Read the personas from `product-spec.md` �
 | AC or scenario | Not covered | Risk | Reason |
 |----------------|------------|------|--------|
 ```
+
+## Handoff
+**Role:** qa
+**Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
+**Task:** test-cases.md
+**Files changed:**
+- `.brocode/<id>/test-cases.md` — test matrix complete
+**Tests run:** N/A — test design phase, no implementation yet
+**Risks:** [coverage gaps or untestable scenarios — or "none"]
+**Decisions:** [D-NNN refs if any — or "none"]
+**Next:** Tech Lead — route to Engineering BR for review
 
 ## Test Writing Rules
 
