@@ -308,7 +308,7 @@ Full test cases: `.brocode/[id]/test-cases.md`
 **Status:** [ ]
 **Depends on:** none
 **Satisfies AC:** AC-3, AC-5
-**Effort:** S | M | L | XL
+**Effort:** [S | M | L | XL]
 
 **Files:**
 - Create: `src/api/auth/token.ts`
@@ -326,9 +326,6 @@ Full test cases: `.brocode/[id]/test-cases.md`
 - Happy path: valid code → tokens returned
 - Invalid code → 401
 - Missing redirect_uri → 400
-
-**DoD:**
-- [ ] [any per-task requirement beyond baseline — e.g. "feature flag wired and tested off"]
 
 ---
 
@@ -352,7 +349,7 @@ Full test cases: `.brocode/[id]/test-cases.md`
 - Dependencies are explicit — no implicit ordering
 - Every task has `**Effort:**` — use: S (< 1h, 1–2 files) · M (1–3h, multi-file) · L (3–8h, cross-service/schema) · XL (8h+, needs breakdown first)
 - Every task has `**DoD:**` — list any requirements beyond the fixed baseline (tests pass, commit exists, no TODO/FIXME in diff). Omit the field if no extras needed.
-- Migration tasks MUST add to `**DoD:**`: down migration written and tested · migration tested on staging data volume · migration safe under concurrent writes (no full-table lock) · rollback procedure tested in staging (see sre.md)
+- Migration tasks MUST add to `**DoD:**`: down migration written and tested · migration tested on staging data volume · migration safe under concurrent writes (no full-table lock) · rollback procedure tested in staging (see `agents/sre.md`)
 
 ## Investigation Mode
 
