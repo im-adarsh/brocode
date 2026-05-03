@@ -33,3 +33,6 @@ yarn-error.log
 
 # brocode runtime artifacts — never commit
 .brocode/
+
+# Superpowers brainstorm session files — local only
+.superpowers/
