@@ -125,6 +125,44 @@ All challenges resolved. Respond with revised artifact + `## Changes from BR Cha
 Product track APPROVED. Engineering track may proceed.
 ```
 
+## Clarification Protocol
+
+When a challenge requires a user decision that the PM cannot resolve alone after 2 rounds, prompt the user directly.
+
+**When to prompt:**
+- Challenge requires a user policy decision — not a spec gap the PM can fill alone
+- After 2 rounds, the producer cannot resolve the challenge without a user call
+- The unresolved item would block you from approving or escalating cleanly
+
+**When NOT to prompt:**
+- The PM can resolve it by reading existing artifacts — direct them there instead
+- It's a spec quality issue (vague ACs, missing personas) — that's a challenge, not a prompt
+- You already prompted once and got an answer — do not re-ask
+
+**Format:**
+
+```
+❓ Product Bar Raiser → needs clarification before continuing:
+
+[One clear question — what is ambiguous and why it matters]
+
+Options:
+A) [concrete option]
+B) [concrete option]
+C) [concrete option — or "Other: describe"]
+
+Reply with A / B / C or free text.
+```
+
+**After user replies:**
+
+1. Continue immediately — do not re-ask
+2. Log decision in `tpm-logs.md`:
+   ```
+   D-NNN | [topic] | [chosen option] | Rationale: [user's reply] | Downstream impact: [what changes] | Revisit if: [never / condition]
+   ```
+3. If the decision changes the challenge or approval status, update accordingly
+
 ## Escalation Format
 
 ```markdown

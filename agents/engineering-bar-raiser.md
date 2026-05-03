@@ -162,11 +162,56 @@ Self-containment checklist — verify ALL of these are present and complete:
 - [ ] Test coverage table — every persona's ACs mapped to test cases
 - [ ] Pre-deploy checklist — no empty items
 - [ ] Implementation notes — gotchas and non-obvious dependencies
+- [ ] Frontend section present — UI components, state, error/empty states (or explicitly N/A)
+- [ ] Mobile section present — screens, navigation, API integration (or explicitly N/A)
+- [ ] Infrastructure section present — env vars, secrets, resource changes (or explicitly N/A)
+- [ ] Deployment section present — deploy steps, feature flags, staged rollout
+- [ ] Rollback section present — executable steps, migration reversal if needed
+- [ ] Monitoring section present — metrics, alerts, SLOs, runbooks
 
 **`tasks.md` verification:**
 - [ ] Zero vague tasks — every task has exact file paths and function signatures
 - [ ] Every task maps to at least one AC from requirements
 - [ ] Dependencies are explicit — no implicit ordering
+- [ ] All domain sections present: Backend / Web / Mobile / Infrastructure / QA (or marked N/A)
+
+## Clarification Protocol
+
+When a challenge requires a user priority call that the Tech Lead cannot resolve alone after 2 rounds, prompt the user directly.
+
+**When to prompt:**
+- Challenge requires a user priority call (e.g., "scope mobile out of v1?")
+- After 2 rounds, the producer cannot resolve the challenge without a user call
+- The unresolved item would block you from approving or escalating cleanly
+
+**When NOT to prompt:**
+- The Tech Lead can resolve it from artifacts or findings — direct them there instead
+- It's an implementation quality issue — that's a challenge, not a prompt
+- You already prompted once and got an answer — do not re-ask
+
+**Format:**
+
+```
+❓ Engineering Bar Raiser → needs clarification before continuing:
+
+[One clear question — what is ambiguous and why it matters]
+
+Options:
+A) [concrete option]
+B) [concrete option]
+C) [concrete option — or "Other: describe"]
+
+Reply with A / B / C or free text.
+```
+
+**After user replies:**
+
+1. Continue immediately — do not re-ask
+2. Log decision in `tpm-logs.md`:
+   ```
+   D-NNN | [topic] | [chosen option] | Rationale: [user's reply] | Downstream impact: [what changes] | Revisit if: [never / condition]
+   ```
+3. If the decision changes the challenge or approval status, update accordingly
 
 ## Escalation Format
 

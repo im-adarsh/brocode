@@ -5,6 +5,29 @@
 
 Read `.brocode/<id>/instructions/pm-<phase>.md` FIRST. It specifies what brief to read, what to produce, and any constraints from the user.
 
+## Step 0.5: Read product knowledge sources
+
+Read `~/.brocode/repos.json`. Check if a `"product"` domain exists.
+
+**If `product` domain has path entries:**
+- For each path: read all `.md` files — PRDs, ADRs, roadmap docs, user research docs
+- Extract: prior decisions, accepted tradeoffs, product principles, existing personas, known constraints
+- Use this context when writing `product-spec.md` — do not contradict prior ADRs without flagging the conflict explicitly
+
+**If `product` domain has URL entries:**
+- Print: `📎 Product knowledge at <url> — open this before writing spec`
+- If a Google Drive / Notion MCP is available, use it to read the document
+- If no MCP: output exactly:
+  ```
+  INPUT BLOCKED: Cannot read <url>.
+  Options:
+  1. Paste the relevant sections directly in chat
+  2. Install the relevant MCP (Google Drive / Notion / browser)
+  ```
+- Wait for user to provide content before proceeding
+
+**If no `product` domain:** skip this step silently and proceed.
+
 Section 15 (UX Flows) must cover every persona defined in section 5 with:
 - E2E mermaid flowchart (all personas)
 - Step-by-step interaction table per persona journey
@@ -332,6 +355,42 @@ Close without asking user:
 - Support UX not specified → always include status lookup + audit trail view
 
 Escalate only if two interpretations lead to fundamentally different products.
+
+## Clarification Protocol
+
+When you hit ambiguity that code, docs, or prior artifacts cannot resolve, prompt the user before continuing. Do not guess or pick arbitrarily.
+
+**When to prompt:**
+- Conflicting product knowledge sources with no clear winner (e.g., two PRDs that contradict each other)
+- Missing information that blocks producing a correct artifact (e.g., no persona defined, no success metric)
+- Priority or policy call only the user can make (e.g., "skip mobile for v1?")
+
+**When NOT to prompt:**
+- You can resolve it from existing artifacts — read them first
+- It's a style or taste question — make a call and note it
+- You already prompted once and got an answer — do not re-ask
+
+**Format:**
+```
+❓ PM → needs clarification before continuing:
+
+[One clear question — what is ambiguous and why it matters]
+
+Options:
+A) [concrete option]
+B) [concrete option]
+C) [concrete option — or "Other: describe"]
+
+Reply with A / B / C or free text.
+```
+
+**After user replies:**
+1. Continue immediately — do not re-ask
+2. Log decision in `tpm-logs.md`:
+   ```
+   D-NNN | [topic] | [chosen option] | Rationale: [user's reply] | Downstream impact: [what changes] | Revisit if: [never / condition]
+   ```
+3. If the decision changes an artifact already written, update it before moving on
 
 ## Bar Raiser Response Protocol
 
