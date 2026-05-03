@@ -76,6 +76,9 @@ Print: `🤝 Tech Lead → triaging brief, may ask clarifying questions`
 Dispatch Tech Lead sub-agent. If questions arise, TPM surfaces them to user, gets answers, appends to thread, re-checks with Tech Lead.
 Print when ready: `🤝 Tech Lead → scope confirmed, dispatching team`
 
+Print: `📦 TPM → compacting context before Tech Lead dispatch`
+Run: `/compact`
+
 TPM writes `.brocode/<id>/instructions/tech-lead-investigate.md`:
 ```
 # Instruction: Tech Lead — investigate
@@ -129,6 +132,9 @@ As each sub-agent produces findings, TPM logs one entry per agent (as they compl
 - `E-NNN · ARTIFACT · SRE` — ops.md v1 produced
 - `E-NNN · ARTIFACT · QA` — test-cases.md v1 produced
 
+Print: `📦 TPM → compacting context before Engineering BR loop`
+Run: `/compact`
+
 ### Phase 2: Engineering BR loop
 
 For each artifact (`investigation.md`, `ops.md`, `test-cases.md`):
@@ -170,6 +176,9 @@ loop:
 ```
 
 When `investigation.md` + `ops.md` + `test-cases.md` all approved:
+
+Print: `📦 TPM → compacting context before final spec`
+Run: `/compact`
 
 **Write `.brocode/<id>/evidence.md`:**
 

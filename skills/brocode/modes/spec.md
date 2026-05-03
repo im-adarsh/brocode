@@ -103,6 +103,8 @@ loop:
 ```
 
 When `product-spec.md` approved:
+Print: `📦 TPM → compacting context before product gate + engineering track`
+Run: `/compact`
 Write `br/product/gate-approved.md`.
 TPM logs: `D-NNN · DECISION · TPM` — gate open decision (options: wait / open now, chosen, rationale)
 TPM logs: `E-NNN · GATE · Product BR` — product gate OPEN, engineering unblocked
@@ -211,6 +213,9 @@ Then log Tech Lead's synthesis:
 - `D-NNN · DECISION · Tech Lead` — implementation option chosen (options A/B/C, rationale, downstream impact)
 - `E-NNN · ARTIFACT · Tech Lead` — implementation-options.md v1 written
 
+Print: `📦 TPM → compacting context before Engineering BR loop`
+Run: `/compact`
+
 **Step 2c: Engineering BR loop**
 
 For each artifact (`implementation-options.md`, `ops.md`, `test-cases.md`):
@@ -253,6 +258,9 @@ loop:
 
 **Step 2d: Tech Lead writes final spec**
 After `implementation-options.md` + `ops.md` + `test-cases.md` all approved:
+
+Print: `📦 TPM → compacting context before final spec`
+Run: `/compact`
 
 TPM writes `.brocode/<id>/instructions/tech-lead-final-spec.md`:
 ```

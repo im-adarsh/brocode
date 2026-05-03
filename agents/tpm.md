@@ -626,6 +626,36 @@ TodoWrite: mark all remaining todo items as `completed`. Final list should show 
 
 ---
 
+## Compaction Protocol
+
+Run `/compact` after each phase gate to compress context before the next heavy dispatch. This prevents token exhaustion mid-run.
+
+**When to compact:**
+
+| Trigger | Fires after |
+| ------- | ----------- |
+| After PM artifact approved | Product BR approves `product-spec.md` |
+| After Product BR gate opens | Engineering track unblocked |
+| After each parallel engineer wave | All Backend / Frontend / Mobile / SRE / QA threads written |
+| After each BR artifact approved | `investigation.md`, `ops.md`, `test-cases.md`, `implementation-options.md` each approved |
+| After final spec written | `engineering-spec.md` + `tasks.md` both approved |
+
+**How:**
+
+```
+Print: 📦 TPM → compacting context before <next-phase>
+Run: /compact
+Print: ✅ TPM → context compacted — proceeding with <next-phase>
+```
+
+**Rules:**
+
+- Compact BEFORE dispatch — not after. Context is stale after compaction; sub-agents always get fresh context via instruction files anyway.
+- Do NOT compact mid-BR-round — compact only when a full round (challenge + revision + re-review) is complete and the artifact is approved or the loop continues to the next round.
+- If `/compact` fails or is unavailable, continue without it — log `E-NNN · NOTE · TPM — /compact unavailable, skipping` and proceed.
+
+---
+
 ## Stall Detection
 
 | Stall type | Detection | Action |
