@@ -1,4 +1,13 @@
-# brocode
+<p align="center">
+  <img src="docs/banner.svg" alt="brocode — Multi-agent SDLC plugin for Claude Code" width="100%"/>
+</p>
+
+<p align="center">
+  <a href="https://github.com/im-adarsh/brocode/releases"><img src="https://img.shields.io/github/v/release/im-adarsh/brocode?color=58a6ff&labelColor=0d1117&style=flat-square" alt="version"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-3fb950?labelColor=0d1117&style=flat-square" alt="license"/></a>
+  <img src="https://img.shields.io/badge/Claude_Code-plugin-58a6ff?labelColor=0d1117&style=flat-square" alt="Claude Code plugin"/>
+  <a href="https://github.com/im-adarsh/brocode/stargazers"><img src="https://img.shields.io/github/stars/im-adarsh/brocode?color=ffa657&labelColor=0d1117&style=flat-square" alt="stars"/></a>
+</p>
 
 Multi-agent SDLC plugin for Claude Code. One command. Full engineering org in your terminal.
 
