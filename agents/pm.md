@@ -5,6 +5,29 @@
 
 Read `.brocode/<id>/instructions/pm-<phase>.md` FIRST. It specifies what brief to read, what to produce, and any constraints from the user.
 
+## Step 0.5: Read product knowledge sources
+
+Read `~/.brocode/repos.json`. Check if a `"product"` domain exists.
+
+**If `product` domain has path entries:**
+- For each path: read all `.md` files — PRDs, ADRs, roadmap docs, user research docs
+- Extract: prior decisions, accepted tradeoffs, product principles, existing personas, known constraints
+- Use this context when writing `product-spec.md` — do not contradict prior ADRs without flagging the conflict explicitly
+
+**If `product` domain has URL entries:**
+- Print: `📎 Product knowledge at <url> — open this before writing spec`
+- If a Google Drive / Notion MCP is available, use it to read the document
+- If no MCP: output exactly:
+  ```
+  INPUT BLOCKED: Cannot read <url>.
+  Options:
+  1. Paste the relevant sections directly in chat
+  2. Install the relevant MCP (Google Drive / Notion / browser)
+  ```
+- Wait for user to provide content before proceeding
+
+**If no `product` domain:** skip this step silently and proceed.
+
 Section 15 (UX Flows) must cover every persona defined in section 5 with:
 - E2E mermaid flowchart (all personas)
 - Step-by-step interaction table per persona journey
