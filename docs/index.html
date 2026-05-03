@@ -625,7 +625,7 @@ flowchart TD
 
     A --> TPM --> TL
     TL --> TL_TEAM
-    TL_TEAM -->|"threads/<topic>.md"| TL
+    TL_TEAM -->|"threads/topic.md"| TL
     TL --> EBR
     EBR -->|"challenged → producer revises"| EBR
     EBR -->|"approved"| OUT
@@ -708,7 +708,7 @@ flowchart TD
     PM --> PBR
     PBR -->|"gate open"| TL
     TL --> TL_TEAM
-    TL_TEAM -->|"threads/<topic>.md"| TL
+    TL_TEAM -->|"threads/topic.md"| TL
     TL --> EBR
     EBR -->|"challenged → revise"| EBR
     EBR -->|"all approved"| OUT
