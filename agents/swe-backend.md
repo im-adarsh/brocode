@@ -80,7 +80,7 @@ find <repo-path> -maxdepth 3 -name "main.*" -o -name "app.*" -o -name "index.*" 
 ls <repo-path>/src/ <repo-path>/lib/ <repo-path>/cmd/ 2>/dev/null   # top-level source dirs
 
 # Test structure — understand what's covered and how tests are written
-find <repo-path> -maxdepth 3 -type d -name "test*" -o -name "__tests__" -o -name "spec" 2>/dev/null | head -10
+find <repo-path> -maxdepth 3 -type d \( -name "test*" -o -name "__tests__" -o -name "spec" \) 2>/dev/null | head -10
 
 # Key service/module boundaries
 ls <repo-path>/src/routes/ <repo-path>/src/handlers/ <repo-path>/src/services/ <repo-path>/src/models/ 2>/dev/null

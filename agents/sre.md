@@ -43,13 +43,16 @@ If repos registered but paths missing on disk:
 
 ### 1a. Freshness check
 
+Read `~/.brocode/wiki/log.md` for last scan date.
+
 For each relevant repo in `~/.brocode/repos.json` (domains: `sre`, `terraform`, `infra`, `backend`, or any present):
 
 ```bash
 git -C <repo-path> log --since="<last-scan-date>" --name-only --format="" | sort -u
 ```
 
-Read `~/.brocode/wiki/log.md` for last scan date. If files changed OR scan > 7 days → re-read changed files and update `~/.brocode/wiki/<repo-slug>/overview.md`.
+If files changed OR scan > 7 days → re-read changed files and update `~/.brocode/wiki/<repo-slug>/overview.md`.
+Otherwise → proceed to 1b.
 
 ### 1b. Broad infrastructure read (always)
 

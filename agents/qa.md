@@ -26,21 +26,22 @@ If repos registered but a path does not exist on disk:
 
 ### 1a. Freshness check
 
+Read `~/.brocode/wiki/log.md` for last scan date.
+
 For each repo in `~/.brocode/repos.json` relevant to your test scope:
 
 ```bash
 git -C <repo-path> log --since="<last-scan-date>" --name-only --format="" | sort -u
 ```
 
-Read `~/.brocode/wiki/log.md` for last scan date. If test files changed OR scan > 7 days → re-read `~/.brocode/wiki/<repo-slug>/test-strategy.md` (and re-scan if needed).
+If test files changed OR scan > 7 days → re-read `~/.brocode/wiki/<repo-slug>/test-strategy.md` (and re-scan if needed).
+Otherwise → proceed to 1b.
 
 ### 1b. Broad test read (always)
 
 ```bash
 # Find all test dirs and understand structure
-find <repo-path> -maxdepth 4 -type d -name "test*" -o -name "__tests__" -o -name "spec" 2>/dev/null | head -15
-
-# Sample 2-3 existing test files to understand patterns
+find <repo-path> -maxdepth 4 -type d \( -name "test*" -o -name "__tests__" -o -name "spec" \) 2>/dev/null | head -15
 ```
 
 Read:
