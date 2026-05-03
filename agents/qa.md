@@ -22,9 +22,33 @@ If repos registered but a path does not exist on disk:
 - Print: `⚠️ QA → repo path <path> not found on disk. Test pattern analysis will be limited to artifacts only.`
 - Proceed with artifact-only analysis.
 
-## Step 1: Knowledge base — test strategy
+## Step 1: Knowledge base — test strategy + broad read
 
-Read `~/.brocode/wiki/<repo-slug>/test-strategy.md` before writing tests. Use the project's actual test runner, file naming conventions, and patterns. Do not invent a test structure — match what already exists.
+### 1a. Freshness check
+
+For each repo in `~/.brocode/repos.json` relevant to your test scope:
+
+```bash
+git -C <repo-path> log --since="<last-scan-date>" --name-only --format="" | sort -u
+```
+
+Read `~/.brocode/wiki/log.md` for last scan date. If test files changed OR scan > 7 days → re-read `~/.brocode/wiki/<repo-slug>/test-strategy.md` (and re-scan if needed).
+
+### 1b. Broad test read (always)
+
+```bash
+# Find all test dirs and understand structure
+find <repo-path> -maxdepth 4 -type d -name "test*" -o -name "__tests__" -o -name "spec" 2>/dev/null | head -15
+
+# Sample 2-3 existing test files to understand patterns
+```
+
+Read:
+1. `~/.brocode/wiki/<repo-slug>/test-strategy.md` — test runner, patterns, locations
+2. 2–3 existing test files in the area of the feature/bug to understand naming, assertion style, mock patterns
+3. Any test helpers, fixtures, or factories used by existing tests
+
+Use the project's actual test runner, file naming conventions, and patterns. Do not invent a test structure — match what already exists.
 
 ## Superpowers skills
 

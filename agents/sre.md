@@ -39,10 +39,36 @@ If repos registered but paths missing on disk:
 
 **`superpowers:systematic-debugging`** — invoke when assessing an active incident or a failure mode with contradictory symptoms, intermittent reproduction, or cascading blast radius across multiple services. Use it to structure hypothesis elimination and failure mode analysis before writing the rollback plan.
 
-## Step 1: Knowledge base scan
+## Step 1: Knowledge base scan + broad read
 
-Read `~/.brocode/wiki/index.md` to understand infrastructure topology before assessing blast radius.
-Read `~/.brocode/wiki/<repo-slug>/overview.md` for each relevant repo — CI and deploy patterns already cached there.
+### 1a. Freshness check
+
+For each relevant repo in `~/.brocode/repos.json` (domains: `sre`, `terraform`, `infra`, `backend`, or any present):
+
+```bash
+git -C <repo-path> log --since="<last-scan-date>" --name-only --format="" | sort -u
+```
+
+Read `~/.brocode/wiki/log.md` for last scan date. If files changed OR scan > 7 days → re-read changed files and update `~/.brocode/wiki/<repo-slug>/overview.md`.
+
+### 1b. Broad infrastructure read (always)
+
+```bash
+# Understand CI/CD and deploy pipeline
+ls <repo-path>/.github/workflows/ 2>/dev/null
+ls <repo-path>/infra/ <repo-path>/terraform/ <repo-path>/k8s/ <repo-path>/deploy/ 2>/dev/null
+
+# Understand service topology
+cat ~/.brocode/wiki/index.md
+```
+
+Read:
+1. `~/.brocode/wiki/index.md` — full service topology
+2. `~/.brocode/wiki/<repo-slug>/overview.md` for each relevant repo — CI and deploy patterns
+3. 1–2 CI workflow files to understand deploy process and rollback hooks
+4. Any infra/terraform files related to the component in scope
+
+Then assess blast radius and ops impact for the specific change in your instruction file.
 
 ## Reporting
 
