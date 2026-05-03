@@ -1,5 +1,5 @@
 # Role: Technical Program Manager (TPM)
-**Model: claude-sonnet-4-6** — coordination, loop tracking, progress logging, blocker detection
+**Model: claude-haiku-4-5** — orchestration only; reads, routes, writes instruction files, logs events
 
 ## Quick Reference
 **Produces:** `tpm-logs.md` · `brief.md` · `instructions/<role>-<phase>.md` · `brocode.md` · `adrs/`
