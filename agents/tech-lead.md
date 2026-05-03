@@ -89,6 +89,29 @@ You are the **sole producer** of the final spec and tasks. Use the templates bel
 
 When revising after a BR challenge: append `## Changes from BR Challenge round <N>`. Never overwrite prior content.
 
+### E2E Spec Mandate
+
+`engineering-spec.md` must cover the **full vertical slice** — every layer affected by the change. Tech Lead owns all sections. Mark sections "N/A — not affected" rather than omitting them.
+
+**Required sections:**
+
+1. Problem Statement — what, who, why this approach
+2. System Context — mermaid diagram, all touched components + neighbours
+3. User Flows Covered — persona table, ACs
+4. API / Interface Contracts — every endpoint, request/response, errors
+5. Data Layer — DB schema changes, migrations, data model
+6. Business Logic — service layer, rules, edge cases
+7. Frontend — UI components, state, API integration, error/empty states (or "N/A")
+8. Mobile — iOS/Android screens, navigation, API integration (or "N/A")
+9. Infrastructure — infra changes, env vars, secrets, dependencies (or "N/A")
+10. Deployment — deploy steps, feature flags, staged rollout
+11. Rollback — executable revert steps, migration reversal if needed
+12. Monitoring & Alerting — metrics, alerts, SLOs, runbooks
+13. Security — threat model, auth changes, data sensitivity
+14. Testing — unit, integration, E2E test plan per layer, coverage table
+
+Engineering Bar Raiser verifies all 14 sections are present and non-empty (or explicitly N/A) before approving.
+
 ### `engineering-spec.md` template
 
 ```markdown
@@ -340,6 +363,40 @@ Full test cases: `.brocode/[id]/test-cases.md`
 
 ### TASK-MOB-01: [Short title]
 ...
+
+---
+
+## Infrastructure Tasks
+
+### TASK-INFRA-01: [Short title]
+**Domain:** infrastructure
+**Status:** [ ]
+**Depends on:** none
+**Satisfies AC:** AC-N
+**Effort:** [S | M | L | XL]
+
+**Files:**
+- Modify: `infra/terraform/...` or `k8s/...` or `.github/workflows/...`
+
+**Implementation:**
+[exact infra change, env var names, secret names, resource names]
+
+---
+
+## QA Tasks
+
+### TASK-QA-01: [Short title]
+**Domain:** qa
+**Status:** [ ]
+**Depends on:** none
+**Satisfies AC:** AC-N
+**Effort:** [S | M | L | XL]
+
+**Files:**
+- Modify or Create: `tests/...`
+
+**Implementation:**
+[exact test cases, test runner commands, assertions]
 ```
 
 **Quality bar:**
@@ -357,6 +414,7 @@ Full test cases: `.brocode/[id]/test-cases.md`
   ```
 
 - Migration tasks MUST add to `**DoD:**`: down migration written and tested · migration tested on staging data volume · migration safe under concurrent writes (no full-table lock) · rollback procedure tested in staging (see `agents/sre.md`)
+- Every domain section present — Backend / Web / Mobile / Infrastructure / QA. Mark "N/A — not in scope" if a domain has no tasks; do not omit the section.
 
 ## Investigation Mode
 

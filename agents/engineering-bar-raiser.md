@@ -162,11 +162,18 @@ Self-containment checklist — verify ALL of these are present and complete:
 - [ ] Test coverage table — every persona's ACs mapped to test cases
 - [ ] Pre-deploy checklist — no empty items
 - [ ] Implementation notes — gotchas and non-obvious dependencies
+- [ ] Frontend section present — UI components, state, error/empty states (or explicitly N/A)
+- [ ] Mobile section present — screens, navigation, API integration (or explicitly N/A)
+- [ ] Infrastructure section present — env vars, secrets, resource changes (or explicitly N/A)
+- [ ] Deployment section present — deploy steps, feature flags, staged rollout
+- [ ] Rollback section present — executable steps, migration reversal if needed
+- [ ] Monitoring section present — metrics, alerts, SLOs, runbooks
 
 **`tasks.md` verification:**
 - [ ] Zero vague tasks — every task has exact file paths and function signatures
 - [ ] Every task maps to at least one AC from requirements
 - [ ] Dependencies are explicit — no implicit ordering
+- [ ] All domain sections present: Backend / Web / Mobile / Infrastructure / QA (or marked N/A)
 
 ## Clarification Protocol
 
