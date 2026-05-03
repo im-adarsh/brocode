@@ -72,7 +72,7 @@ If input is `repos` or `setup` or contains "register repo" / "set repo" / "add r
 2. Ask user to provide repos as a free-form list — any domain name, any number of paths per domain:
    ```
    Register repos for engineer agents to read. Any domain name works.
-   Format: <domain>: <path> (one per line). Multiple paths for same domain = multiple lines.
+   Format: <domain>: <path or url> (one per line). Multiple paths for same domain = multiple lines.
    Examples:
      backend: /path/to/api
      backend: /path/to/auth-service
@@ -80,6 +80,8 @@ If input is `repos` or `setup` or contains "register repo" / "set repo" / "add r
      web: /path/to/frontend
      terraform: /path/to/infra
      qa: /path/to/test-suite
+     product: /path/to/product-docs       ← PRDs, ADRs, roadmap (PM reads this)
+     product: https://notion.so/workspace  ← also supports URLs for Notion/Confluence
 
    Type "done" when finished. Type "clear <domain>" to remove a domain.
    Current config: (show existing entries or "none")
@@ -118,6 +120,20 @@ If input is `repos` or `setup` or contains "register repo" / "set repo" / "add r
          "tags": ["swift", "swiftui"]
        }
      ],
+     "product": [
+       {
+         "path": "/path/to/product-docs",
+         "description": "PRDs, ADRs, roadmap",
+         "labels": ["prd", "adr"],
+         "tags": ["markdown"]
+       },
+       {
+         "url": "https://notion.so/my-workspace",
+         "description": "Product wiki and user research",
+         "labels": ["wiki"],
+         "tags": ["notion"]
+       }
+     ],
      "updated_at": "YYYY-MM-DD"
    }
    ```
@@ -130,7 +146,9 @@ If input is `repos` or `setup` or contains "register repo" / "set repo" / "add r
      web       → /path/to/frontend      "React web app"
    Engineer agents will read these paths. Run /brocode:brocode repos anytime to update.
    ```
-8. When agents read `~/.brocode/repos.json`: match domain name to agent role (backend → Backend Engineer, mobile → Mobile Engineer, web/fullstack → Frontend Engineer, terraform/infra/sre → SRE, qa → QA). Pass all repo objects for that domain — agents must use `description`, `labels`, and `tags` to orient themselves before reading code. Unknown domains → Tech Lead assigns.
+8. When agents read `~/.brocode/repos.json`: match domain name to agent role (backend → Backend Engineer, mobile → Mobile Engineer, web/fullstack → Frontend Engineer, terraform/infra/sre → SRE, qa → QA, product → PM). Pass all repo objects for that domain — agents must use `description`, `labels`, and `tags` to orient themselves before reading code. Unknown domains → Tech Lead assigns.
+
+`product` entries support both `path` (local git repo or doc folder) and `url` (Notion, Confluence, Google Docs). URL entries are printed as a prompt for the PM to open; path entries are read directly.
 - Stop. Do not proceed.
 
 ### `develop` / `implement`
