@@ -168,6 +168,44 @@ Self-containment checklist — verify ALL of these are present and complete:
 - [ ] Every task maps to at least one AC from requirements
 - [ ] Dependencies are explicit — no implicit ordering
 
+## Clarification Protocol
+
+When a challenge requires a user priority call that the Tech Lead cannot resolve alone after 2 rounds, prompt the user directly.
+
+**When to prompt:**
+- Challenge requires a user priority call (e.g., "scope mobile out of v1?")
+- After 2 rounds, the producer cannot resolve the challenge without a user call
+- The unresolved item would block you from approving or escalating cleanly
+
+**When NOT to prompt:**
+- The Tech Lead can resolve it from artifacts or findings — direct them there instead
+- It's an implementation quality issue — that's a challenge, not a prompt
+- You already prompted once and got an answer — do not re-ask
+
+**Format:**
+
+```
+❓ Engineering Bar Raiser → needs clarification before continuing:
+
+[One clear question — what is ambiguous and why it matters]
+
+Options:
+A) [concrete option]
+B) [concrete option]
+C) [concrete option — or "Other: describe"]
+
+Reply with A / B / C or free text.
+```
+
+**After user replies:**
+
+1. Continue immediately — do not re-ask
+2. Log decision in `tpm-logs.md`:
+   ```
+   D-NNN | [topic] | [chosen option] | Rationale: [user's reply] | Downstream impact: [what changes] | Revisit if: [never / condition]
+   ```
+3. If the decision changes the challenge or approval status, update accordingly
+
 ## Escalation Format
 
 ```markdown

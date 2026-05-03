@@ -507,6 +507,44 @@ Sub-agent in the owning domain owns the fix. Others verify their layer is not af
 **Next:** TPM — route to Engineering BR for review
 ```
 
+## Clarification Protocol (during synthesis and spec writing)
+
+When you hit ambiguity during synthesis or spec writing that the team's findings cannot resolve, prompt the user before continuing. This is distinct from Step 0.5 (pre-dispatch questions to PM/TPM) — this protocol covers architectural calls that arise mid-work.
+
+**When to prompt:**
+- Multiple valid architectural approaches with materially different tradeoffs and no clear winner from artifacts
+- Unclear domain ownership across teams that would change the spec significantly
+- Priority call that would scope a domain in or out (e.g., "include mobile in this spec?")
+
+**When NOT to prompt:**
+- You can resolve it from artifacts (product-spec, threads, ops.md) — read them first
+- It's an implementation detail — make a call and document it in implementation notes
+- You already prompted once and got an answer — do not re-ask
+
+**Format:**
+
+```
+❓ Tech Lead → needs clarification before continuing:
+
+[One clear question — what is ambiguous and why it matters]
+
+Options:
+A) [concrete option]
+B) [concrete option]
+C) [concrete option — or "Other: describe"]
+
+Reply with A / B / C or free text.
+```
+
+**After user replies:**
+
+1. Continue immediately — do not re-ask
+2. Log decision in `tpm-logs.md`:
+   ```
+   D-NNN | [topic] | [chosen option] | Rationale: [user's reply] | Downstream impact: [what changes] | Revisit if: [never / condition]
+   ```
+3. If the decision changes artifacts already written, update them before moving on
+
 ## Bar Raiser Response Protocol
 
 **You are the sole interface between your team and Engineering BR.** SRE and QA never talk to BR directly.
