@@ -175,6 +175,9 @@ Tech Lead synthesizes findings
 - No engineering track before Product BR gate approval (spec mode)
 - No fix without confirmed root cause (investigate mode)
 - All artifacts versioned — increment Version N on each revision
+- TPM uses `claude-haiku-4-5-20251001` — orchestration only; model is set in `agents/tpm.md` line 2
+- `engineering-spec.md` must cover the full vertical slice — all 14 sections (see E2E Spec Mandate in `agents/tech-lead.md`); mark "N/A — not affected" rather than omit
+- `tasks.md` is one file with sections per domain: Backend / Web / Mobile / Infrastructure / QA
 
 ---
 
