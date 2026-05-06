@@ -25,17 +25,5 @@
       "reason": "Required for /brocode develop and /brocode review — subagent-driven implementation, systematic debugging, plan execution, git worktrees, and PR creation",
       "installHint": "claude plugin install superpowers@claude-plugins-official --scope user"
     }
-  ],
-  "hooks": [
-    {
-      "event": "PreToolUse",
-      "tool": "Bash",
-      "command": "hooks/pre-tool-use-guard.sh"
-    },
-    {
-      "event": "PostToolUse",
-      "tool": "Write,Edit",
-      "command": "hooks/post-write-validate.sh"
-    }
   ]
 }
