@@ -715,6 +715,95 @@ Non-blocking observations (minor tradeoffs, style, low-stakes choices) go to `tp
 
 ---
 
+---
+
+## Browser Visual Companion Integration: Callback Detection
+
+Status: INTEGRATION POINT MARKED — Not yet implemented
+
+After key artifacts are written and approved, TPM should emit a browser-ready signal and poll for visual workflow decisions from the browser companion UI.
+
+**Integration points (in priority order):**
+
+1. **After product-spec.md approved (Product BR gate open)**
+   - Context: Product requirements finalized, UX flows complete
+   - Signal: Print `[ready] Browser visual companion at http://localhost:3847 — review UX flows`
+   - Poll: `.brocode/<id>/browser-choice.json` for up to 30 minutes
+   - Expected choice: `{ "choice": "proceed", "artifact": "product-spec.md", "feedback": "..." }`
+   - Action on choice:
+     - Read choice and feedback
+     - Log `D-NNN · DECISION · Browser` in tpm-logs.md (type: "visual feedback on UX flows")
+     - Delete `browser-choice.json`
+     - Continue to engineering track (Tech Lead dispatch)
+
+2. **After engineering-spec.md + tasks.md approved (before develop mode)**
+   - Context: Full spec finalized, implementation plan ready
+   - Signal: Print `[ready] Browser visual companion at http://localhost:3847 — review architecture diagram`
+   - Poll: `.brocode/<id>/browser-choice.json` for up to 30 minutes
+   - Expected choice: `{ "choice": "proceed_to_develop" | "request_revision", "artifact": "engineering-spec.md", "feedback": "..." }`
+   - Action on choice:
+     - If `proceed_to_develop`: delete file, transition to develop mode
+     - If `request_revision`: log as new BR challenge, re-dispatch Tech Lead with feedback
+
+3. **After each domain PR created (develop mode)**
+   - Context: Implementation complete for domain, PR link available
+   - Signal: Print `[ready] Browser visual companion at http://localhost:3847 — review <domain> implementation`
+   - Poll: `.brocode/<id>/browser-choice-<domain>.json` for up to 15 minutes
+   - Expected choice: `{ "choice": "approve" | "request_changes", "pr_url": "...", "feedback": "..." }`
+   - Action on choice:
+     - Log visual approval in tpm-logs.md
+     - Continue to next domain or finalize if all domains approved
+
+**Implementation pattern (pseudo-code):**
+
+```python
+function poll_browser_choice(callback_file, timeout_minutes=30, poll_interval_seconds=2):
+  start_time = now()
+  deadline = start_time + (timeout_minutes * 60)
+  
+  while now() < deadline:
+    if file_exists(callback_file):
+      choice = json_read(callback_file)
+      log_decision_entry(choice)
+      delete(callback_file)
+      return choice
+    sleep(poll_interval_seconds)
+  
+  timeout_error = f"Browser choice not received after {timeout_minutes} minutes"
+  log_escalation(timeout_error)
+  surface_to_user(timeout_error)
+  return None
+```
+
+**Logging in tpm-logs.md:**
+
+When browser choice is received, write:
+
+```markdown
+### [D-NNN] HH:MM · DECISION · Browser
+**[Visual feedback on <artifact>]**
+
+| Option | Description | Why considered / rejected |
+|--------|-------------|--------------------------|
+| A | User choice: <choice> | ✓ Chosen by browser visual companion |
+| B | [alternative] | Not chosen |
+
+**Chose:** A — User visual feedback
+**Rationale:** [feedback text from browser-choice.json]
+**Downstream impact:** [artifact affected, next step]
+**Revisit if:** [conditions for further revision]
+```
+
+**Files to modify (when implementation begins):**
+
+- `skills/brocode/modes/spec.md` — add callback detection after Product BR gate + after engineering-spec approved
+- `skills/brocode/modes/develop.md` — add callback detection after each domain PR created
+- `agents/tpm.md` — update "Coordination Protocol" section with browser callback handling
+- New file: `templates/browser-choice.schema.json` — JSON schema for callback file format
+- New file: `.brocode/<id>/browser-ready.log` — track all browser-ready signals during run (optional, for debugging)
+
+---
+
 ## Cross-Agent Routing
 
 | Message type | Route to |
@@ -729,4 +818,5 @@ Non-blocking observations (minor tradeoffs, style, low-stakes choices) go to `tp
 | Test coverage question | QA |
 | Product gap (pre-gate) | Product BR |
 | Technical gap (post-gate) | Engineering BR |
+| Browser visual feedback | TPM (callback) |
 | Unresolvable by agents | User |
