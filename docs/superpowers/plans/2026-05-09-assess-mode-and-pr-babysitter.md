@@ -58,6 +58,12 @@
 ## Need Improvement
 - <bullet, each item: what is weak, why, how to fix>
 
+## Change Profile
+<!-- code/PR mode only; otherwise omit section -->
+- **change_type:** <feature | bugfix | refactor | perf | security | docs>
+- **risk_band:** <low | medium | high | critical>
+- **rationale:** <one line: what drove the risk band>
+
 ## Pattern Deviations
 <!-- code mode only; otherwise omit section -->
 - file:line — observed X, team pattern Y, fix: Z
@@ -201,6 +207,16 @@ Tech Lead synthesizes into single assessment.md.
 - Maintainability — module boundaries, coupling
 - Security — input validation, auth, secret handling
 
+**Code/PR mode also emits (single label each, not 1–10):**
+- `change_type` ∈ {feature, bugfix, refactor, perf, security, docs} — diff intent classification
+- `risk_band` ∈ {low, medium, high, critical} — derived from blast radius (files touched), test-coverage delta, security score, lines changed:
+  - critical: security score < 5 OR > 1000 lines changed OR auth/payment paths touched
+  - high: security score < 7 OR > 300 lines OR test-coverage score < 5
+  - medium: > 100 lines OR pattern-adherence < 6
+  - low: everything else
+
+These are written to a `## Change Profile` section in assessment.md, only for code/PR inputs.
+
 **Overall = weighted average.** Default equal weights. `dimension_weights` from repos.json override.
 
 **Pattern source for code mode:** primary truth = live code analysis (grep + read targeted files). High-weight secondary = `CLAUDE.md` of the repo. Cache for orientation = `~/.brocode/wiki/<repo-slug>/` (existing knowledge base). Cache is not the scoring source.
@@ -246,7 +262,7 @@ git commit -m "Add assess mode for rating specs and code with multi-dim scoring"
 
 ## Purpose
 
-Polls open PRs at 10-minute intervals. Auto-addresses CI failures, review comments, conflicts. Auto-merges when approved + green. Maintains per-task tracker file at `~/.brocode/code/task-<slug>.md`.
+Polls open PRs at 270-second intervals (cache-aware; under Anthropic prompt-cache 5-min TTL — pattern from ruflo-autopilot ADR-0001). Auto-addresses CI failures, review comments, conflicts. Auto-merges when approved + green. Maintains per-task tracker file at `~/.brocode/code/task-<slug>.md` and append-only audit log at `~/.brocode/code/history.jsonl`.
 
 ## Trigger
 
@@ -254,7 +270,7 @@ After `gh pr create` succeeds, develop mode calls:
 
 ```
 ScheduleWakeup(
-  delaySeconds=600,
+  delaySeconds=270,
   prompt="<<brocode-babysit:<slug>>>",
   reason="poll PR <slug>"
 )
@@ -286,9 +302,10 @@ On entry:
 | else | log "waiting" | `pr-open` |
 
 5. Update `## Comments` section in tracker (severity classify; see below).
-6. Update `last_action_at` to current ISO-8601 time. Append log entry.
+6. Update `last_action_at` to current ISO-8601 time. Append log entry to tracker `## Log` section AND append one JSONL row to `~/.brocode/code/history.jsonl` (see History log section below).
 7. If status not in `{merged, escalated}` → re-arm:
-   `ScheduleWakeup(600, "<<brocode-babysit:<slug>>>", reason="<status>")`
+   - Default: `ScheduleWakeup(270, "<<brocode-babysit:<slug>>>", reason="<status>")`
+   - **Idle backoff:** if last 3 wakeups all transitioned to `pr-open` with no signal change, use `ScheduleWakeup(900, ...)` instead. Reset to 270s on next signal change. Track via `idle_ticks` counter in tracker frontmatter.
 
 ## CI fix sub-task
 
@@ -340,12 +357,24 @@ For each comment from `gh pr view --json comments`:
    - Style / typo / naming → `nit`
 3. **Cache** classification under `## Comments` in tracker keyed by comment id. Only re-classify new comments.
 
+## History log (every wakeup)
+
+Each wakeup appends one JSONL row to `~/.brocode/code/history.jsonl`:
+
+```json
+{"ts":"<ISO-8601>","slug":"<slug>","status_before":"<prev-status>","status_after":"<new-status>","action":"<action-taken>","duration_ms":<int>,"outcome":"ok|fail|escalated","ci_retries":<int>,"review_retries":<int>}
+```
+
+Append-only. Never rotated by brocode — user manages. Pattern: ruflo `worker-history` namespace (dispatch events + durations + verdicts).
+
+Use cases: post-hoc debugging of stuck PRs, retro analysis of escalation patterns, future learning signals.
+
 ## Cleanup (status=merged)
 
 ```bash
 git -C <worktree> worktree prune
 git worktree remove --force <worktree-path>
-echo "<ISO-8601> merged <slug> <pr_url>" >> ~/.brocode/code/history.log
+# final history.jsonl entry recorded by step 6 of wakeup handler before cleanup
 rm ~/.brocode/code/task-<slug>.md
 ```
 
@@ -723,12 +752,12 @@ For each domain with tasks (backend / web / mobile):
   9. **Arm babysitter:**
      ```
      ScheduleWakeup(
-       delaySeconds=600,
+       delaySeconds=270,
        prompt="<<brocode-babysit:<slug>>>",
        reason="poll PR <slug>"
      )
      ```
-  10. Print: `✅ TPM → <domain> PR raised (#<n>), babysitter armed (10m).`
+  10. Print: `✅ TPM → <domain> PR raised (#<n>), babysitter armed (270s, cache-aware).`
 
   **Note:** Worktree is NOT deleted at end of develop mode. Babysitter cleans up only after PR merges. If PR never merges (escalated), worktree persists for user inspection until `/brocode develop --abandon=<slug>`.
 ````
@@ -846,8 +875,9 @@ After the `### Develop mode` block in Flow summary, append:
 
 After develop opens a PR:
 - Tracker file `~/.brocode/code/task-<slug>.md` records state
-- `ScheduleWakeup` polls every 600s
+- `ScheduleWakeup` polls every 270s (cache-aware; under prompt-cache 5-min TTL — pattern from ruflo-autopilot ADR-0001). Idle backoff to 900s after 3 no-op ticks.
 - Each tick: address CI failures, review comments, rebase on conflict, auto-merge when approved
+- Each tick appends one JSONL row to `~/.brocode/code/history.jsonl` (audit trail, ruflo worker-history pattern)
 - Hard cap: 2 active worktrees (configurable via `worktree_cap`); excess tasks queue
 - Severity classification: prefix match (`must:` / `good:` / `nit:`) or LLM batch
 - On merge: worktree removed, tracker deleted, queued task promoted
