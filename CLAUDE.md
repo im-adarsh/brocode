@@ -25,7 +25,7 @@ Single entry point: `/brocode`
 
 **Lazy-loaded includes (read on trigger only — keep core agent files lean):**
 - `agents/_includes/_shared/swe-scan-protocol.md` — knowledge base scan + freshness + broad-read (deduped across swe-backend / swe-frontend / swe-mobile)
-- `agents/_includes/tech-lead/templates.md` — `engineering-spec.md` (14 sections) + `tasks.md` + `investigation.md` + `implementation-options.md` output templates (read at artifact-write time)
+- `agents/_includes/tech-lead/templates.md` — `engineering-spec.md` (15 sections) + `tasks.md` + `investigation.md` + `implementation-options.md` output templates (read at artifact-write time)
 - `agents/_includes/tech-lead/protocols.md` — BR Response Protocol + Clarification Protocol (read on BR challenge or mid-work ambiguity)
 
 **Mode shared library (loaded once per mode by `skills/brocode/SKILL.md`):**
@@ -35,6 +35,7 @@ Single entry point: `/brocode`
 - `skills/brocode/modes/_shared/br-loop.md` — Bar Raiser challenge/revise loop (parameterized; used by Product BR + Eng BR)
 - `skills/brocode/modes/_shared/dispatch-fanout.md` — Tech Lead parallel team dispatch + per-sub-agent scoping rules
 - `skills/brocode/modes/_shared/postlude.md` — final spec write + Eng BR final check + ADRs + decisions.md + retrospective + COMPLETE
+- `skills/brocode/modes/_shared/babysitter.md` — PR polling loop, state machine, severity classifier, resume logic (loaded by develop.md after PR opens and by SKILL.md on `<<brocode-babysit:` sentinel wakeup)
 
 **Templates (read on demand):**
 - `templates/tpm-logs.md` — file header + COMPLETE block format
@@ -105,7 +106,7 @@ Engineer agents read `~/.brocode/repos.json` (user-level, shared across all proj
 - Agents read `description`, `labels`, and `tags` to orient before exploring code
 - Domain → agent mapping: `backend` → Backend Engineer, `mobile` → Mobile Engineer, `web`/`fullstack` → Frontend Engineer, `terraform`/`infra`/`sre` → SRE, `qa` → QA
 - Missing path → agent warns user, never silent failure
-- Optional per-repo fields: `min_score` (assess threshold, default 7), `dimension_weights` (override scoring weights, default equal), `worktree_cap` (max concurrent active worktrees per babysitter, default 2)
+- Optional per-repo fields: `min_score` (assess threshold, default 7), `dimension_weights` (override scoring weights, default equal), `worktree_cap` (max concurrent active worktrees across all tasks, default 2)
 
 ---
 
@@ -226,7 +227,7 @@ Tech Lead synthesizes findings
 - No fix without confirmed root cause (investigate mode)
 - All artifacts versioned — increment Version N on each revision
 - TPM uses `claude-haiku-4-5-20251001` — orchestration only; model is set in `agents/tpm.md` line 2
-- `engineering-spec.md` must cover the full vertical slice — all 14 sections (see E2E Spec Mandate in `agents/tech-lead.md`); mark "N/A — not affected" rather than omit
+- `engineering-spec.md` must cover the full vertical slice — all 15 sections (see E2E Spec Mandate in `agents/tech-lead.md`); mark "N/A — not affected" rather than omit
 - `tasks.md` is one file with sections per domain: Backend / Web / Mobile / Infrastructure / QA
 - Every user-facing exchange (free-text USER messages, AskUserQuestion calls, SURFACE prints, ESCALATE prompts, CLAUDE responses) is logged to `conversation.md` with secret/key/token/password redaction — see `skills/brocode/modes/_shared/conversation-logging.md`
 - Sub-agents emit a `## Conversation Entry` block in their DONE report when user interaction occurs; TPM transcribes into `conversation.md`

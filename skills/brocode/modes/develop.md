@@ -53,7 +53,8 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
   - Else: derive slug, write tracker with `status: coding`, then proceed:
   1. Invoke `superpowers:using-git-worktrees` — create isolated worktree in that domain's repo for branch `brocode/<spec-id>-<domain>`
   2. Invoke `superpowers:writing-plans` — convert domain tasks from `tasks.md` into a superpowers plan at `docs/superpowers/plans/<spec-id>-<domain>.md` inside the worktree
-  3. Invoke `superpowers:subagent-driven-development` — execute plan task by task inside the worktree. Per-task loop:
+  3. Invoke `superpowers:test-driven-development` — write failing test per task before implementation
+  4. Invoke `superpowers:subagent-driven-development` — execute plan task by task inside the worktree. Per-task loop:
      a. Implementer subagent implements + self-reviews
      b. **DoD gate** — before spec compliance review, verify:
         - At least one commit exists for this task (`git log --oneline -1` non-empty)
@@ -75,7 +76,7 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
         Print on fail: `❌ TPM → QA failed: <TASK-ID> — <N> missing test cases. Re-dispatching implementer.`
      d. Spec compliance review
      e. Code quality review
-  4. Generate PR description from spec artifacts before finishing:
+  5. Generate PR description from spec artifacts before finishing:
      - Read `.brocode/<id>/engineering-spec.md` sections 1 (Problem Statement) and 11 (Rollback)
      - Read completed tasks for this domain from `.brocode/<id>/tasks.md`
      - Read test cases for this domain from `.brocode/<id>/test-cases.md`
@@ -103,9 +104,9 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
      - Apply label `tool::brocode` at PR creation: `gh pr create --label "tool::brocode" --body "<description>"` or `glab mr create --label "tool::brocode" --description "<description>"`
      - Print: `📋 TPM → PR description generated from spec artifacts`
      - Print: `🏷️ TPM → label applied: tool::brocode`
-  5. Invoke `superpowers:finishing-a-development-branch` — run tests and push branch only (PR already created in step 4 with generated description and label)
-  6. Update tracker: set `pr_url:` and `status: pr-open`. Append to `## Log`.
-  7. **Arm babysitter:**
+  6. Invoke `superpowers:finishing-a-development-branch` — run tests and push branch only (PR already created in step 5 with generated description and label)
+  7. Update tracker: set `pr_url:` and `status: pr-open`. Append to `## Log`.
+  8. **Arm babysitter:**
      ```
      ScheduleWakeup(
        delaySeconds=270,
@@ -114,7 +115,7 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
      )
      ```
      270s is cache-aware (under prompt-cache 5-min TTL — pattern from ruflo-autopilot ADR-0001). Babysitter logic in `skills/brocode/modes/_shared/babysitter.md` cleans up worktree only after PR merges.
-  8. Print: `✅ TPM → <domain> PR raised (#<n>), babysitter armed (270s, cache-aware).`
+  9. Print: `✅ TPM → <domain> PR raised (#<n>), babysitter armed (270s, cache-aware).`
 
   **Note:** Worktree is NOT deleted at end of develop mode. Babysitter cleans up only after PR merges. If PR never merges (escalated), worktree persists for user inspection until `/brocode develop --abandon=<slug>`.
 - Run domains in parallel where possible (independent repos).
@@ -138,7 +139,7 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
 ## Worktree Map
 | Domain | Branch | Worktree path | Status |
 |--------|--------|---------------|--------|
-| [backend] | [brocode/<id>-backend] | [/path] | CLEANED UP |
+| [backend] | [brocode/<id>-backend] | [/path] | PR_OPEN — babysitter armed (cleanup on merge) |
 ```
 
 TPM logs: `E-NNN · ARTIFACT · TPM` — evidence.md written, N domains complete
