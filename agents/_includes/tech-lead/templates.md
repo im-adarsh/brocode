@@ -5,7 +5,7 @@
 
 `engineering-spec.md` covers the **full vertical slice** — every layer affected. Mark sections "N/A — not affected" rather than omit.
 
-Required 14 sections (Engineering BR verifies all present + non-empty or explicitly N/A):
+Required 15 sections (Engineering BR verifies all present + non-empty or explicitly N/A):
 
 1. Problem Statement
 2. System Context (mermaid)
@@ -21,6 +21,7 @@ Required 14 sections (Engineering BR verifies all present + non-empty or explici
 12. Monitoring & Alerting
 13. Security
 14. Testing
+15. Executable Code Changes (per task: file paths, function signatures, pseudo-diff, call sites, test stub. `N/A — design-only` allowed only with explicit reason.)
 
 ## `engineering-spec.md` template
 

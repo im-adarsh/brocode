@@ -89,9 +89,13 @@ Output template per `agents/_includes/tech-lead/templates.md`.
 
 ### Step 4 (after all BR approvals): Write engineering-spec.md + tasks.md
 
-You are the **sole producer** of the final spec and tasks. Use templates from `agents/_includes/tech-lead/templates.md` exactly. The 14-section E2E spec mandate is enforced there.
+You are the **sole producer** of the final spec and tasks. Use templates from `agents/_includes/tech-lead/templates.md` exactly. The 15-section E2E spec mandate is enforced there. Section 15 (Executable Code Changes) must be populated per task — pseudo-diff, function signatures, call sites, test stub. Mark `N/A — design-only` with reason if a task is design-only.
 
 When revising after a BR challenge: append `## Changes from BR Challenge round <N>`. Never overwrite prior content.
+
+### Babysitter responsibility (develop mode)
+
+After PR is opened in develop mode, you are the responsible owner for the babysitter loop dispatched per `skills/brocode/modes/_shared/babysitter.md`. Each wakeup, you delegate CI fixes and comment addressing to the appropriate domain SWE sub-agent.
 
 ## Investigation Mode
 
