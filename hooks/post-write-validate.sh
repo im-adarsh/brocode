@@ -11,10 +11,15 @@ if ! echo "$FILE_PATH" | grep -qE "(agents/|skills/brocode/|commands/).*\.md$"; 
   exit 0
 fi
 
+# Skip companion / shared library files — they don't need Role/Model headers
+if echo "$FILE_PATH" | grep -qE "(agents/_includes/|skills/brocode/modes/_shared/)"; then
+  exit 0
+fi
+
 ERRORS=0
 
-# Agent files need Role + Model headers
-if echo "$FILE_PATH" | grep -q "agents/"; then
+# Top-level agent files need Role + Model headers (companions in _includes/ already skipped above)
+if echo "$FILE_PATH" | grep -qE "agents/[a-z-]+\.md$"; then
   if ! grep -q "^# Role:" "$FILE_PATH" 2>/dev/null; then
     echo "⚠️ brocode validate: $FILE_PATH missing '# Role:' header"
     ERRORS=$((ERRORS+1))

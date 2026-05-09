@@ -39,3 +39,6 @@ browser-companion/node_modules
 
 # Superpowers brainstorm session files — local only
 .superpowers/
+
+# Brocode brainstorm session files — local only
+.brocode/
