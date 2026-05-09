@@ -229,6 +229,35 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
 - Run domains in parallel where possible (independent repos).
 - Stop.
 
+### `status`
+If input is `status` or contains "task status" / "pr status" / "what's the status" / "list my tasks":
+
+1. List trackers: `ls ~/.brocode/code/task-*.md 2>/dev/null`. If none → print `No active tasks.` and stop.
+2. For each tracker file, read frontmatter + `## Comments` section.
+3. For each tracker with `status: pr-open|ci-fixing|review-addressing|rebasing|merging`, refresh from GitHub:
+   `gh pr view <pr_url> --json reviewRequests,reviews,comments` — extract reviewers (dedup logins from `reviewRequests.users[].login` + `reviews[].author.login`) and recount comments by cached severity.
+   Update tracker `## Comments` cache for any new comment ids (classify via prefix match; if no prefix → batch LLM-classify per `_shared/babysitter.md` rules).
+4. Print table:
+
+   ```
+   | Slug | Domain | Status | PR | Reviewers | Open | Must | Good | Nit | Last Action | Retries |
+   |------|--------|--------|----|-----------|------|------|------|-----|-------------|---------|
+   | <slug> | <domain> | <status> | #<pr-num> | <login,login> | <n> | <n> | <n> | <n> | <relative time> | ci:<n> rev:<n> |
+   ```
+
+   Columns:
+   - Slug, Domain, Status — from tracker frontmatter
+   - PR — `#<n>` from `pr_url` (or `—` if queued)
+   - Reviewers — comma-list of GitHub logins (or `—` if none / queued)
+   - Open — count of comments with `resolved=false`
+   - Must / Good / Nit — counts of `severity=must|good|nit` and `resolved=false`
+   - Last Action — `now - last_action_at` rounded (e.g., `3m ago`, `2h ago`)
+   - Retries — `ci:<ci_retries> rev:<review_retries>`
+
+5. Footer: `Active: <n>/<cap>  Queued: <n>` where Active = trackers with status not in `{merged, escalated, queued}`, Queued = `status: queued`. cap = `worktree_cap` from repos.json (default 2).
+
+Stop.
+
 ### `review` / `code-review`
 If input is `review` or `code-review` or contains "review this PR" / "review this MR" / "review the PR" / "review MR" or includes a GitHub/GitLab PR/MR URL:
 
