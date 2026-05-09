@@ -4,8 +4,8 @@ description: "Multi-agent SDLC. One command. Full engineering org."
 {{args}}
 
 ## Quick Reference
-**Modes:** INVESTIGATE · SPEC · DEVELOP · REVIEW · subcommands
-**Step 0 subcommands:** revise · repos · develop · review · export-adrs
+**Modes:** INVESTIGATE · SPEC · DEVELOP · REVIEW · ASSESS · subcommands
+**Step 0 subcommands:** revise · repos · develop · review · assess · status · export-adrs
 **Investigate flow:** Pre-flight → Tech Lead → parallel team → Engineering BR → spec → ADRs
 **Spec flow:** Pre-flight → PM → Product BR gate → Tech Lead → parallel team → Engineering BR → spec → ADRs
 **Read in full when:** First run in a session or ambiguous input
@@ -20,6 +20,9 @@ Detect mode from input, then read ONLY the relevant mode file:
 | feature / spec / build / design / add / new / PRD / "build X" / "add Y" | `skills/brocode/modes/spec.md` |
 | develop / implement / "build it" / "code it" / "start development" | `skills/brocode/modes/develop.md` |
 | review / PR URL / MR URL / "review this" / "code review" | `skills/brocode/modes/review.md` |
+| assess / rate / score / "how good is" / "compare specs" | `skills/brocode/modes/assess.md` |
+| status / "task status" / "pr status" | `skills/brocode/modes/subcommands.md` (status section) |
+| starts with `<<brocode-babysit:` | `skills/brocode/modes/_shared/babysitter.md` (run wakeup handler) |
 | repos / setup / revise / challenge / export-adrs / "add constraint" | `skills/brocode/modes/subcommands.md` |
 
 Do NOT read other mode files. Do NOT read `commands/brocode.md`.
