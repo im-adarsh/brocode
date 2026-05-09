@@ -11,6 +11,14 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
   Then restart Claude Code.
   ```
   Stop.
+- **Mandatory superpowers chain:** develop mode MUST invoke the following skills in order, no skip:
+  1. `superpowers:using-git-worktrees`
+  2. `superpowers:writing-plans`
+  3. `superpowers:test-driven-development`
+  4. `superpowers:subagent-driven-development`
+  5. `superpowers:systematic-debugging` (when stuck)
+  6. `superpowers:finishing-a-development-branch`
+  Skipping any of these is a develop-mode violation.
 - Read `~/.brocode/config.json`. If missing, create with defaults (see Pre-flight: Config Read in agents/tpm.md). Use `engineering_rounds` value for max retry limits when escalating DoD/QA gate failures.
 - Scan `.brocode/` for dirs with `engineering-spec.md` + `tasks.md`. If multiple, list and ask which. Record the directory name as `<id>` (e.g. `spec-20260429-oauth`) — all subsequent file paths use this value.
 - Read `~/.brocode/repos.json` for repo paths.
@@ -20,10 +28,33 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
   ```
   Effort ranges: S = 0.5–1h · M = 1–3h · L = 3–8h · XL = 8h+. Sum low ends for min, high ends for max.
   If any XL task found, print: `⚠️ TPM → XL task detected: <TASK-ID> — consider breaking down before starting`
+- **Assess threshold gate** — if `.brocode/<id>/assessment.md` exists:
+  - Read `Overall:` line. Parse score N.N.
+  - Read `Threshold:` line. Parse threshold N.
+  - If overall < threshold → print:
+    ```
+    ❌ TPM → assessment overall N.N below threshold N — develop blocked.
+        Failing dimensions:
+          - <dim>: <score> (<verdict>)
+        Run /brocode:brocode revise or update the spec, then re-run /brocode:brocode assess.
+    ```
+    Stop.
+  - Else print: `✅ TPM → assessment N.N ≥ threshold N — proceeding.`
+- If `.brocode/<id>/assessment.md` is absent → print `⚠️ TPM → no assessment.md found — proceeding without gate (run /brocode:brocode assess to enforce thresholds).` and continue.
 - For each domain with tasks (backend / web / mobile):
+  **Worktree cap and queue check** (before any worktree creation):
+  - Read `~/.brocode/repos.json` for `worktree_cap` of this repo (default 2).
+  - Count active trackers: `ls ~/.brocode/code/task-*.md 2>/dev/null | xargs grep -l "^status: \(coding\|pr-open\|ci-fixing\|review-addressing\|rebasing\|merging\)" 2>/dev/null | wc -l`
+  - If active count ≥ worktree_cap:
+    - Derive slug: `<domain>-<short-feature-id>` from spec id and domain (e.g. `backend-oauth-fix`).
+    - Write `~/.brocode/code/task-<slug>.md` from `templates/task-tracker.md` with `status: queued`. No worktree.
+    - Print: `⏸ TPM → <domain> queued (worktree cap <cap>/<cap> reached). Will start when slot frees.`
+    - Continue to next domain.
+  - Else: derive slug, write tracker with `status: coding`, then proceed:
   1. Invoke `superpowers:using-git-worktrees` — create isolated worktree in that domain's repo for branch `brocode/<spec-id>-<domain>`
   2. Invoke `superpowers:writing-plans` — convert domain tasks from `tasks.md` into a superpowers plan at `docs/superpowers/plans/<spec-id>-<domain>.md` inside the worktree
-  3. Invoke `superpowers:subagent-driven-development` — execute plan task by task inside the worktree. Per-task loop:
+  3. Invoke `superpowers:test-driven-development` — write failing test per task before implementation
+  4. Invoke `superpowers:subagent-driven-development` — execute plan task by task inside the worktree. Per-task loop:
      a. Implementer subagent implements + self-reviews
      b. **DoD gate** — before spec compliance review, verify:
         - At least one commit exists for this task (`git log --oneline -1` non-empty)
@@ -45,7 +76,7 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
         Print on fail: `❌ TPM → QA failed: <TASK-ID> — <N> missing test cases. Re-dispatching implementer.`
      d. Spec compliance review
      e. Code quality review
-  4. Generate PR description from spec artifacts before finishing:
+  5. Generate PR description from spec artifacts before finishing:
      - Read `.brocode/<id>/engineering-spec.md` sections 1 (Problem Statement) and 11 (Rollback)
      - Read completed tasks for this domain from `.brocode/<id>/tasks.md`
      - Read test cases for this domain from `.brocode/<id>/test-cases.md`
@@ -73,9 +104,20 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
      - Apply label `tool::brocode` at PR creation: `gh pr create --label "tool::brocode" --body "<description>"` or `glab mr create --label "tool::brocode" --description "<description>"`
      - Print: `📋 TPM → PR description generated from spec artifacts`
      - Print: `🏷️ TPM → label applied: tool::brocode`
-  5. Invoke `superpowers:finishing-a-development-branch` — run tests and push branch only (PR already created in step 4 with generated description and label)
-  6. Delete the worktree after PR is created: `git worktree remove --force <worktree-path>`
-  7. Print: `✅ TPM → <domain> PR raised, worktree cleaned up`
+  6. Invoke `superpowers:finishing-a-development-branch` — run tests and push branch only (PR already created in step 5 with generated description and label)
+  7. Update tracker: set `pr_url:` and `status: pr-open`. Append to `## Log`.
+  8. **Arm babysitter:**
+     ```
+     ScheduleWakeup(
+       delaySeconds=270,
+       prompt="<<brocode-babysit:<slug>>>",
+       reason="poll PR <slug>"
+     )
+     ```
+     270s is cache-aware (under prompt-cache 5-min TTL — pattern from ruflo-autopilot ADR-0001). Babysitter logic in `skills/brocode/modes/_shared/babysitter.md` cleans up worktree only after PR merges.
+  9. Print: `✅ TPM → <domain> PR raised (#<n>), babysitter armed (270s, cache-aware).`
+
+  **Note:** Worktree is NOT deleted at end of develop mode. Babysitter cleans up only after PR merges. If PR never merges (escalated), worktree persists for user inspection until `/brocode develop --abandon=<slug>`.
 - Run domains in parallel where possible (independent repos).
 
 **Write `.brocode/<id>/evidence.md`** (after all domains complete):
@@ -97,7 +139,7 @@ If input is `develop` or `implement` or contains "implement the spec" / "start d
 ## Worktree Map
 | Domain | Branch | Worktree path | Status |
 |--------|--------|---------------|--------|
-| [backend] | [brocode/<id>-backend] | [/path] | CLEANED UP |
+| [backend] | [brocode/<id>-backend] | [/path] | PR_OPEN — babysitter armed (cleanup on merge) |
 ```
 
 TPM logs: `E-NNN · ARTIFACT · TPM` — evidence.md written, N domains complete

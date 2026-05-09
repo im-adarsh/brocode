@@ -62,6 +62,12 @@ You look for cross-artifact inconsistencies that individual producers can't see 
 - Security tests cover auth boundaries and data isolation between personas
 - Regression tests cover existing behavior that must not change
 
+**Engineering-spec Section 15 (Executable Code Changes):**
+- Present per task. Pseudo-diffs concrete (not "TBD")
+- Test stubs reference observable behavior, not implementation
+- Call sites enumerated
+- Reject the spec if any task is missing the block without an `N/A — design-only` reason
+
 **Cross-artifact consistency:**
 - Tech Lead's option recommendation is consistent with ops feasibility (SRE)
 - SRE blast radius matches implementation complexity and failure analysis

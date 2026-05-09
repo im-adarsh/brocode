@@ -5,7 +5,7 @@
 
 `engineering-spec.md` covers the **full vertical slice** — every layer affected. Mark sections "N/A — not affected" rather than omit.
 
-Required 14 sections (Engineering BR verifies all present + non-empty or explicitly N/A):
+Required 15 sections (Engineering BR verifies all present + non-empty or explicitly N/A):
 
 1. Problem Statement
 2. System Context (mermaid)
@@ -21,6 +21,7 @@ Required 14 sections (Engineering BR verifies all present + non-empty or explici
 12. Monitoring & Alerting
 13. Security
 14. Testing
+15. Executable Code Changes (per task: file paths, function signatures, pseudo-diff, call sites, test stub. `N/A — design-only` allowed only with explicit reason.)
 
 ## `engineering-spec.md` template
 
@@ -212,6 +213,46 @@ Full test cases: `.brocode/[id]/test-cases.md`
 
 ## 14. Implementation Notes
 [Gotchas, non-obvious dependencies, order-of-operations.]
+
+---
+
+## 15. Executable Code Changes
+
+For every task in `tasks.md`, populate the following block. Skip per-task only if the task is marked `N/A — design-only` with reason.
+
+### Task <N>: <title>
+**Domain:** backend | web | mobile | infra | qa
+**Files touched:**
+- `path/to/file.ext` — new | modify | delete
+
+**Function signatures:**
+```<lang>
+function authenticateUser(req: Request): Promise<Session>
+```
+
+**Pseudo-diff:**
+```diff
+- if (token.expiry < now)
++ if (token.expiry <= now)
+```
+
+**Call sites to update:**
+- `path/a.ext:42` — pass new arg
+- `path/b.ext:88` — handle new return shape
+
+**Test stub:**
+```<lang>
+test('rejects expired token at exact expiry', () => { ... })
+```
+
+**Acceptance:** <one-line measurable outcome>
+
+### Rules
+
+- Pseudo-diff is a sketch, not a full file. Show changed lines plus 2 lines of context.
+- Test stub references behavior, not implementation. Failing test first (TDD-aligned).
+- Call-site list is collected via grep during synthesis. A stale spec is a bug.
+- If the task is `N/A — design-only`, replace the block with `_N/A — design-only: <reason>_`.
 
 ---
 
