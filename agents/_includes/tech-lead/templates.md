@@ -215,6 +215,46 @@ Full test cases: `.brocode/[id]/test-cases.md`
 
 ---
 
+## 15. Executable Code Changes
+
+For every task in `tasks.md`, populate the following block. Skip per-task only if the task is marked `N/A — design-only` with reason.
+
+### Task <N>: <title>
+**Domain:** backend | web | mobile | infra | qa
+**Files touched:**
+- `path/to/file.ext` — new | modify | delete
+
+**Function signatures:**
+```<lang>
+function authenticateUser(req: Request): Promise<Session>
+```
+
+**Pseudo-diff:**
+```diff
+- if (token.expiry < now)
++ if (token.expiry <= now)
+```
+
+**Call sites to update:**
+- `path/a.ext:42` — pass new arg
+- `path/b.ext:88` — handle new return shape
+
+**Test stub:**
+```<lang>
+test('rejects expired token at exact expiry', () => { ... })
+```
+
+**Acceptance:** <one-line measurable outcome>
+
+### Rules
+
+- Pseudo-diff is a sketch, not a full file. Show changed lines plus 2 lines of context.
+- Test stub references behavior, not implementation. Failing test first (TDD-aligned).
+- Call-site list is collected via grep during synthesis. A stale spec is a bug.
+- If the task is `N/A — design-only`, replace the block with `_N/A — design-only: <reason>_`.
+
+---
+
 ## References
 - Requirements: `.brocode/[id]/product-spec.md`
 - Implementation Options: `.brocode/[id]/implementation-options.md`
