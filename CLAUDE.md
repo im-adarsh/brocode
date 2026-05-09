@@ -61,7 +61,7 @@ All orchestration lives in `skills/brocode/SKILL.md`. Agents use superpowers ski
 
 | File | Triggers |
 |------|---------|
-| `skills/brocode/SKILL.md` | `/brocode:brocode <bug or feature>` · `/brocode:brocode repos` · `/brocode:brocode develop` · `/brocode:brocode review <url>` · `/brocode:brocode revise` |
+| `skills/brocode/SKILL.md` | `/brocode:brocode <bug or feature>` · `/brocode:brocode repos` · `/brocode:brocode develop` · `/brocode:brocode review <url>` · `/brocode:brocode revise` · `/brocode:brocode assess <path>` · `/brocode:brocode status` |
 
 > `commands/brocode.md` is a backwards-compatibility redirect stub — points to `skills/brocode/SKILL.md`.
 
@@ -76,7 +76,10 @@ Engineer agents read `~/.brocode/repos.json` (user-level, shared across all proj
       "path": "/path/to/api",
       "description": "Main REST API handling user accounts and billing",
       "labels": ["api", "billing"],
-      "tags": ["node", "express", "postgres"]
+      "tags": ["node", "express", "postgres"],
+      "min_score": 7,
+      "dimension_weights": { "clarity": 1.5, "feasibility": 1.0 },
+      "worktree_cap": 2
     },
     {
       "path": "/path/to/auth-service",
@@ -102,6 +105,7 @@ Engineer agents read `~/.brocode/repos.json` (user-level, shared across all proj
 - Agents read `description`, `labels`, and `tags` to orient before exploring code
 - Domain → agent mapping: `backend` → Backend Engineer, `mobile` → Mobile Engineer, `web`/`fullstack` → Frontend Engineer, `terraform`/`infra`/`sre` → SRE, `qa` → QA
 - Missing path → agent warns user, never silent failure
+- Optional per-repo fields: `min_score` (assess threshold, default 7), `dimension_weights` (override scoring weights, default equal), `worktree_cap` (max concurrent active worktrees per babysitter, default 2)
 
 ---
 
@@ -159,14 +163,42 @@ Tech Lead synthesizes → implementation-options.md
 ### Develop mode
 ```
 Requires: superpowers installed
-Reads: engineering-spec.md + tasks.md
-Per domain (backend / web / mobile) — parallel:
+Reads: engineering-spec.md + tasks.md + assessment.md (threshold gate, optional)
+Per domain (backend / web / mobile) — parallel (max 2 active worktrees, queue rest):
+    → write tracker ~/.brocode/code/task-<slug>.md (status: coding)
     → superpowers:using-git-worktrees  (isolated worktree)
     → superpowers:writing-plans
+    → superpowers:test-driven-development
     → superpowers:subagent-driven-development (per task: implement → spec review → quality review)
         ↕ superpowers:systematic-debugging if blocked
     → superpowers:finishing-a-development-branch → PR
-    → git worktree remove --force  (cleanup after PR)
+    → status: pr-open, ScheduleWakeup(270s, <<brocode-babysit:slug>>) → babysitter loop
+       (worktree NOT deleted; babysitter cleans up after merge)
+```
+
+### Assess mode
+```
+TPM writes instruction file → Tech Lead sub-agent dispatched
+Tech Lead:
+    spec input: read + score directly (5 spec dims)
+    code input: dispatch Backend / Frontend / Mobile / SRE / QA in parallel (5 code dims + change_type + risk_band)
+    comparison input: run rubric per spec → side-by-side table → pick winner
+Tech Lead writes .brocode/<id>/assessment.md
+    → terminal headline with verdict + score
+    → develop.md reads file later, blocks if overall < threshold
+```
+
+### PR babysitter (post-develop autonomy)
+```
+Tracker file ~/.brocode/code/task-<slug>.md records state
+ScheduleWakeup polls every 270s (cache-aware; ruflo-autopilot ADR-0001 pattern)
+   Idle backoff to 900s after 3 no-op ticks
+Each tick: address CI failures, review comments, rebase on conflict, auto-merge when approved
+Each tick appends one JSONL row to ~/.brocode/code/history.jsonl
+Hard cap: 2 active worktrees (configurable via worktree_cap); excess tasks queue
+Severity: prefix match (must:/good:/nit:) or LLM batch
+On merge: worktree removed, tracker deleted, queued task promoted
+On stuck (>3 retries on same job/thread or semantic conflict): status=escalated, surface to user
 ```
 
 ### Review mode
@@ -204,6 +236,10 @@ Tech Lead synthesizes findings
 ## Context directory structure
 
 ```
+~/.brocode/code/          ← per-task babysitter state (cross-project, persisted)
+  task-<slug>.md          ← per-task tracker (state machine, log, comment cache)
+  history.jsonl           ← append-only audit log (one row per babysitter wakeup)
+
 .brocode/<id>/
   brief.md                ← user input + clarified scope
   tpm-logs.md             ← TPM journal (E-NNN events + D-NNN decisions)
@@ -218,8 +254,9 @@ Tech Lead synthesizes findings
   investigation.md          ← Tech Lead (investigate mode)
   ops.md                    ← SRE
   test-cases.md             ← QA
-  engineering-spec.md       ← RFC — full self-contained spec (Tech Lead produces)
+  engineering-spec.md       ← RFC — full self-contained spec (Tech Lead produces; 15 sections incl. Executable Code Changes)
   tasks.md                  ← domain-scoped implementation tasks (Tech Lead produces)
+  assessment.md             ← Tech Lead (assess mode) — multi-dim 1-10 score + verdict + threshold gate
   br/
     product/
       req-challenge-r1.md   ← Product BR challenges on product-spec
