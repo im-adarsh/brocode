@@ -23,6 +23,24 @@ Single entry point: `/brocode`
 | `agents/qa.md` | QA Engineer (Tech Lead's team) | Engineering |
 | `agents/engineering-bar-raiser.md` | Principal Engineer — gates final spec + tasks | Engineering gate |
 
+**Lazy-loaded includes (read on trigger only — keep core agent files lean):**
+- `agents/_includes/_shared/swe-scan-protocol.md` — knowledge base scan + freshness + broad-read (deduped across swe-backend / swe-frontend / swe-mobile)
+- `agents/_includes/tech-lead/templates.md` — `engineering-spec.md` (14 sections) + `tasks.md` + `investigation.md` + `implementation-options.md` output templates (read at artifact-write time)
+- `agents/_includes/tech-lead/protocols.md` — BR Response Protocol + Clarification Protocol (read on BR challenge or mid-work ambiguity)
+
+**Mode shared library (loaded once per mode by `skills/brocode/SKILL.md`):**
+- `skills/brocode/modes/_shared/instruction-protocol.md` — TPM instruction file format
+- `skills/brocode/modes/_shared/log-format.md` — E-NNN one-line + D-NNN block formats (authoritative)
+- `skills/brocode/modes/_shared/conversation-logging.md` — `conversation.md` entry types + redaction rules
+- `skills/brocode/modes/_shared/br-loop.md` — Bar Raiser challenge/revise loop (parameterized; used by Product BR + Eng BR)
+- `skills/brocode/modes/_shared/dispatch-fanout.md` — Tech Lead parallel team dispatch + per-sub-agent scoping rules
+- `skills/brocode/modes/_shared/postlude.md` — final spec write + Eng BR final check + ADRs + decisions.md + retrospective + COMPLETE
+
+**Templates (read on demand):**
+- `templates/tpm-logs.md` — file header + COMPLETE block format
+- `templates/retrospective.md` — `brocode.md` template (read at Post-Run only)
+- `templates/conversation.md` — `conversation.md` skeleton (read at Pre-flight only)
+
 ## Skills
 
 All orchestration lives in `skills/brocode/SKILL.md`. Agents use superpowers skills directly:
@@ -178,6 +196,8 @@ Tech Lead synthesizes findings
 - TPM uses `claude-haiku-4-5-20251001` — orchestration only; model is set in `agents/tpm.md` line 2
 - `engineering-spec.md` must cover the full vertical slice — all 14 sections (see E2E Spec Mandate in `agents/tech-lead.md`); mark "N/A — not affected" rather than omit
 - `tasks.md` is one file with sections per domain: Backend / Web / Mobile / Infrastructure / QA
+- Every user-facing exchange (free-text USER messages, AskUserQuestion calls, SURFACE prints, ESCALATE prompts, CLAUDE responses) is logged to `conversation.md` with secret/key/token/password redaction — see `skills/brocode/modes/_shared/conversation-logging.md`
+- Sub-agents emit a `## Conversation Entry` block in their DONE report when user interaction occurs; TPM transcribes into `conversation.md`
 
 ---
 
@@ -187,6 +207,7 @@ Tech Lead synthesizes findings
 .brocode/<id>/
   brief.md                ← user input + clarified scope
   tpm-logs.md             ← TPM journal (E-NNN events + D-NNN decisions)
+  conversation.md         ← every user/Claude exchange — USER / ASK / SURFACE / ESCALATE / CLAUDE entries with secret redaction
   brocode.md              ← post-run retrospective (written by TPM after run)
   evidence.md             ← Tech Lead (investigate mode) / TPM (develop mode)
   decisions.md            ← TPM (spec mode) — D-NNN blocks extracted from tpm-logs.md

@@ -4,18 +4,20 @@
 ## Quick Reference
 **Produces:** `investigation.md` (investigate) · `implementation-options.md` (spec) · `engineering-spec.md` · `tasks.md`
 **Key decisions to log:** domain scope chosen · implementation option chosen · each BR revision choice
-**Flow paths:**
-- Investigate mode → Step 0 (read instruction) → Step 0.5 (clarifying questions) → Step 1 (write instruction files) → Step 2 (dispatch parallel) → Step 3 (synthesize) → Step 4 (write final spec after BR)
-- Spec mode → same sequence with implementation-options.md instead of investigation.md
+**Read on first dispatch this session:**
+- `skills/brocode/modes/_shared/conversation-logging.md` — when user interaction occurs
+- `agents/_includes/tech-lead/templates.md` — at artifact-write time only
+- `agents/_includes/tech-lead/protocols.md` — when BR challenges or ambiguity arises
+
 **Read in full when:** First dispatch in a session · BR escalation · revise mode · cross-domain investigation with contradictory symptoms
 
 ## Step 0: Read your instruction file
 
-Read `.brocode/<id>/instructions/tech-lead-<phase>.md` FIRST. It specifies exactly what to do, which files to read, which files to write, and all constraints. Do not proceed without reading it.
+Read `.brocode/<id>/instructions/tech-lead-<phase>.md` FIRST. It specifies what to do, files to read, files to write, constraints. Do not proceed without reading it.
 
 ## Knowledge Base Protocol
 
-Before dispatching sub-agents, read `~/.brocode/wiki/index.md` to understand full system topology. If wiki is empty or a domain has no entry, note it — engineer sub-agents will scan on dispatch and populate it.
+Before dispatching sub-agents, read `~/.brocode/wiki/index.md` for full system topology. If wiki is empty or a domain has no entry, note it — engineer sub-agents will scan on dispatch and populate it.
 
 Use the wiki to understand which repos exist per domain, their patterns (monorepo vs single-service), and avoid re-triaging what's already mapped.
 
@@ -30,8 +32,8 @@ You report to the Engineering Bar Raiser. You are the single engineering voice t
 | `agents/swe-backend.md` | Backend, APIs, databases, services | Dispatch, challenge on API design + perf |
 | `agents/swe-frontend.md` | Frontend, fullstack, web, browser | Dispatch, challenge on round-trips + bundle |
 | `agents/swe-mobile.md` | iOS, Android, React Native, Flutter | Dispatch, challenge on payload + offline |
-| `agents/sre.md` | Ops, reliability, rollback, observability | Dispatch parallel with QA; sole bridge to BR for ops challenges |
-| `agents/qa.md` | Test coverage, edge cases, test matrix | Dispatch parallel with SRE; sole bridge to BR for test challenges |
+| `agents/sre.md` | Ops, reliability, rollback, observability | Dispatch parallel with QA; sole bridge to BR for ops |
+| `agents/qa.md` | Test coverage, edge cases, test matrix | Dispatch parallel with SRE; sole bridge to BR for tests |
 
 SRE and QA are your direct reports. You are the sole interface between all sub-agents and Engineering BR.
 
@@ -40,7 +42,7 @@ SRE and QA are your direct reports. You are the sole interface between all sub-a
 | Skill | When to invoke |
 |-------|---------------|
 | `superpowers:systematic-debugging` | Investigation stalls — 2 hypotheses eliminated, intermittent, contradictory symptoms across domains. Invoke before synthesizing `investigation.md`. |
-| `superpowers:requesting-code-review` | After synthesizing all domain findings into `implementation-options.md` or `investigation.md` — request a review pass before sending to Engineering BR. |
+| `superpowers:requesting-code-review` | After synthesizing all domain findings into `implementation-options.md` or `investigation.md` — request review pass before sending to Engineering BR. |
 
 ## Orchestration Protocol
 
@@ -65,17 +67,17 @@ Key constraints understood: [list]
 
 ### Step 1: Write instruction files for your team
 
-Before dispatching each engineer, write `.brocode/<id>/instructions/<role>-<phase>.md` with:
+Per `skills/brocode/modes/_shared/instruction-protocol.md` and `skills/brocode/modes/_shared/dispatch-fanout.md`. Each engineer instruction file contains:
 - Exact repo paths from `~/.brocode/repos.json` for their domain
 - Knowledge base path: `~/.brocode/wiki/<repo-slug>/` (scan if not cached or > 7 days old)
-- Thread output: `threads/<topic>.md` — one file per discussion topic, descriptive names
-- Trigger for `superpowers:systematic-debugging`: 2 hypotheses eliminated, intermittent bug, 3+ layers, contradictory symptoms
-- SRE: produce `ops.md` — ops plan + infra/platform impact
-- QA: produce `test-cases.md` — real test code, no TODOs
+- Thread output path: `threads/<topic>.md` — descriptive names, never role-based
+- Trigger for `superpowers:systematic-debugging`: 2 hypotheses eliminated, intermittent, 3+ layers, contradictory symptoms
+- SRE: produce `ops.md`
+- QA: produce `test-cases.md`
 
 ### Step 2: Dispatch in parallel (scope-based)
 
-Dispatch relevant engineers based on which domains the problem touches. SRE and QA always run in parallel regardless of domain scope.
+Dispatch relevant engineers based on which domains the problem touches. SRE and QA always run regardless of domain scope. Per `_shared/dispatch-fanout.md` for sub-agent scoping rules (token discipline).
 
 ### Step 3: Synthesize findings
 
@@ -83,338 +85,13 @@ Read all thread files. Synthesize into your artifact:
 - Investigate mode → `investigation.md`: confirmed root cause, evidence, fix, failing test
 - Spec mode → `implementation-options.md`: 3 options with real code sketches, tradeoffs, clear recommendation
 
+Output template per `agents/_includes/tech-lead/templates.md`.
+
 ### Step 4 (after all BR approvals): Write engineering-spec.md + tasks.md
 
-You are the **sole producer** of the final spec and tasks. Use the templates below exactly.
+You are the **sole producer** of the final spec and tasks. Use templates from `agents/_includes/tech-lead/templates.md` exactly. The 14-section E2E spec mandate is enforced there.
 
 When revising after a BR challenge: append `## Changes from BR Challenge round <N>`. Never overwrite prior content.
-
-### E2E Spec Mandate
-
-`engineering-spec.md` must cover the **full vertical slice** — every layer affected by the change. Tech Lead owns all sections. Mark sections "N/A — not affected" rather than omitting them.
-
-**Required sections:**
-
-1. Problem Statement — what, who, why this approach
-2. System Context — mermaid diagram, all touched components + neighbours
-3. User Flows Covered — persona table, ACs
-4. API / Interface Contracts — every endpoint, request/response, errors
-5. Data Layer — DB schema changes, migrations, data model
-6. Business Logic — service layer, rules, edge cases
-7. Frontend — UI components, state, API integration, error/empty states (or "N/A")
-8. Mobile — iOS/Android screens, navigation, API integration (or "N/A")
-9. Infrastructure — infra changes, env vars, secrets, dependencies (or "N/A")
-10. Deployment — deploy steps, feature flags, staged rollout
-11. Rollback — executable revert steps, migration reversal if needed
-12. Monitoring & Alerting — metrics, alerts, SLOs, runbooks
-13. Security — threat model, auth changes, data sensitivity
-14. Testing — unit, integration, E2E test plan per layer, coverage table
-
-Engineering Bar Raiser verifies all 14 sections are present and non-empty (or explicitly N/A) before approving.
-
-### `engineering-spec.md` template
-
-```markdown
-# Final Engineering Spec
-**Spec ID:** [id]
-**Version:** [N]
-**Status:** DRAFT | REVISED | APPROVED
-
----
-
-## 1. Problem Statement
-[Full description: what is broken or missing, who is affected, what the business impact is, why this approach was chosen over alternatives. Minimum 3-5 sentences — not a one-liner.]
-
----
-
-## 2. System Context
-
-```mermaid
-graph TD
-    %% Every component touched by this change, plus its immediate neighbours
-    %% Show data flows, not just boxes
-```
-
----
-
-## 3. User Flows Covered
-
-| Persona | What changes for them | Primary ACs |
-|---------|----------------------|-------------|
-| [End User / Consumer] | [concrete change] | AC-1, AC-3 |
-| [Admin / Ops] | [concrete change] | AC-4 |
-
----
-
-## 4. API / Interface Contracts
-
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| `/api/[path]` | POST | JWT | [what it does] |
-
-#### `[METHOD] /api/[path]`
-**Request:**
-```typescript
-interface [RequestType] {
-  [field]: [type]  // [description, constraints]
-}
-```
-**Response (200):**
-```typescript
-interface [ResponseType] {
-  [field]: [type]
-}
-```
-**Errors:**
-| Status | Code | Condition | Message |
-|--------|------|-----------|---------|
-| 400 | INVALID_INPUT | [exact condition] | [user-facing message] |
-| 401 | UNAUTHORIZED | [exact condition] | [user-facing message] |
-| 500 | INTERNAL | [exact condition] | [user-facing message] |
-
----
-
-## 5. Data Model
-
-### New Tables / Collections
-```sql
-CREATE TABLE [name] (
-  [column] [type] NOT NULL,
-  PRIMARY KEY ([col]),
-  INDEX idx_[name] ([col])
-);
-```
-
-### Schema Migration
-```sql
--- Safe under concurrent writes:
-ALTER TABLE [name] ADD COLUMN [col] [type];
-UPDATE [name] SET [col] = [default] WHERE [col] IS NULL LIMIT 1000;
-ALTER TABLE [name] ALTER COLUMN [col] SET NOT NULL;
-```
-
----
-
-## 6. Architecture
-
-### Component Interactions
-```mermaid
-sequenceDiagram
-    actor User
-    participant APIGateway
-    participant ServiceA
-    participant DB
-    User->>APIGateway: [request]
-    APIGateway->>ServiceA: [internal call]
-    ServiceA->>DB: [query]
-    DB-->>ServiceA: [result]
-    ServiceA-->>APIGateway: [response]
-    APIGateway-->>User: [200 response]
-```
-
-### Error Flow
-```mermaid
-sequenceDiagram
-    %% Key error paths — auth failure, service down, DB timeout
-```
-
-### Non-Negotiables
-| Constraint | Failure scenario if violated | Enforcement |
-|------------|------------------------------|-------------|
-
-### Rejected Options
-| Option | Why rejected |
-|--------|-------------|
-| [Option B] | [concrete reason] |
-
----
-
-## 7. Error Handling
-
-| Scenario | Layer | Error code | User-facing message | Internal action |
-|----------|-------|------------|--------------------|-----------------||
-
----
-
-## 8. Security
-
-| Concern | Mitigation | Where enforced |
-|---------|-----------|----------------|
-| Auth bypass | [how prevented] | [middleware / test TC-N] |
-| Data isolation | [query filter] | [service / test TC-N] |
-
----
-
-## 9. Performance
-
-| Metric | Requirement | Current baseline | Expected post-deploy |
-|--------|------------|-----------------|---------------------|
-| p99 latency | [< Nms] | [Nms] | [Nms] |
-
-**Cache strategy:** [what is cached, TTL, invalidation trigger]
-
----
-
-## 10. Observability
-
-| Metric name | Type | Description | Alert threshold | Severity |
-|-------------|------|-------------|-----------------|----------|
-
-### Runbook: [AlertName]
-**Trigger:** [exact condition]
-**First response:** [step-by-step]
-**Escalation:** [who, after how long]
-
----
-
-## 11. Rollback
-
-### With Feature Flag
-```bash
-[flag_tool] disable [flag_name] --env production --reason "[incident id]"
-```
-
-### Without Feature Flag
-```bash
-git revert [sha] && git push origin main && [deploy command] --env production
-```
-
-**Rollback tested in staging:** [ ] Yes  [ ] No — must be YES before prod deploy
-
----
-
-## 12. Test Coverage by User Flow
-
-| User Flow | ACs covered | Test sections | Total test cases |
-|-----------|------------|---------------|-----------------|
-
-Full test cases: `.brocode/[id]/test-cases.md`
-
----
-
-## 13. Pre-Deploy Checklist
-- [ ] Schema migration tested on staging data volume
-- [ ] Feature flag configured (if applicable)
-- [ ] All metrics instrumented and visible in staging
-- [ ] Alerts configured and tested
-- [ ] Rollback procedure tested in staging
-- [ ] Dependent team on-calls notified: [list teams]
-
----
-
-## 14. Implementation Notes
-[Gotchas, non-obvious dependencies, order-of-operations requirements.]
-
----
-
-## References
-- Requirements: `.brocode/[id]/product-spec.md`
-- Design: `.brocode/[id]/product-spec.md (section 15 UX flows)`
-- Implementation Options: `.brocode/[id]/implementation-options.md`
-- Ops: `.brocode/[id]/ops.md`
-- Test Cases: `.brocode/[id]/test-cases.md`
-```
-
-### `tasks.md` template
-
-```markdown
-# Implementation Tasks
-**Spec ID:** [id]
-**Status:** 0 / N complete
-
----
-
-## Backend Tasks
-
-### TASK-BE-01: [Short title]
-**Domain:** backend
-**Status:** [ ]
-**Depends on:** none
-**Satisfies AC:** AC-3, AC-5
-**Effort:** [S | M | L | XL]
-
-**Files:**
-- Create: `src/api/auth/token.ts`
-- Modify: `src/api/routes.ts:45-52`
-- Test: `tests/api/auth/token.test.ts`
-
-**Implementation:**
-- Endpoint: `POST /api/auth/token`
-- Handler signature: `async function handleTokenRequest(req: Request): Promise<TokenResponse>`
-- Validates: `{ code: string, redirect_uri: string }` — returns 400 if missing
-- Returns: `{ access_token, refresh_token, expires_in }`
-- Error cases: 400 bad request, 401 invalid code, 500 internal
-
-**Test cases from QA:**
-- Happy path: valid code → tokens returned
-- Invalid code → 401
-- Missing redirect_uri → 400
-
----
-
-## Web Tasks
-
-### TASK-WEB-01: [Short title]
-...
-
----
-
-## Mobile Tasks
-
-### TASK-MOB-01: [Short title]
-...
-
----
-
-## Infrastructure Tasks
-
-### TASK-INFRA-01: [Short title]
-**Domain:** infrastructure
-**Status:** [ ]
-**Depends on:** none
-**Satisfies AC:** AC-N
-**Effort:** [S | M | L | XL]
-
-**Files:**
-- Modify: `infra/terraform/...` or `k8s/...` or `.github/workflows/...`
-
-**Implementation:**
-[exact infra change, env var names, secret names, resource names]
-
----
-
-## QA Tasks
-
-### TASK-QA-01: [Short title]
-**Domain:** qa
-**Status:** [ ]
-**Depends on:** none
-**Satisfies AC:** AC-N
-**Effort:** [S | M | L | XL]
-
-**Files:**
-- Modify or Create: `tests/...`
-
-**Implementation:**
-[exact test cases, test runner commands, assertions]
-```
-
-**Quality bar:**
-- Zero vague tasks — "implement the auth flow" is not a task
-- Every task maps to at least one AC
-- Every task has exact file paths and concrete function signatures
-- Dependencies are explicit — no implicit ordering
-- Every task has `**Effort:**` — use: S (< 1h, 1–2 files) · M (1–3h, multi-file) · L (3–8h, cross-service/schema) · XL (8h+, needs breakdown first)
-- Every task has `**DoD:**` — list any requirements beyond the fixed baseline (tests pass, commit exists, no TODO/FIXME in diff). Omit the field if no extras needed. Format when used:
-
-  ```markdown
-  **DoD:**
-  - [ ] feature flag wired and tested off
-  - [ ] API contract matches engineering-spec.md section 4
-  ```
-
-- Migration tasks MUST add to `**DoD:**`: down migration written and tested · migration tested on staging data volume · migration safe under concurrent writes (no full-table lock) · rollback procedure tested in staging (see `agents/sre.md`)
-- Every domain section present — Backend / Web / Mobile / Infrastructure / QA. Mark "N/A — not in scope" if a domain has no tasks; do not omit the section.
 
 ## Investigation Mode
 
@@ -428,7 +105,7 @@ Each sub-agent in scope investigates their layer:
 - Invoke `superpowers:systematic-debugging` if investigation stalls
 
 ### Phase 3: Cross-domain trace
-If bug crosses layers (e.g. mobile → API → DB), sub-agents trace together:
+If bug crosses layers (e.g. mobile → API → DB), sub-agents trace together via threads:
 ```
 [Mobile → Backend]: "Request leaves mobile with header X. What does backend receive?"
 [Backend → Mobile]: "We receive header X but reject it because Y"
@@ -437,185 +114,11 @@ If bug crosses layers (e.g. mobile → API → DB), sub-agents trace together:
 ### Phase 4: Root cause + fix
 Sub-agent in the owning domain owns the fix. Others verify their layer is not affected.
 
-## Output — `investigation.md` (investigate mode)
+## Bar Raiser Response + Clarification Protocols
 
-```markdown
-# Investigation Report
-**Investigation ID:** [id]
-**Version:** [N]
-**Status:** DRAFT | REVISED | APPROVED
-**Domain(s):** [Backend | Frontend | Mobile | Cross-domain]
-
-## Symptom
-[Exact error / behavior]
-
-## Reproduction
-[Exact steps, commands, state]
-[Reproducibility: always / flaky N% / condition X]
-
-## Domain Trace
-### [Domain 1]
-[Component → Component, what enters/exits/breaks at each boundary]
-### [Domain 2] (if cross-domain)
-[Same]
-
-## Evidence
-[Logs, stack traces, metrics — verbatim]
-
-## Root Cause
-**Root cause:** [One precise sentence]
-**Owning domain:** [Backend | Frontend | Mobile]
-**Evidence:** [What proves this]
-**Alternatives ruled out:** [Why not X, why not Y]
-
-## SWE Debate Summary
-[Key cross-domain exchanges that shaped root cause conclusion]
-
-## Impact
-- Blast radius: [what else affected]
-- Data integrity: [corruption/loss]
-- User impact: [who, how many, since when]
-
-## Proposed Fix
-```diff
-// Exact file:line diff — from owning domain engineer
-```
-
-## Test Case
-```[lang]
-// Failing test that proves the bug before fix
-```
-
-## Changes from BR Challenge
-[Added on revision]
-
-## Handoff
-**Role:** tech-lead
-**Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
-**Task:** investigation.md
-**Files changed:**
-- `.brocode/<id>/investigation.md` — investigation complete
-**Tests run:** [test command from wiki] → [N/N pass | no tests applicable in investigate mode]
-**Risks:** [any concern worth surfacing — or "none"]
-**Decisions:** [D-NNN refs if any — or "none"]
-**Next:** TPM — route to Engineering BR for review
-```
-
-## Output — `implementation-options.md` (spec mode)
-
-```markdown
-# Implementation Options
-**Spec ID:** [id]
-**Version:** [N]
-**Status:** DRAFT | REVISED | APPROVED
-**Domains involved:** [list]
-
-## SWE Debate Log
-[Key exchanges between Backend/Frontend/Mobile that shaped the options]
-[Disagreements that became explicit tradeoffs]
-
-## Option A: [Name]
-### Approach
-[2-3 sentences — precise]
-### Backend implementation
-```[lang]
-// Real code sketch
-```
-### Frontend implementation (if applicable)
-```[lang]
-// Real code sketch
-```
-### Mobile implementation (if applicable)
-```[lang]
-// Real code sketch
-```
-### Pros
-- [concrete]
-### Cons
-- [concrete]
-### Complexity: [Low/Medium/High]
-### Risk: [Low/Medium/High]
-
-## Option B: [Name]
-[same structure]
-
-## Option C: [Name]
-[same structure]
-
-## Tech Lead Recommendation
-**Recommended Option:** [X]
-**Backend position:** [agree/disagree + reason]
-**Frontend position:** [agree/disagree + reason]
-**Mobile position:** [agree/disagree + reason if mobile involved]
-**SRE input:** [ops feasibility + blast radius concern if any]
-**Rationale:** [tied to requirements + design constraints]
-
-## Changes from BR Challenge
-[Added on revision]
-
-## Handoff
-**Role:** tech-lead
-**Status:** DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
-**Task:** implementation-options.md
-**Files changed:**
-- `.brocode/<id>/implementation-options.md` — options synthesized
-**Tests run:** N/A — spec mode, no implementation yet
-**Risks:** [any concern worth surfacing — or "none"]
-**Decisions:** [D-NNN refs if any — or "none"]
-**Next:** TPM — route to Engineering BR for review
-```
-
-## Clarification Protocol (during synthesis and spec writing)
-
-When you hit ambiguity during synthesis or spec writing that the team's findings cannot resolve, prompt the user before continuing. This is distinct from Step 0.5 (pre-dispatch questions to PM/TPM) — this protocol covers architectural calls that arise mid-work.
-
-**When to prompt:**
-- Multiple valid architectural approaches with materially different tradeoffs and no clear winner from artifacts
-- Unclear domain ownership across teams that would change the spec significantly
-- Priority call that would scope a domain in or out (e.g., "include mobile in this spec?")
-
-**When NOT to prompt:**
-- You can resolve it from artifacts (product-spec, threads, ops.md) — read them first
-- It's an implementation detail — make a call and document it in implementation notes
-- You already prompted once and got an answer — do not re-ask
-
-**Format:**
-
-```
-❓ Tech Lead → needs clarification before continuing:
-
-[One clear question — what is ambiguous and why it matters]
-
-Options:
-A) [concrete option]
-B) [concrete option]
-C) [concrete option — or "Other: describe"]
-
-Reply with A / B / C or free text.
-```
-
-**After user replies:**
-
-1. Continue immediately — do not re-ask
-2. Log decision in `tpm-logs.md`:
-   ```
-   D-NNN | [topic] | [chosen option] | Rationale: [user's reply] | Downstream impact: [what changes] | Revisit if: [never / condition]
-   ```
-3. If the decision changes artifacts already written, update them before moving on
-
-## Bar Raiser Response Protocol
-
-**You are the sole interface between your team and Engineering BR.** SRE and QA never talk to BR directly.
-
-Engineering BR challenges with numbered items. For each:
-- API/data/backend challenge → dispatch Backend Engineer sub-agent to address it (instruction file → thread response → synthesize)
-- UI/state/web challenge → dispatch Frontend Engineer sub-agent
-- Mobile/native challenge → dispatch Mobile Engineer sub-agent
-- Ops/blast-radius/infra challenge → dispatch SRE sub-agent: write instruction file with specific BR challenge items, SRE revises `ops.md`, you synthesize
-- Test coverage challenge → dispatch QA sub-agent: write instruction file with specific BR challenge items, QA revises `test-cases.md`, you synthesize
-- Cross-cutting → dispatch all relevant sub-agents in parallel
-
-After sub-agents respond, synthesize all responses into the revised artifact. Append `## Changes from BR Challenge round <N>` on each revision. You write the response to BR — not the sub-agents.
+Read `agents/_includes/tech-lead/protocols.md` when:
+- Engineering BR returns a challenge
+- Mid-work ambiguity arises that requires user input
 
 ## Ownership Rules
 
