@@ -10,7 +10,7 @@ Three coupled changes to brocode:
 
 1. **`assess` mode** — rate readiness of product specs, engineering specs, and code; compare multiple specs side-by-side. Multi-dimensional 1–10 scoring with strengths and need-improvement areas. Threshold gate blocks downstream work when artifact is not ready.
 2. **`engineering-spec.md` upgrade** — new Section 11 "Executable Code Changes" with per-task file paths, function signatures, pseudo-diffs, call sites, and test stubs. Engineer reads spec and has clear code shape to start.
-3. **Develop-mode autonomy** — develop runs through superpowers skills as hard default. After PR opens, agent enters a 10-minute polling loop that addresses CI failures, review comments, conflicts, and merges when approved. Per-task tracker files in `~/.brocode/code/`. Hard cap of 2 active worktrees with queueing for the rest. New `/brocode status` shows live state of all tasks.
+3. **Develop-mode autonomy** — develop runs through superpowers skills as hard default. After PR opens, agent enters a 270-second polling loop (cache-aware, under Anthropic prompt-cache 5-min TTL — pattern from ruflo-autopilot ADR-0001) that addresses CI failures, review comments, conflicts, and merges when approved. Per-task tracker files in `~/.brocode/code/`. Hard cap of 2 active worktrees with queueing for the rest. New `/brocode status` shows live state of all tasks.
 
 ## Why
 
@@ -63,6 +63,13 @@ Three coupled changes to brocode:
 - Test-coverage — present, meaningful
 - Maintainability — module boundaries, coupling
 - Security — input validation, auth, secret handling
+
+**Code/PR mode also emits:**
+
+- `change_type` ∈ {feature, bugfix, refactor, perf, security, docs} — single label classifying the diff intent (inspired by ruflo-jujutsu).
+- `risk_band` ∈ {low, medium, high, critical} — derived from blast radius, test coverage delta, security dim score, and lines changed.
+
+These are reported in assessment.md under a `## Change Profile` section, only for code/PR inputs.
 
 **Overall = weighted average.** Default equal weights. Configurable in `~/.brocode/repos.json` per project under `dimension_weights`.
 
@@ -267,7 +274,9 @@ escalation_reason: null
 
 ### Babysitter loop
 
-**Trigger:** PR opens. develop mode calls `ScheduleWakeup(delaySeconds=600, prompt="<<brocode-babysit:<slug>>>", reason="poll PR <slug>")`.
+**Trigger:** PR opens. develop mode calls `ScheduleWakeup(delaySeconds=270, prompt="<<brocode-babysit:<slug>>>", reason="poll PR <slug>")`.
+
+**Why 270s:** Anthropic prompt cache TTL is 5 minutes. 270s keeps the cache warm wakeup-to-wakeup; 300s+ pays a cache miss every tick. Pattern documented in ruflo-autopilot ADR-0001 ("cache-aware ScheduleWakeup heartbeat contract").
 
 The prompt sentinel `<<brocode-babysit:<slug>>>` is a brocode-specific marker. Implementation note: handler in `_shared/babysitter.md` parses the slug from the sentinel on wake. If ScheduleWakeup runtime cannot pass custom sentinels, fallback is `/loop 10m /brocode:brocode babysit <slug>` (user-driven). Decided in plan phase.
 
@@ -289,7 +298,7 @@ The prompt sentinel `<<brocode-babysit:<slug>>>` is a brocode-specific marker. I
 
 4. Update `## Comments` section in tracker (severity classify; see below).
 5. Update `last_action_at`. Append log entry.
-6. If status not terminal → `ScheduleWakeup(600s, "<<brocode-babysit:<slug>>>", reason)`.
+6. If status not terminal → `ScheduleWakeup(270s, "<<brocode-babysit:<slug>>>", reason)`. **Adaptive backoff:** if last wakeup outcome was "waiting" (no signal change) for 3 consecutive ticks, escalate interval to 900s (15min) until next signal change, then drop back to 270s. Reduces no-op wakeups when PR is idle (e.g., overnight while reviewers sleep).
 
 ### Comment severity classification
 
@@ -323,6 +332,16 @@ Active: 2/2  Queued: 1
 - Must / Good / Nit — counts from cached severity classifications.
 - Last Action — relative time since `last_action_at`.
 - Retries — `ci:<n> rev:<n>`.
+
+### Wakeup history log
+
+Every wakeup appends one JSONL line to `~/.brocode/code/history.jsonl`:
+
+```json
+{"ts":"2026-05-09T15:12:00Z","slug":"backend-auth-expiry-fix","status_before":"pr-open","status_after":"ci-fixing","action":"dispatch_swe_ci_fix","duration_ms":4231,"outcome":"ok","ci_retries":1,"review_retries":0}
+```
+
+Pattern adopted from ruflo `worker-history` namespace (dispatch events + durations + verdicts). Enables: debugging escalation patterns, retro analysis of stuck PRs, future learning signals. Append-only. Rotated by user — brocode does not auto-rotate.
 
 ### Resume on session restart
 
@@ -383,11 +402,12 @@ Loop stops. Worktree preserved. Tracker file kept until `--abandon`.
 3. `/brocode:brocode assess code <repo>` dispatches domain SWEs in parallel; output includes pattern-deviation list with file:line.
 4. Threshold below `min_score` blocks `/brocode develop` start.
 5. New `engineering-spec.md` written by Tech Lead contains Section 11 per task with all sub-fields. Eng BR rejects if missing.
-6. `/brocode:brocode develop` opens PR, then ScheduleWakeup loop runs every 600s, addressing CI / comments / conflicts autonomously, merging when approved.
+6. `/brocode:brocode develop` opens PR, then ScheduleWakeup loop runs every 270s (with idle backoff to 900s after 3 no-op ticks), addressing CI / comments / conflicts autonomously, merging when approved. Each wakeup appends a JSONL row to `~/.brocode/code/history.jsonl`.
 7. 3rd dev task started while 2 worktrees active → tracker file created with `status: queued`, no worktree. Promoted when slot frees.
 8. `/brocode:brocode status` prints table with Reviewers / Open / Must / Good / Nit columns populated correctly.
 9. Escalation prints terminal warning with resume/abandon hints; tracker preserved.
 10. Force-push restricted to PR branch. Trivial-conflict whitelist enforced. Auto-merge gated on `mergeable=MERGEABLE` and approval.
+11. Code/PR assessment.md includes a `## Change Profile` section with `change_type` (one of feature|bugfix|refactor|perf|security|docs) and `risk_band` (low|medium|high|critical).
 
 ---
 
